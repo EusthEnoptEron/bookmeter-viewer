@@ -1,0 +1,46 @@
+ html, body {
+    overflow: hidden;
+    width   : 100%;
+    height  : 100%;
+    margin  : 0;
+    padding : 0;
+}
+
+#container {
+    text-align: center;
+    margin-top: 5em;
+    transition: opacity 500ms linear;
+    position: absolute;
+    width: 100%;
+}
+
+#render-target {
+    /* position: absolute; */
+    display: none;
+    /* top: 0; */
+    /* left: 0; */
+    width   : 100%;
+    height  : 100%;
+    touch-action: none;
+    /* z-index: 0; */
+}
+
+#render-target.active {
+    display: block;
+}
+
+#render-target.active + #container {
+    opacity: 0.0;
+    z-index: -1;
+}
+
+button {
+    transition: background-color 200ms linear;
+}
+
+button[disabled] {
+    cursor: default;
+
+    background-color: #BBB !important;
+    border-color: #BBB !important;
+}
