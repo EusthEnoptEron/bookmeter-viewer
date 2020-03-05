@@ -15,7 +15,7 @@ export class CustomEngine extends Engine {
     public createEffect(baseName: any, attributesNamesOrOptions: string[] | any, uniformsNamesOrEngine: string[] | Engine, samplers?: string[], defines?: string, fallbacks?: EffectFallbacks,
         onCompiled?: (effect: Effect) => void, onError?: (effect: Effect, errors: string) => void, indexParameters?: any): Effect {
         if(typeof(baseName) == 'string' && (baseName as string).indexOf('custom') >= 0) {
-            attributesNamesOrOptions.attributes.push('customUvOffset', 'customUvScale');
+            attributesNamesOrOptions.attributes.push('_uvOffset', '_uvScale');
         }
 
         return super.createEffect(baseName, attributesNamesOrOptions, uniformsNamesOrEngine, samplers, defines, fallbacks, onCompiled, onError, indexParameters);

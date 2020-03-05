@@ -1,9 +1,9 @@
-import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2 } from '@babylonjs/core';
-import { PBRCustomMaterial } from '@babylonjs/materials/custom/pbrCustomMaterial';
+import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData } from '@babylonjs/core';
 import { BookEntry } from '../model/BookEntry';
 import { TextureAtlas } from './TextureAtlas';
 import { v4 as uuid } from 'uuid';
 import { UrlUtils } from '../util/UrlUtils';
+import { PBRScalableMaterial } from './materials/PBRScalableMaterial';
 
 export class BookBuilder {
     private _baseMesh: Mesh;
@@ -18,8 +18,8 @@ export class BookBuilder {
         this._baseMesh = meshes.meshes[1] as Mesh;
         this._baseMesh.setParent(null);
         this._baseMesh.setEnabled(false);
-        this._baseMesh.registerInstancedBuffer('customUvOffset', 2);
-        this._baseMesh.registerInstancedBuffer('customUvScale', 2);
+        this._baseMesh.registerInstancedBuffer(PBRScalableMaterial.ScaleKind, 2);
+        this._baseMesh.registerInstancedBuffer(PBRScalableMaterial.OffsetKind, 2);
         this._baseMesh.material = this.generateMaterial();
     }
 
@@ -32,9 +32,9 @@ export class BookBuilder {
         const slot = await this.currentAtlas.addTextureAsync(UrlUtils.WrapUrl(book.book.image_url));
         const mesh = this._baseMesh.createInstance(book.book.title);
         this.currentAtlas.update();
-
-        mesh.instancedBuffers.customUvOffset = new Vector2(slot.x, slot.y);
-        mesh.instancedBuffers.customUvScale = new Vector2(slot.width, slot.height);
+        
+        mesh.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(slot.x, slot.y);
+        mesh.instancedBuffers[PBRScalableMaterial.ScaleKind] = new Vector2(slot.width, slot.height);
         
         mesh.setEnabled(true);
 
@@ -50,7 +50,8 @@ export class BookBuilder {
     }
 
     private generateMaterial(): PBRMaterial {
-        const mat = new PBRCustomMaterial(`bookMat-${uuid()}`, this.scene);
+        const mat = new PBRScalableMaterial(`bookMat-${uuid()}`, this.scene);
+
         const atlas = this.generateAtlas();
         this._atlases.push(atlas);
         
@@ -58,13 +59,6 @@ export class BookBuilder {
         mat.roughness = 0.7;
         mat.albedoTexture = atlas.texture;
         
-        mat.Vertex_Begin(`
-            attribute vec2 customUvOffset;
-            attribute vec2 customUvScale;
-        `);
-        mat.Vertex_Before_PositionUpdated(`
-            uvUpdated = (uvUpdated * customUvScale) + customUvOffset;
-        `);
         return mat;
     }
 

@@ -1,4 +1,4 @@
-import { DynamicTexture, Scene, Texture, VertexBuffer, FloatArray } from '@babylonjs/core';
+import { DynamicTexture, Scene, Texture } from '@babylonjs/core';
 import { v4 as uuid } from 'uuid';
 import { defaults as _defaults } from 'lodash';
 
@@ -51,19 +51,6 @@ export class TextureAtlas {
     get isFull(): boolean {
         return this.counter >= this.count;
     }
-
-    // reproject(buffer: FloatArray, slot: ISlot) {
-    //     console.log(buffer);
-    //     for(let i = 0; i < buffer.length; i += 2) {
-    //         buffer[i] = slot.x + this.normalizeUvComponent(buffer[i]) * slot.width;
-    //         buffer[i + 1] = slot.y + this.normalizeUvComponent(buffer[i + 1]) * slot.height;
-    //     }
-    // }
-
-    // private normalizeUvComponent(component: number) {
-    //     while(component < 0) component += 1;
-    //     return component % 1;
-    // }
 
     async addTextureAsync(url: string): Promise<ISlot> {
         if(this.isFull) {
