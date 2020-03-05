@@ -1,16 +1,14 @@
-import { BookEntry } from '../model/BookEntry';
-import { Engine, Scene, FreeCamera, Vector3, HemisphericLight, MeshBuilder, PBRMetallicRoughnessMaterial, Color3, SceneLoader, CannonJSPlugin, PhysicsImpostor, PhysicsViewer, AmmoJSPlugin, Quaternion, UniversalCamera, DirectionalLight, ShadowGenerator, Mesh, TransformNode, Texture, Tools, Animation, FramingBehavior, EasingFunction, ActionManager, ExecuteCodeAction, InstancedMesh, AbstractMesh, CubeTexture, TexturePacker, VertexBuffer, Color4, Vector2, Effect } from '@babylonjs/core';
+import { AbstractMesh, ActionManager, AmmoJSPlugin, Animation, Color3, CubeTexture, DirectionalLight, Engine, ExecuteCodeAction, FreeCamera, MeshBuilder, PBRMetallicRoughnessMaterial, PhysicsImpostor, Scene, ShadowGenerator, Tools, Vector3 } from '@babylonjs/core';
+import "@babylonjs/core/Debug/debugLayer";
+import '@babylonjs/gui';
+import '@babylonjs/inspector';
+import '@babylonjs/loaders';
 // import cannon from 'cannon';
 import ammojs from 'ammojs-typed';
-import '@babylonjs/loaders';
-import '@babylonjs/gui';
-import "@babylonjs/core/Debug/debugLayer";
-import '@babylonjs/inspector';
 import _ from 'lodash';
-import { PBRCustomMaterial } from '@babylonjs/materials';
-import { TextureAtlas } from './TextureAtlas';
-import { CustomEngine } from './CustomEngine';
+import { BookEntry } from '../model/BookEntry';
 import { BookBuilder } from './BookBuilder';
+import { CustomEngine } from './CustomEngine';
 
 export class LibraryController {
     private entries: BookEntry[];
