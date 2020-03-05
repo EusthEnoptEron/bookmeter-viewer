@@ -5,7 +5,7 @@ import { BookEntry } from '../model/BookEntry';
 import { BookResponse } from '../model/BookResponse';
 import async  from 'async';
 
-import { range } from 'lodash-es';
+import { range } from 'lodash';
 import { UserInfo } from '../model/UserInfo';
 
 const READ_URL = 'https://bookmeter.com/users/%d/books/read.json?page=%d';

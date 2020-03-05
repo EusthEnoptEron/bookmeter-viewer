@@ -4,7 +4,7 @@ import { AmazonUrls } from './AmazonUrls';
 export interface Book {
     id: number;
     path: string;
-    amazon_urls: AmazonUrls;
+    amazon_urls?: AmazonUrls;
     title: string;
     image_url: string;
     registration_count: number;

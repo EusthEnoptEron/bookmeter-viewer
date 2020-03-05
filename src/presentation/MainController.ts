@@ -1,5 +1,5 @@
 import { Router } from '../util/Router';
-import isEmpty from 'lodash-es/isEmpty';
+import isEmpty from 'lodash/isEmpty';
 import { filter } from 'rxjs/operators';
 import { BackendClient } from '../backend/BackendClient';
 import { LibraryController } from './LibraryController';

@@ -3,6 +3,7 @@ import { PBRCustomMaterial } from '@babylonjs/materials/custom/pbrCustomMaterial
 import { BookEntry } from '../model/BookEntry';
 import { TextureAtlas } from './TextureAtlas';
 import { v4 as uuid } from 'uuid';
+import { UrlUtils } from '../util/UrlUtils';
 
 export class BookBuilder {
     private _baseMesh: Mesh;
@@ -28,7 +29,7 @@ export class BookBuilder {
             this._isWarmedUp = true;
         }
 
-        const slot = await this.currentAtlas.addTextureAsync(book.book.image_url);
+        const slot = await this.currentAtlas.addTextureAsync(UrlUtils.WrapUrl(book.book.image_url));
         const mesh = this._baseMesh.createInstance(book.book.title);
         this.currentAtlas.update();
 

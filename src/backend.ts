@@ -4,6 +4,8 @@ import { BookmeterClient } from './backend/BookmeterClient';
 import fs from 'fs';
 import path from 'path';
 import { DateTime } from 'luxon';
+import Axios from 'axios';
+import { nextTick } from 'async';
 
 const port = 8080;
 const app = express()
@@ -32,6 +34,32 @@ async function loadStore() {
 }
 
 app.use(express.static(path.join(__dirname, '../dist')));
+
+app.get('/proxy', async function(req, res, next) {
+    const url = req.query.url;
+    if(url) {
+        try {
+            const headers = req.headers;
+            delete headers.host;
+            const response = await Axios.get(url, {
+                validateStatus: _ => true,
+                responseType: 'arraybuffer',
+                headers: headers
+            });
+
+            for(let header of Object.keys(response.headers)) {
+                res.header(header, response.headers[header]);
+            }
+
+            res.send(Buffer.from(response.data, 'binary'));
+        } catch(e) {
+            next(e);
+        }
+    } else 
+    {
+        res.status(400).send("No URL given.");
+    }
+});
 
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/books/:userId(\\d+)', async function (req, res, next) {

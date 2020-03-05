@@ -1,4 +1,4 @@
-import { trim } from 'lodash-es';
+import { trim } from 'lodash';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 enum Mode {

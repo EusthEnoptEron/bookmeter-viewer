@@ -1,6 +1,6 @@
 import { DynamicTexture, Scene, Texture, VertexBuffer, FloatArray } from '@babylonjs/core';
 import { v4 as uuid } from 'uuid';
-import { defaults as _defaults } from 'lodash-es';
+import { defaults as _defaults } from 'lodash';
 
 interface IAtlasOptions {
     size?: number,

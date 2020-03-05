@@ -2,7 +2,7 @@ import { AbstractMesh, ActionManager, AmmoJSPlugin, Animation, Color3, CubeTextu
 
 // import cannon from 'cannon';
 import ammojs from 'ammojs-typed';
-import { groupBy, sortBy } from 'lodash-es';
+import { groupBy, sortBy } from 'lodash';
 import { BookEntry } from '../model/BookEntry';
 import { BookBuilder } from './BookBuilder';
 import { CustomEngine } from './CustomEngine';
@@ -50,6 +50,7 @@ export class LibraryController {
         camera.checkCollisions = true;
         camera.applyGravity = true;
         camera.speed = 0.1;
+        camera.minZ = 0.01;
 
         camera.setTarget(Vector3.Zero());
         camera.attachControl(this.canvas, false);
