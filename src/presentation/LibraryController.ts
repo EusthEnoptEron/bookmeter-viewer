@@ -18,7 +18,9 @@ import {
     Vector3,
     PBRMaterial,
     VertexData,
-    HemisphericLight
+    HemisphericLight,
+    DynamicTexture,
+    Quaternion
 } from "@babylonjs/core";
 
 // import cannon from 'cannon';
@@ -33,6 +35,9 @@ import { CustomEngine } from "./CustomEngine";
 // import '@babylonjs/inspector';
 import "@babylonjs/loaders/glTF";
 import { BookShelf } from './BookShelf';
+import { Grouper } from './Grouper';
+import { DateTime } from 'luxon';
+import { BookGrouping } from './BookGrouping';
 
 export class LibraryController {
     private entries: BookEntry[];
@@ -62,7 +67,7 @@ export class LibraryController {
         // Setup camera
         const camera = new FreeCamera(
             "camera",
-            new Vector3(0, 2.0, -10),
+            new Vector3(0, 2.0, 0),
             this.scene
         );
         camera.keysDown.push("S".charCodeAt(0));
@@ -75,7 +80,6 @@ export class LibraryController {
         camera.speed = 0.1;
         camera.minZ = 0.01;
 
-        camera.setTarget(Vector3.Zero());
         camera.attachControl(this.canvas, false);
     
         // Setup lighting
@@ -154,148 +158,158 @@ export class LibraryController {
         }
 
         this.scene.disablePhysicsEngine();
-        let success = 0;
-        let fail = 0;
 
-        function getKey(book: BookEntry) {
-            return book.created_at.substr(0, 4);
-        }
+        const grouper = new Grouper(books);
+        // const groupings = grouper.group(book => {
+        //     return {
+        //         sortKey: book.created_at.substr(0, 4),
+        //         text: book.created_at.substr(0, 4)
+        //     };
+        // });
+        const groupings = grouper.group((book, i) => {
+            return {
+                sortKey: Math.floor(i / 40) + '',
+                text: '#' + (Math.floor(i / 40) + 1)
+            };
+        }, book => book.author_name);
 
-        // DateTime.fromFormat(el.created_at, 'yyyy/MM/dd')
-        const groups = groupBy(this.entries, getKey);
-        const keys = sortBy(Object.keys(groups), k => k);
-
+        const radius = 5;
         let focused: AbstractMesh = null;
         let focusedOrigin: [Vector3, Vector3];
         let focusChangeable = true;
-
         let counter = 0;
-        let existant = [];
+        let success = 0;
+        let fail = 0;
 
-        let bookShelves: { [key: string]: BookShelf } = {};
-        for (let book of books) {
-            try {
-                
-                const mesh = await this.bookBuilder.createMesh(book);
+        for(let i = 0; i < groupings.length; i++) {
+            const group = groupings[i];
+            const grouping = new BookGrouping(group[0].text, this.scene);
+            const angle = (i / groupings.length) * Math.PI * 2;
 
-                this.shadowGenerator.addShadowCaster(mesh);
+            this.shadowGenerator.addShadowCaster(grouping);
 
-                mesh.position = new Vector3(0, 5, 0);
-                mesh.setEnabled(true);
-                this.entities[book.id] = mesh;
+            grouping.position = new Vector3(
+                Math.cos(angle) * radius,
+                0.0,
+                Math.sin(angle) * radius
+            );
+            grouping.lookAt(Vector3.Zero());
+            grouping.group = group[0];
+            grouping.books = group[1];
 
-                let key = getKey(book);
-                let groupIndex = keys.indexOf(key);
-                let internalIndex = groups[key].indexOf(book);
-                
-                if(!bookShelves[key]) {
-                    let bookShelf = new BookShelf("BookShelf", this.scene, Math.max(1.0, BookShelf.CalculateOptimalWidth(groups[key].length, 4)));
-                    this.shadowGenerator.addShadowCaster(bookShelf);
-                    bookShelves[key] = bookShelf;
-                    bookShelf.position.x = groupIndex * (1.0 + 0.1);
-                }
 
-                let pos = bookShelves[key].getPosition(groups[key].length - internalIndex - 1);
-              
-                let rot = new Vector3(0, Math.PI * 0.5, 0);
-                let posName = `pos${counter}`;
-                let rotName = `rot${counter}`;
-                Animation.CreateAndStartAnimation(
-                    posName,
-                    mesh,
-                    "position",
-                    60,
-                    60,
-                    mesh.position,
-                    pos,
-                    Animation.ANIMATIONLOOPMODE_CONSTANT
-                );
-                Animation.CreateAndStartAnimation(
-                    rotName,
-                    mesh,
-                    "rotation",
-                    60,
-                    60,
-                    mesh.rotation,
-                    rot,
-                    Animation.ANIMATIONLOOPMODE_CONSTANT
-                );
+            for(let book of grouping.books) {
+                try {
+                    const mesh = await this.bookBuilder.createMesh(book);
+                    this.shadowGenerator.addShadowCaster(mesh);
+    
+                    mesh.position = new Vector3(0, 5, 0);
+                    mesh.setParent(grouping);
+                    
+                    this.entities[book.id] = mesh;
+                    const pos = grouping.getBookPosition(book);
+                    let rot = new Vector3(0, -Math.PI * 0.5, 0);
 
-                let actionManager = new ActionManager(this.scene);
-                mesh.actionManager = actionManager;
-                //ON MOUSE ENTER
-                mesh.actionManager.registerAction(
-                    new ExecuteCodeAction(
-                        ActionManager.OnPointerOverTrigger,
-                        async ev => {
-                            if (!focusChangeable) return;
+                    let posName = `pos${counter}`;
+                    let rotName = `rot${counter}`;
 
-                            if (focused) {
-                                console.log("Unfocus " + focused.name);
+                    Animation.CreateAndStartAnimation(
+                        posName,
+                        mesh,
+                        "position",
+                        60,
+                        60,
+                        mesh.position,
+                        pos,
+                        Animation.ANIMATIONLOOPMODE_CONSTANT
+                    );
+                    Animation.CreateAndStartAnimation(
+                        rotName,
+                        mesh,
+                        "rotation",
+                        60,
+                        60,
+                        mesh.rotation,
+                        rot,
+                        Animation.ANIMATIONLOOPMODE_CONSTANT
+                    );
+    
+                    let actionManager = new ActionManager(this.scene);
+                    mesh.actionManager = actionManager;
+                    //ON MOUSE ENTER
+                    mesh.actionManager.registerAction(
+                        new ExecuteCodeAction(
+                            ActionManager.OnPointerOverTrigger,
+                            async ev => {
+                                if (!focusChangeable) return;
+    
+                                if (focused) {
+                                    console.log("Unfocus " + focused.name);
+                                    this.scene.stopAnimation(focused);
+                                    Animation.CreateAndStartAnimation(
+                                        posName + "-temp",
+                                        focused,
+                                        "position",
+                                        60,
+                                        10,
+                                        focused.position,
+                                        focusedOrigin[0],
+                                        Animation.ANIMATIONLOOPMODE_CONSTANT
+                                    );
+                                    Animation.CreateAndStartAnimation(
+                                        rotName + "-temp",
+                                        focused,
+                                        "rotation",
+                                        60,
+                                        10,
+                                        focused.rotation,
+                                        focusedOrigin[1],
+                                        Animation.ANIMATIONLOOPMODE_CONSTANT
+                                    );
+                                }
+                                focused = mesh;
+                                focusChangeable = false;
+                                focusedOrigin = [pos, rot];
+    
+                                console.log("Focus " + mesh.name);
                                 this.scene.stopAnimation(focused);
                                 Animation.CreateAndStartAnimation(
-                                    posName + "-temp",
-                                    focused,
+                                    posName,
+                                    mesh,
                                     "position",
                                     60,
                                     10,
-                                    focused.position,
-                                    focusedOrigin[0],
+                                    mesh.position,
+                                    pos.add(new Vector3(0, 0, 0.2)),
                                     Animation.ANIMATIONLOOPMODE_CONSTANT
                                 );
                                 Animation.CreateAndStartAnimation(
-                                    rotName + "-temp",
-                                    focused,
+                                    rotName,
+                                    mesh,
                                     "rotation",
                                     60,
-                                    10,
-                                    focused.rotation,
-                                    focusedOrigin[1],
+                                    20,
+                                    mesh.rotation,
+                                    new Vector3(0, 0, 0),
                                     Animation.ANIMATIONLOOPMODE_CONSTANT
                                 );
                             }
-                            focused = mesh;
-                            focusChangeable = false;
-                            focusedOrigin = [pos, rot];
-
-                            console.log("Focus " + mesh.name);
-                            this.scene.stopAnimation(focused);
-                            Animation.CreateAndStartAnimation(
-                                posName,
-                                mesh,
-                                "position",
-                                60,
-                                10,
-                                mesh.position,
-                                pos.add(new Vector3(0, 0, -0.2)),
-                                Animation.ANIMATIONLOOPMODE_CONSTANT
-                            );
-                            Animation.CreateAndStartAnimation(
-                                rotName,
-                                mesh,
-                                "rotation",
-                                60,
-                                20,
-                                mesh.rotation,
-                                new Vector3(0, 0, 0),
-                                Animation.ANIMATIONLOOPMODE_CONSTANT
-                            );
-                        }
-                    )
-                );
-                mesh.actionManager.registerAction(
-                    new ExecuteCodeAction(
-                        ActionManager.OnPointerOutTrigger,
-                        async ev => {
-                            focusChangeable = true;
-                        }
-                    )
-                );
-
-                success++;
-            } catch (e) {
-                console.error(e);
-                fail++;
+                        )
+                    );
+                    mesh.actionManager.registerAction(
+                        new ExecuteCodeAction(
+                            ActionManager.OnPointerOutTrigger,
+                            async ev => {
+                                focusChangeable = true;
+                            }
+                        )
+                    );
+    
+                    success++;
+                } catch (e) {
+                    console.error(e);
+                    fail++;
+                }
             }
         }
 

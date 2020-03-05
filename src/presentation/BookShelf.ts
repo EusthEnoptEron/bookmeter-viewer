@@ -6,14 +6,16 @@ import {
     PBRMetallicRoughnessMaterial,
     Texture,
     Vector3,
-    AbstractMesh
+    AbstractMesh,
+    Node,
+    TransformNode
 } from "@babylonjs/core";
 
 import { PBRScalableMaterial } from "./materials/PBRScalableMaterial";
 import { Constants } from './Constants';
 const TEXTURE_PATH = "/assets/textures/Wood37";
 
-export class BookShelf extends Mesh {
+export class BookShelf extends AbstractMesh {
     private static _Material: PBRScalableMaterial;
 
     private _plates: AbstractMesh[] = [];
@@ -52,7 +54,7 @@ export class BookShelf extends Mesh {
         this._leftSide.position.x = -this._width * 0.5 + this._thickness * 0.5;
 
         this._backSide.position.y = 1.0;
-        this._backSide.position.z = this._depth * 0.5 - this._thickness * 0.5;
+        this._backSide.position.z = -this._depth * 0.5 + this._thickness * 0.5;
         this._backSide.scaling = new Vector3(
             this._width - this._thickness * 2,
             this._height,
@@ -98,6 +100,10 @@ export class BookShelf extends Mesh {
         return BookShelf.SpacePerBook * booksPerRow + 0.1;
     }
 
+    get rows() {
+        return this._plates.length - 1;
+    }
+
     get width() {
         return this._width;
     }
@@ -123,17 +129,21 @@ export class BookShelf extends Mesh {
         return this.spacePerRow * (this._plates.length - 1);
     }
 
-    getPosition(no: number): Vector3 {
+    getBookPosition(no: number): Vector3 {
         const col = no % this.spacePerRow;
-        const row = this._plates.length - Math.floor(no / this.spacePerRow) - 2;
+        const row = this.rows - Math.floor(no / this.spacePerRow) - 1;
 
         const pos = new Vector3(
-            -this.effectiveWidth * 0.5 + col * BookShelf.SpacePerBook + BookShelf.SpacePerBook * 0.5,
+            this.effectiveWidth * 0.5 - col * BookShelf.SpacePerBook - BookShelf.SpacePerBook * 0.5,
             this._plates[row].position.y + this._thickness * 0.5 + Constants.BOOK_HEIGHT * 0.5,
-            this._depth * 0.5 - this._thickness - Constants.BOOK_WIDTH * 0.5
+            -this._depth * 0.5 + this._thickness + Constants.BOOK_WIDTH * 0.5
         );
 
-        return Vector3.TransformCoordinates(pos, this.getWorldMatrix());
+        return pos;
+    }
+
+    getAbsoluteBookPosition(no: number): Vector3 {
+        return Vector3.TransformCoordinates(this.getBookPosition(no), this.getWorldMatrix());
     }
 
     private getMaterial(): PBRMetallicRoughnessMaterial {

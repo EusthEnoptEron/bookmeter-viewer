@@ -1,4 +1,4 @@
-import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData, MeshBuilder } from '@babylonjs/core';
+import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData, MeshBuilder, LinesMesh } from '@babylonjs/core';
 import { BookEntry } from '../model/BookEntry';
 import { TextureAtlas } from './TextureAtlas';
 import { v4 as uuid } from 'uuid';
@@ -38,6 +38,7 @@ export class BookBuilder {
         
         mesh.setEnabled(true);
 
+        LinesMesh
         return mesh;
     }
 
