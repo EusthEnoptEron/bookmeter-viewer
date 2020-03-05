@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { PBRCustomMaterial } from '@babylonjs/materials';
 import { TextureAtlas } from './TextureAtlas';
 import { CustomEngine } from './CustomEngine';
+import { BookBuilder } from './BookBuilder';
 
 export class LibraryController {
     private entries: BookEntry[];
@@ -18,6 +19,7 @@ export class LibraryController {
     private engine: Engine;
     private scene: Scene;
     private shadowGenerator: ShadowGenerator;
+    private bookBuilder: BookBuilder;
 
     constructor(
         private canvas: HTMLCanvasElement
@@ -25,7 +27,7 @@ export class LibraryController {
         window.addEventListener('resize', () => this.onResize())
     }
 
-    init() {
+    private init() {
         Tools.UseFallbackTexture = false;
 
         this.canvas.classList.add('active');
@@ -78,6 +80,8 @@ export class LibraryController {
         this.shadowGenerator = new ShadowGenerator(1024, light2);
         ground.receiveShadows = true;
 
+        this.bookBuilder = new BookBuilder(this.scene);
+
         this.scene.debugLayer.show({
             showExplorer: true,
             showInspector: true
@@ -102,21 +106,6 @@ export class LibraryController {
         }
         
         this.scene.disablePhysicsEngine();
-        const meshes = await SceneLoader.ImportMeshAsync('', '/assets/', 'book.glb', this.scene);
-
-        // container.meshes[1].physicsImpostor = new PhysicsImpostor(container.meshes[1], PhysicsImpostor.SphereImpostor, { mass: 0 }, this.scene);
-        let mesh = meshes.meshes[1] as Mesh;
-        mesh.setParent(null);
-        // const box = MeshBuilder.CreateBox('collider', { width: 0.2, depth: 0.25, height: 0.1 });
-        // box.physicsImpostor = new PhysicsImpostor(box, PhysicsImpostor.BoxImpostor,{ mass: 0}, this.scene);
-        // box.isVisible = false;
-        // box.setParent(mesh);
-
-        mesh.position.y = 2.0;
-        // mesh.physicsImpostor = new PhysicsImpostor(mesh, PhysicsImpostor.NoImpostor, { mass: 1.0, restitution: 0.1 }, this.scene);
-        mesh.setEnabled(false);
-
-        
         let success = 0;
         let fail = 0;
 
@@ -140,49 +129,15 @@ export class LibraryController {
         let counter = 0;
         let existant = [];
 
-        const atlas = new TextureAtlas({ frameSize: 128 }, this.scene);
-        const mat = new PBRCustomMaterial('bookMat', this.scene);
-        mat.metallic = 0;
-        mat.roughness = 0.7;
-        mat.albedoTexture = atlas.texture;
-        mat.Vertex_Begin(`
-            attribute vec2 customUvOffset;
-            attribute vec2 customUvScale;
-        `);
-
-        mat.Vertex_Before_PositionUpdated(`
-            uvUpdated = (uvUpdated * customUvScale) + customUvOffset;
-        `);
-    
-        mesh.material = mat;
-        const uvs = new Float32Array(mesh.getVerticesData(VertexBuffer.UVKind));
-        mesh.registerInstancedBuffer("customUvOffset", 2);
-        mesh.registerInstancedBuffer("customUvScale", 2);
-        
-        console.log(keys);
         for(let book of books) {
             try {
-                const slot = await atlas.addTextureAsync(book.book.image_url);
-                atlas.update();
+                const mesh = await this.bookBuilder.createMesh(book);
 
-                let newBook = mesh.createInstance(book.book.title);
-                this.shadowGenerator.addShadowCaster(newBook);
+                this.shadowGenerator.addShadowCaster(mesh);
 
-                // let newBook = mesh.clone(book.book.title);
-                // newBook.makeGeometryUnique();
-                newBook.position = new Vector3(0, 5, 0);
-                newBook.setEnabled(true);
-
-                newBook.instancedBuffers.customUvOffset = new Vector2(slot.x, slot.y);
-                newBook.instancedBuffers.customUvScale = new Vector2(slot.width, slot.height);
-
-                // const objUvs = new Float32Array(uvs);
-                // atlas.reproject(objUvs, slot);
-
-                // const buffer = new VertexBuffer(this.engine, objUvs, VertexBuffer.UVKind, false, false, 2, false);
-                // newBook.setVerticesBuffer(buffer);
-
-                this.entities[book.id] = newBook;
+                mesh.position = new Vector3(0, 5, 0);
+                mesh.setEnabled(true);
+                this.entities[book.id] = mesh;
 
                 let key = getKey(book);
                 let groupIndex = keys.indexOf(key);
@@ -199,13 +154,13 @@ export class LibraryController {
                 let rot = new Vector3(0, Math.PI * 0.5, 0);
                 let posName = `pos${counter}`;
                 let rotName = `rot${counter}`;
-                Animation.CreateAndStartAnimation(posName, newBook, 'position', 60, 60, newBook.position, pos, Animation.ANIMATIONLOOPMODE_CONSTANT);
-                Animation.CreateAndStartAnimation(rotName, newBook, 'rotation', 60, 60, newBook.rotation, rot, Animation.ANIMATIONLOOPMODE_CONSTANT);
+                Animation.CreateAndStartAnimation(posName, mesh, 'position', 60, 60, mesh.position, pos, Animation.ANIMATIONLOOPMODE_CONSTANT);
+                Animation.CreateAndStartAnimation(rotName, mesh, 'rotation', 60, 60, mesh.rotation, rot, Animation.ANIMATIONLOOPMODE_CONSTANT);
 
                 let actionManager = new ActionManager(this.scene);
-                newBook.actionManager = actionManager;
+                mesh.actionManager = actionManager;
                 //ON MOUSE ENTER
-                newBook.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, async (ev) => {
+                mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, async (ev) => {
                     if(!focusChangeable) return;
 
                     if(focused) {
@@ -214,24 +169,18 @@ export class LibraryController {
                         Animation.CreateAndStartAnimation(posName+"-temp", focused, 'position', 60, 10, focused.position, focusedOrigin[0], Animation.ANIMATIONLOOPMODE_CONSTANT);
                         Animation.CreateAndStartAnimation(rotName+"-temp", focused, 'rotation', 60, 10, focused.rotation, focusedOrigin[1], Animation.ANIMATIONLOOPMODE_CONSTANT);
                     }
-                    focused = newBook;
+                    focused = mesh;
                     focusChangeable = false;
                     focusedOrigin = [pos, rot];
-                    console.log("Focus " + newBook.name);
+                    console.log("Focus " + mesh.name);
                     this.scene.stopAnimation(focused);
-                    Animation.CreateAndStartAnimation(posName, newBook, 'position', 60, 10, newBook.position, pos.add(new Vector3(0,0, -0.2)), Animation.ANIMATIONLOOPMODE_CONSTANT);
-                    Animation.CreateAndStartAnimation(rotName, newBook, 'rotation', 60, 20, newBook.rotation, new Vector3(0, 0, 0), Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-                    // collider.actionManager = null;
-                    // await new Promise(r => setTimeout(r, 1000));
-                    // collider.actionManager = actionManager;
-
+                    Animation.CreateAndStartAnimation(posName, mesh, 'position', 60, 10, mesh.position, pos.add(new Vector3(0,0, -0.2)), Animation.ANIMATIONLOOPMODE_CONSTANT);
+                    Animation.CreateAndStartAnimation(rotName, mesh, 'rotation', 60, 20, mesh.rotation, new Vector3(0, 0, 0), Animation.ANIMATIONLOOPMODE_CONSTANT);
                 }));
-                newBook.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, async (ev) => {
+                mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, async (ev) => {
                     focusChangeable = true;
                 }));
-                // collider.physicsImpostor = new PhysicsImpostor(collider, PhysicsImpostor.BoxImpostor,{ mass: 0}, this.scene);
-                // newBook.physicsImpostor = new PhysicsImpostor(newBook, PhysicsImpostor.NoImpostor, { mass: 1.0, friction: 100, restitution: 0.5 }, this.scene);
+               
                 success++;
             } catch(e) {
                 console.error(e);
@@ -240,29 +189,8 @@ export class LibraryController {
 
         }
         
-        // console.log(Effect.ShadersStore[mat.customShaderNameResolve(null, null, null, null, null) + "PixelShader"]);
-        
         console.log("Success: " + success);
         console.log("Fail: " + fail);
-
-
-        
-        // console.log(keys);
-        // for(let key of keys) {
-        //     let books = groups[key];
-            
-        //     Animation.CreateAndStartAnimation("pos", newBook, 'position', 60, 60, new Vector3(0, 5, 0), new Vector3(0, 0.5, 0), Animation.ANIMATIONLOOPMODE_CONSTANT);
-        //     Animation.CreateAndStartAnimation("rot", newBook, 'rotation', 60, 60, Vector3.Zero(), new Vector3(Math.PI * 0.5, -Math.PI * 0.5, 0), Animation.ANIMATIONLOOPMODE_CONSTANT);
-        // }
-        
-        // Animation.CreateAndStartAnimation("test", newBook, 'position', 60, 60, new Vector3(0, 5, 0), new Vector3(0, 0, 0), Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-        
-
-        // this.shadowGenerator.addShadowCaster(mesh);
-        // mesh.physicsImpostor = new PhysicsImpostor(mesh)
-        // console.log(mesh);
-
     }
 
     private onResize() {
