@@ -1,4 +1,4 @@
-import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData } from '@babylonjs/core';
+import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData, MeshBuilder } from '@babylonjs/core';
 import { BookEntry } from '../model/BookEntry';
 import { TextureAtlas } from './TextureAtlas';
 import { v4 as uuid } from 'uuid';
@@ -32,7 +32,7 @@ export class BookBuilder {
         const slot = await this.currentAtlas.addTextureAsync(UrlUtils.WrapUrl(book.book.image_url));
         const mesh = this._baseMesh.createInstance(book.book.title);
         this.currentAtlas.update();
-        
+
         mesh.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(slot.x, slot.y);
         mesh.instancedBuffers[PBRScalableMaterial.ScaleKind] = new Vector2(slot.width, slot.height);
         
@@ -56,7 +56,7 @@ export class BookBuilder {
         this._atlases.push(atlas);
         
         mat.metallic = 0;
-        mat.roughness = 0.7;
+        mat.roughness = 0.4;
         mat.albedoTexture = atlas.texture;
         
         return mat;

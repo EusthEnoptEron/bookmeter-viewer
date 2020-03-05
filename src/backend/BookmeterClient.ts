@@ -27,7 +27,8 @@ export class BookmeterClient {
     }
 
     public static async GetResponse(userId: number, page?: number): Promise<BookResponse<BookEntry>>  {
-        const url = sprintf(READ_URL, userId, page ?? 0)
+        // Page is 1-based
+        const url = sprintf(READ_URL, userId, (page ?? 0) + 1)
         console.log(`Fetching ${url}...`);
         const response =  await axios.get(url);
         console.log(`Got response for ${url}`);

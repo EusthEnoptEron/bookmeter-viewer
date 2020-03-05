@@ -84,7 +84,6 @@ export class BookShelf extends Mesh {
             this._template.material = this.getMaterial();
             this._template.parent = this;
             this._template.receiveShadows = true;
-
             return this._template;
         }
 
@@ -126,7 +125,7 @@ export class BookShelf extends Mesh {
 
     getPosition(no: number): Vector3 {
         const col = no % this.spacePerRow;
-        const row = Math.floor(no / this.spacePerRow);
+        const row = this._plates.length - Math.floor(no / this.spacePerRow) - 2;
 
         const pos = new Vector3(
             -this.effectiveWidth * 0.5 + col * BookShelf.SpacePerBook + BookShelf.SpacePerBook * 0.5,

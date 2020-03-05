@@ -17,7 +17,8 @@ import {
     Tools,
     Vector3,
     PBRMaterial,
-    VertexData
+    VertexData,
+    HemisphericLight
 } from "@babylonjs/core";
 
 // import cannon from 'cannon';
@@ -76,22 +77,29 @@ export class LibraryController {
 
         camera.setTarget(Vector3.Zero());
         camera.attachControl(this.canvas, false);
-
+    
         // Setup lighting
+        var light = new HemisphericLight("light1", new Vector3(0, 1, 0), this.scene);
+        light.intensity = 0.6;
+        light.specular = Color3.Black();
+    
         // const light = new HemisphericLight('light1', new Vector3(0, 1, 0), this.scene);
         const light2 = new DirectionalLight(
             "dir01",
-            new Vector3(-1, -2, -1),
+            new Vector3(0, -0.5, -1.0),
             this.scene
         );
-        light2.position = new Vector3(20, 40, 20);
+        light2.position = new Vector3(0, 5, 5);
 
         const hdrTexture = CubeTexture.CreateFromPrefilteredData(
             "/assets/wooden_lounge_1kSpecularHDR.dds",
+            // "https://assets.babylonjs.com/environments/environmentSpecular.env",
             this.scene
         );
         hdrTexture.gammaSpace = false;
-        this.scene.environmentTexture = hdrTexture;
+        // hdrTexture.rotationY = Math.PI * 0.5;
+        // this.scene.environmentTexture = hdrTexture;
+        this.scene.createDefaultSkybox(hdrTexture);
 
         // Setup ground
         const ground = MeshBuilder.CreateBox(
@@ -104,7 +112,7 @@ export class LibraryController {
             "groundMat",
             this.scene
         );
-        groundMat.baseColor = new Color3(1.0, 1.0, 1.0);
+        groundMat.baseColor = new Color3(.3, .3, .3);
         groundMat.metallic = 0;
         groundMat.roughness = 0.9;
         ground.material = groundMat;
@@ -187,7 +195,7 @@ export class LibraryController {
                     bookShelf.position.x = groupIndex * (1.0 + 0.1);
                 }
 
-                let pos = bookShelves[key].getPosition(internalIndex);
+                let pos = bookShelves[key].getPosition(groups[key].length - internalIndex - 1);
               
                 let rot = new Vector3(0, Math.PI * 0.5, 0);
                 let posName = `pos${counter}`;
@@ -249,6 +257,7 @@ export class LibraryController {
                             focused = mesh;
                             focusChangeable = false;
                             focusedOrigin = [pos, rot];
+
                             console.log("Focus " + mesh.name);
                             this.scene.stopAnimation(focused);
                             Animation.CreateAndStartAnimation(
