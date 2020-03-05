@@ -5,7 +5,7 @@ import { BookEntry } from '../model/BookEntry';
 import { BookResponse } from '../model/BookResponse';
 import async  from 'async';
 
-import _ from 'lodash';
+import { range } from 'lodash-es';
 import { UserInfo } from '../model/UserInfo';
 
 const READ_URL = 'https://bookmeter.com/users/%d/books/read.json?page=%d';
@@ -41,7 +41,7 @@ export class BookmeterClient {
         const pageSize = firstPage.metadata.limit;
         const count = firstPage.metadata.count;
         const pageCount = Math.ceil(count / pageSize);
-        const pages = _.range(1, pageCount);
+        const pages = range(1, pageCount);
         
         // Push into entries array
         Array.prototype.push.apply(entries, firstPage.resources);

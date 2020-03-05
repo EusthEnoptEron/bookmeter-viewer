@@ -1,6 +1,6 @@
 import { DynamicTexture, Scene, Texture, VertexBuffer, FloatArray } from '@babylonjs/core';
-import { v4 as uuidv4 } from 'uuid';
-import _ from 'lodash';
+import { v4 as uuid } from 'uuid';
+import { defaults as _defaults } from 'lodash-es';
 
 interface IAtlasOptions {
     size?: number,
@@ -30,11 +30,11 @@ export class TextureAtlas {
     private cols: number;
 
     constructor(private options: IAtlasOptions, private scene: Scene) {
-        _.defaults(options, defaults);
+        _defaults(options, defaults);
 
         this.rows = this.cols = options.size / options.frameSize;
         this.count = this.rows * this.cols;
-        this.dt = new DynamicTexture(uuidv4(), {
+        this.dt = new DynamicTexture(uuid(), {
             width: options.size,
             height: options.size
         }, scene, true);
@@ -52,18 +52,18 @@ export class TextureAtlas {
         return this.counter >= this.count;
     }
 
-    reproject(buffer: FloatArray, slot: ISlot) {
-        console.log(buffer);
-        for(let i = 0; i < buffer.length; i += 2) {
-            buffer[i] = slot.x + this.normalizeUvComponent(buffer[i]) * slot.width;
-            buffer[i + 1] = slot.y + this.normalizeUvComponent(buffer[i + 1]) * slot.height;
-        }
-    }
+    // reproject(buffer: FloatArray, slot: ISlot) {
+    //     console.log(buffer);
+    //     for(let i = 0; i < buffer.length; i += 2) {
+    //         buffer[i] = slot.x + this.normalizeUvComponent(buffer[i]) * slot.width;
+    //         buffer[i + 1] = slot.y + this.normalizeUvComponent(buffer[i + 1]) * slot.height;
+    //     }
+    // }
 
-    private normalizeUvComponent(component: number) {
-        while(component < 0) component += 1;
-        return component % 1;
-    }
+    // private normalizeUvComponent(component: number) {
+    //     while(component < 0) component += 1;
+    //     return component % 1;
+    // }
 
     async addTextureAsync(url: string): Promise<ISlot> {
         if(this.isFull) {

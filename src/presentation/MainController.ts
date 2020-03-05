@@ -1,6 +1,6 @@
 import { Router } from '../util/Router';
-import _ from 'lodash';
-import { filter, first } from 'rxjs/operators';
+import isEmpty from 'lodash-es/isEmpty';
+import { filter } from 'rxjs/operators';
 import { BackendClient } from '../backend/BackendClient';
 import { LibraryController } from './LibraryController';
 
@@ -15,7 +15,7 @@ export class MainController {
             this.router = new Router();
 
             this.router.onState()
-                .pipe(filter(uri => !_.isEmpty(uri)))
+                .pipe(filter(uri => !isEmpty(uri)))
                 .subscribe(uri => this.onUser(uri));
 
             this.library = new LibraryController(this.canvas);
@@ -28,7 +28,7 @@ export class MainController {
         }
 
     private async onUser(user: string) {
-        if(!_.isEmpty(user)) {
+        if(!isEmpty(user)) {
             this.inputField.value = user;
             this.inputField.disabled = true;
             this.inputButton.disabled = true;
@@ -45,11 +45,11 @@ export class MainController {
     }
 
     private onValidate() {
-        this.inputButton.disabled = this.inputField.disabled || _.isEmpty(this.inputField.value);
+        this.inputButton.disabled = this.inputField.disabled || isEmpty(this.inputField.value);
     }
 
     private onVisualize() {
-        if(!_.isEmpty(this.inputField.value)) {
+        if(!isEmpty(this.inputField.value)) {
             this.router.navigate(this.inputField.value);
         }
     }

@@ -6,7 +6,7 @@ WebGL viewer for Bookmeter Libraries.
 To keep the backend built:
 
 ```
-> npm run watch-ts
+> npm run watch:ts
 ```
 
 To keep the frontend built:

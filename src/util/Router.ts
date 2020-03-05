@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { trim } from 'lodash-es';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 enum Mode {
@@ -28,7 +28,7 @@ export class Router {
 
     navigate(path: string) {
         if(this.mode == Mode.History) {
-            window.history.pushState(null, null, this.root + _.trim(path, '/'));
+            window.history.pushState(null, null, this.root + trim(path, '/'));
         } else {
             window.location.href =  window.location.href.replace(/#.*$/, '#' + path);
         }
@@ -40,7 +40,7 @@ export class Router {
         let fragment = '';
         if(this.mode == Mode.History) {
             fragment = decodeURI(window.location.pathname + window.location.search);
-            fragment = _.trim(fragment, '/').replace(/\?.+$/, '');
+            fragment = trim(fragment, '/').replace(/\?.+$/, '');
             if(this.root !== '/') {
                 fragment = fragment.replace(this.root, '');
             }
@@ -49,7 +49,7 @@ export class Router {
             fragment = match ? match[1] : '';
         }
 
-        return _.trim(fragment, '/');
+        return trim(fragment, '/');
     }
 
     private listen() {

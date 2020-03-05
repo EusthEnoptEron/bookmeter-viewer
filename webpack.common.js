@@ -1,14 +1,10 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: './src/frontend.ts',
-  mode: 'development',
-  devtool: 'inline-source-map',
-  devServer: {
-    contentBase: './dist',
-  },
   node: {
     fs: "empty"
   },
@@ -18,13 +14,14 @@ module.exports = {
       }),
       new CopyPlugin([
           'public'
-      ])
+      ]),
+    //   new BundleAnalyzerPlugin()
     ],
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: ['ts-loader'],
         exclude: /node_modules/,
       },
       {
@@ -36,7 +33,7 @@ module.exports = {
         use: [
           'file-loader',
         ],
-      },
+      }
     ],
   },
   resolve: {

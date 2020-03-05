@@ -1,14 +1,16 @@
 import { AbstractMesh, ActionManager, AmmoJSPlugin, Animation, Color3, CubeTexture, DirectionalLight, Engine, ExecuteCodeAction, FreeCamera, MeshBuilder, PBRMetallicRoughnessMaterial, PhysicsImpostor, Scene, ShadowGenerator, Tools, Vector3 } from '@babylonjs/core';
-import "@babylonjs/core/Debug/debugLayer";
-import '@babylonjs/gui';
-import '@babylonjs/inspector';
-import '@babylonjs/loaders';
+
 // import cannon from 'cannon';
 import ammojs from 'ammojs-typed';
-import _ from 'lodash';
+import { groupBy, sortBy } from 'lodash-es';
 import { BookEntry } from '../model/BookEntry';
 import { BookBuilder } from './BookBuilder';
 import { CustomEngine } from './CustomEngine';
+
+// import "@babylonjs/core/Debug/debugLayer";
+// import '@babylonjs/gui';
+// import '@babylonjs/inspector';
+import '@babylonjs/loaders/glTF';
 
 export class LibraryController {
     private entries: BookEntry[];
@@ -80,10 +82,10 @@ export class LibraryController {
 
         this.bookBuilder = new BookBuilder(this.scene);
 
-        this.scene.debugLayer.show({
-            showExplorer: true,
-            showInspector: true
-        })
+        // this.scene.debugLayer.show({
+        //     showExplorer: true,
+        //     showInspector: true
+        // })
 
         this.engine.runRenderLoop(() => {
             this.scene.render();
@@ -112,8 +114,8 @@ export class LibraryController {
         }
 
         // DateTime.fromFormat(el.created_at, 'yyyy/MM/dd')
-        const groups = _.groupBy(this.entries, getKey);
-        const keys = _.sortBy(Object.keys(groups), k => k);
+        const groups = groupBy(this.entries, getKey);
+        const keys = sortBy(Object.keys(groups), k => k);
         const lineCount = 10;
         const bookWidth = 0.06;
         const bookHeight = 0.27;

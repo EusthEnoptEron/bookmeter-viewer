@@ -1,9 +1,8 @@
 import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2 } from '@babylonjs/core';
-import uuid = require('uuid');
-import { PBRCustomMaterial } from '@babylonjs/materials';
+import { PBRCustomMaterial } from '@babylonjs/materials/custom/pbrCustomMaterial';
 import { BookEntry } from '../model/BookEntry';
 import { TextureAtlas } from './TextureAtlas';
-
+import { v4 as uuid } from 'uuid';
 
 export class BookBuilder {
     private _baseMesh: Mesh;
@@ -50,7 +49,7 @@ export class BookBuilder {
     }
 
     private generateMaterial(): PBRMaterial {
-        const mat = new PBRCustomMaterial(`bookMat-${uuid.v4()}`, this.scene);
+        const mat = new PBRCustomMaterial(`bookMat-${uuid()}`, this.scene);
         const atlas = this.generateAtlas();
         this._atlases.push(atlas);
         
