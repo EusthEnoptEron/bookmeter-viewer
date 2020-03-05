@@ -83,10 +83,6 @@ export class LibraryController {
         camera.attachControl(this.canvas, false);
     
         // Setup lighting
-        var light = new HemisphericLight("light1", new Vector3(0, 1, 0), this.scene);
-        light.intensity = 0.6;
-        light.specular = Color3.Black();
-    
         // const light = new HemisphericLight('light1', new Vector3(0, 1, 0), this.scene);
         const light2 = new DirectionalLight(
             "dir01",
@@ -168,8 +164,8 @@ export class LibraryController {
         // });
         const groupings = grouper.group((book, i) => {
             return {
-                sortKey: Math.floor(i / 40) + '',
-                text: '#' + (Math.floor(i / 40) + 1)
+                sortKey: Math.floor(i / 60) + '',
+                text: '#' + (Math.floor(i / 60) + 1)
             };
         }, book => book.author_name);
 

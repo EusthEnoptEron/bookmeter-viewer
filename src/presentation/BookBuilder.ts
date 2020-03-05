@@ -57,7 +57,7 @@ export class BookBuilder {
         this._atlases.push(atlas);
         
         mat.metallic = 0;
-        mat.roughness = 0.4;
+        mat.roughness = 0.7;
         mat.albedoTexture = atlas.texture;
         
         return mat;
