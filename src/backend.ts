@@ -51,7 +51,7 @@ app.get('/books/:userId(\\d+)', async function (req, res, next) {
         console.log(`Getting first-time entries for user ${userId}`);
 
         entry = new StoreEntry();
-        entry.promise = BookmeterClient.getAllBookEntries(userId);
+        entry.promise = BookmeterClient.GetAllBookEntries(userId);
         store[userId] = entry;
 
         try {
@@ -73,7 +73,7 @@ app.get('/books/:userName', async function (req, res, next) {
         return;
     }
     try {
-        const user = await BookmeterClient.findUser(req.params.userName);
+        const user = await BookmeterClient.FindUser(req.params.userName);
         if(user != null) {
             userMapping[req.params.userName] = user.id;
             res.redirect(`/books/${user.id}`);

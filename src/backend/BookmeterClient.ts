@@ -13,7 +13,7 @@ const SEARCH_URL = 'https://bookmeter.com/users/search.json?name=%s';
 
 export class BookmeterClient {
 
-    public static async findUser(userName: string): Promise<UserInfo|null>
+    public static async FindUser(userName: string): Promise<UserInfo|null>
     {
         const url = sprintf(SEARCH_URL, userName);
         const response = await axios.get(url);
@@ -26,7 +26,7 @@ export class BookmeterClient {
         return null;
     }
 
-    public static async getResponse(userId: number, page?: number): Promise<BookResponse<BookEntry>>  {
+    public static async GetResponse(userId: number, page?: number): Promise<BookResponse<BookEntry>>  {
         const url = sprintf(READ_URL, userId, page ?? 0)
         console.log(`Fetching ${url}...`);
         const response =  await axios.get(url);
@@ -34,10 +34,10 @@ export class BookmeterClient {
         return response.data as BookResponse<BookEntry>;
     }
 
-    public static async getAllBookEntries(userId: number): Promise<BookEntry[]>  {
+    public static async GetAllBookEntries(userId: number): Promise<BookEntry[]>  {
         const entries: BookEntry[] = [];
  
-        const firstPage = await this.getResponse(userId, 0);
+        const firstPage = await this.GetResponse(userId, 0);
         const pageSize = firstPage.metadata.limit;
         const count = firstPage.metadata.count;
         const pageCount = Math.ceil(count / pageSize);
@@ -50,7 +50,7 @@ export class BookmeterClient {
         const results: any = await async.mapLimit(pages, 10, async (p, callback) => {
             // The code is transpiled, so async can't automagically recognize async methods...
             try {
-                const results = await this.getBookEntries(userId, p);
+                const results = await this.GetBookEntries(userId, p);
                 callback(null, results);
             } catch(e) {
                 callback(e);
@@ -73,13 +73,13 @@ export class BookmeterClient {
      * Gets a book entries page
      * @param page 
      */
-    public static async getBookEntries(userId: number, page?: number): Promise<BookEntry[]>  {
-        const res = await this.getResponse(userId, page);
+    public static async GetBookEntries(userId: number, page?: number): Promise<BookEntry[]>  {
+        const res = await this.GetResponse(userId, page);
         return res.resources;
     }
     
-    public static async getAllBooks(userId: number): Promise<Book[]>  {
-        const entries = await this.getAllBookEntries(userId);
+    public static async GetAllBooks(userId: number): Promise<Book[]>  {
+        const entries = await this.GetAllBookEntries(userId);
         return entries.map(entry => entry.book);
     }
 
@@ -87,8 +87,8 @@ export class BookmeterClient {
      * Gets a book page.
      * @param page 
      */
-    public static async getBooks(userId: number, page?: number): Promise<Book[]> {
-        const entries = await this.getBookEntries(userId, page);
+    public static async GetBooks(userId: number, page?: number): Promise<Book[]> {
+        const entries = await this.GetBookEntries(userId, page);
         return entries.map(entry => entry.book);
     }
 }

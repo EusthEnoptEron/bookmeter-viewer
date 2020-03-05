@@ -33,7 +33,7 @@ export class MainController {
             this.inputField.disabled = true;
             this.inputButton.disabled = true;
             try {
-                const entries = await BackendClient.getBookEntries(user);
+                const entries = await BackendClient.GetBookEntries(user);
                 this.library.setEntries(entries);
                 
             } catch(e) {
