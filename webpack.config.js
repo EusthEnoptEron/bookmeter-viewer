@@ -9,6 +9,9 @@ module.exports = {
   devServer: {
     contentBase: './dist',
   },
+  node: {
+    fs: "empty"
+  },
   plugins: [
       new MiniCssExtractPlugin({
         filename: 'bundle.css',
