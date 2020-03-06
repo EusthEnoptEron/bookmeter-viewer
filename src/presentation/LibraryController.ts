@@ -31,7 +31,8 @@ import {
     TonemapPostProcess,
     Mesh,
     ParticleSystem,
-    Texture
+    Texture,
+    MotionBlurPostProcess
 } from "@babylonjs/core";
 
 import { SimpleMaterial } from "@babylonjs/materials/simple/simpleMaterial";
@@ -153,6 +154,7 @@ export class LibraryController {
             this.scene
         );
         ground.checkCollisions = true;
+        
         // ground.isVisible = false;
         // Setup shadows
         this.shadowGenerator = new ShadowGenerator(1024, light2);
@@ -173,6 +175,7 @@ export class LibraryController {
         });
 
         this.floorMesh = this.buildFloor();
+
     }
 
     private async buildFloor(): Promise<AbstractMesh> {

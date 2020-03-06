@@ -32,7 +32,7 @@ export class BookShelf extends AbstractMesh {
         private _height: number = 2.0,
         private _depth: number = 0.3,
         private _thickness: number = 0.03,
-        private _offset = .1,
+        private _offset = .15,
         plateCount: number = 5
     ) {
         super(name, scene);
