@@ -1,10 +1,12 @@
 import { IGrouping } from './Grouper';
-import { AbstractMesh, Node, Scene, Mesh, MeshBuilder, VertexBuffer, Color4, PBRMaterial, TransformNode, Vector3, Matrix } from '@babylonjs/core';
+import { AbstractMesh, Node, Scene, Mesh, MeshBuilder, VertexBuffer, Color4, PBRMaterial, TransformNode, Vector3, Matrix, PBRMetallicRoughnessMaterial, Texture, Vector4 } from '@babylonjs/core';
 import { BookShelf } from './BookShelf';
 import { BookEntry } from '../model/BookEntry';
 import randomColor from 'randomcolor';
 
 const PODEST_HEIGHT = 0.1;
+const MARBLE_TEXTURE_PATH = "/assets/textures/Marble012_2K";
+
 export class BookGrouping extends AbstractMesh {
     private static _templatePodest: Mesh = null;
 
@@ -56,8 +58,6 @@ export class BookGrouping extends AbstractMesh {
     getBookPosition(book: BookEntry) {
         const idx = this.books.indexOf(book);
         if(idx >= 0) {
-            console.log(this._shelf.getPoseMatrix());
-
             return this._shelf.position.add(this._shelf.getBookPosition(idx));
         } else {
             return Vector3.Zero();
@@ -77,12 +77,20 @@ export class BookGrouping extends AbstractMesh {
         if(this._templatePodest == null) {
             this._templatePodest = MeshBuilder.CreateCylinder('podest', {
                 height: PODEST_HEIGHT,
-                diameter: 1.0
+                diameter: 1.0,
+                faceUV: [
+                    new Vector4(0, 0, 1, 1),
+                    new Vector4(0, 0, 20, 1),
+                    new Vector4(0, 0, 1, 1),
+                ]
             });
             
-            const mat = new PBRMaterial("podest-mat", scene);
-            mat.roughness = 0.3;
-            mat.metallic = 0.5;
+            const mat = new PBRMetallicRoughnessMaterial("Marble_Mat", scene);
+            mat.baseTexture = new Texture(`${MARBLE_TEXTURE_PATH}_Color.jpg`, scene);
+            mat.metallicRoughnessTexture = new Texture(
+                `${MARBLE_TEXTURE_PATH}_rghMtl.jpg`,
+                scene
+            );
 
             this._templatePodest.material = mat;
             this._templatePodest.registerInstancedBuffer(VertexBuffer.ColorKind, 4);
@@ -92,4 +100,5 @@ export class BookGrouping extends AbstractMesh {
             return this._templatePodest.createInstance('podest_instance');
         }
     }
+
 }
