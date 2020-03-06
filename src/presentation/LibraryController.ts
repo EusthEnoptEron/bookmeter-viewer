@@ -29,7 +29,9 @@ import {
     SSAO2RenderingPipeline,
     TonemappingOperator,
     TonemapPostProcess,
-    Mesh
+    Mesh,
+    ParticleSystem,
+    Texture
 } from "@babylonjs/core";
 
 import { SimpleMaterial } from "@babylonjs/materials/simple/simpleMaterial";
@@ -124,6 +126,7 @@ export class LibraryController {
         this.scene.environmentTexture = hdrTexture;
         // this.scene.createDefaultSkybox(hdrTexture);
         this.buildRibbon();
+        this.buildParticleSystem();
         // const skybox = new CubeTexture("/assets/textures/skybox", this.scene, [".png", "_py.png", ".png", ".png", "_ny.png", ".png"]);
         // this.scene.createDefaultSkybox(skybox);
 
@@ -226,6 +229,48 @@ export class LibraryController {
         mat.disableLighting = true;
 
         Animation.CreateAndStartAnimation("rotate_mesh", ribbon, "rotation.y", 60, 60 * 100, 0, Math.PI * 2, Animation.ANIMATIONLOOPMODE_CYCLE);
+    }
+
+    private buildParticleSystem() {
+            
+        // Create a particle system
+        var particleSystem = new ParticleSystem("particles", 100, this.scene);
+
+        //Texture of each particle
+        particleSystem.particleTexture = new Texture("/assets/textures/sprite.png", this.scene);
+
+        // Colors of all particles
+        particleSystem.color1 =  Color4.FromHexString("#367700FF");
+        particleSystem.color2 = Color4.FromHexString("#56970aFF");
+        particleSystem.colorDead = Color4.FromHexString("#56970a00");
+
+
+        // Size of each particle (random between...
+        particleSystem.minSize = 1;
+        particleSystem.maxSize = 7;
+
+        particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;
+
+        // Life time of each particle (random between...
+        particleSystem.minLifeTime = 2;
+        particleSystem.maxLifeTime = 5;
+
+        // Emission rate
+        particleSystem.emitRate = 15;
+        particleSystem.preWarmCycles = 100;
+        particleSystem.preWarmStepOffset = 10;
+
+        /******* Emission Space ********/
+        particleSystem.createDirectedCylinderEmitter(55,10,0, Vector3.Up(), Vector3.Up());
+
+
+        // Speed
+        particleSystem.minEmitPower = 5;
+        particleSystem.maxEmitPower = 10;
+        particleSystem.updateSpeed = 0.005;
+
+        // Start the particle system
+        particleSystem.start();
     }
 
     private spawn(book: BookEntry) {}
