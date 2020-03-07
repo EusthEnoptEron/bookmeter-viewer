@@ -3,10 +3,13 @@ import isEmpty from 'lodash/isEmpty';
 import { filter } from 'rxjs/operators';
 import { BackendClient } from '../backend/BackendClient';
 import { LibraryController } from './LibraryController';
+import { SceneController } from './SceneController';
+import { Scene } from '@babylonjs/core';
 
 export class MainController {
     private router: Router;
     private library: LibraryController;
+    private scene: SceneController;
 
     constructor(
         private inputField: HTMLInputElement,
@@ -18,7 +21,8 @@ export class MainController {
                 .pipe(filter(uri => !isEmpty(uri)))
                 .subscribe(uri => this.onUser(uri));
 
-            this.library = new LibraryController(this.canvas);
+            this.scene = new SceneController(this.canvas);
+            this.library = new LibraryController(this.scene);
             
             inputField.addEventListener('change', () => this.onValidate());
             inputField.addEventListener('keyup', () => this.onValidate());

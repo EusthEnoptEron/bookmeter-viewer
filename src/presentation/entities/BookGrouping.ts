@@ -78,6 +78,7 @@ export class BookGrouping extends AbstractMesh {
             this._templatePodest = MeshBuilder.CreateCylinder('podest', {
                 height: PODEST_HEIGHT,
                 diameter: 1.0,
+                tessellation: 50,
                 faceUV: [
                     new Vector4(0, 0, 1, 1),
                     new Vector4(0, 0, 20, 1),
