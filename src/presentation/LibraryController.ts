@@ -9,6 +9,7 @@ import { SceneController } from './SceneController';
 import { BookBuilder } from "./util/BookBuilder";
 import { Grouper } from "./util/Grouper";
 import  './util/AnimationHelper';
+import { BookPanel } from './entities/BookPanel';
 
 export class LibraryController {
     private entries: BookEntry[];
@@ -50,6 +51,7 @@ export class LibraryController {
             this.hasEntered = true;
         }
 
+        const textPanel = new BookPanel("", this.scene);
         const grouper = new Grouper(books);
         // const groupings = grouper.group(book => {
         //     return {
@@ -122,6 +124,7 @@ export class LibraryController {
                                     focused.transitionTo('rotation', focusedOrigin[1], 0.2);
                                 }
 
+                                textPanel.setTarget(mesh, book);
                                 focused = mesh;
                                 focusChangeable = false;
                                 focusedOrigin = [pos, rot];
