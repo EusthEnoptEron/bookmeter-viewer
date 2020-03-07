@@ -1,7 +1,7 @@
-import { IGrouping } from './Grouper';
+import { IGrouping } from '../util/Grouper';
 import { AbstractMesh, Node, Scene, Mesh, MeshBuilder, VertexBuffer, Color4, PBRMaterial, TransformNode, Vector3, Matrix, PBRMetallicRoughnessMaterial, Texture, Vector4 } from '@babylonjs/core';
 import { BookShelf } from './BookShelf';
-import { BookEntry } from '../model/BookEntry';
+import { BookEntry } from '../../model/BookEntry';
 import randomColor from 'randomcolor';
 
 const PODEST_HEIGHT = 0.1;

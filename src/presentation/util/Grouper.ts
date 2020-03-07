@@ -1,4 +1,4 @@
-import { BookEntry } from "../model/BookEntry";
+import { BookEntry } from "../../model/BookEntry";
 import { orderBy } from "lodash";
 
 export interface IGrouping {

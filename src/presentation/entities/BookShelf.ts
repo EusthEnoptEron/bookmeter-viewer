@@ -11,8 +11,8 @@ import {
     TransformNode
 } from "@babylonjs/core";
 
-import { PBRScalableMaterial } from "./materials/PBRScalableMaterial";
-import { Constants } from './Constants';
+import { PBRScalableMaterial } from "../materials/PBRScalableMaterial";
+import { Constants } from '../Constants';
 const TEXTURE_PATH = "/assets/textures/Wood37";
 
 export class BookShelf extends AbstractMesh {

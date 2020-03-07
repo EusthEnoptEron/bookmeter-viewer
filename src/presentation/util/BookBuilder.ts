@@ -1,9 +1,9 @@
 import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData, MeshBuilder, LinesMesh } from '@babylonjs/core';
-import { BookEntry } from '../model/BookEntry';
-import { TextureAtlas } from './TextureAtlas';
+import { BookEntry } from '../../model/BookEntry';
+import { TextureAtlas } from '../materials/TextureAtlas';
 import { v4 as uuid } from 'uuid';
-import { UrlUtils } from '../util/UrlUtils';
-import { PBRScalableMaterial } from './materials/PBRScalableMaterial';
+import { UrlUtils } from '../../util/UrlUtils';
+import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
 
 export class BookBuilder {
     private _baseMesh: Mesh;

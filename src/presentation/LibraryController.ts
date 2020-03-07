@@ -1,58 +1,15 @@
-import {
-    AbstractMesh,
-    ActionManager,
-    AmmoJSPlugin,
-    Animation,
-    Color3,
-    CubeTexture,
-    DirectionalLight,
-    Engine,
-    ExecuteCodeAction,
-    FreeCamera,
-    Camera,
-    MeshBuilder,
-    PBRMetallicRoughnessMaterial,
-    PhysicsImpostor,
-    Scene,
-    ShadowGenerator,
-    Tools,
-    Vector3,
-    PBRMaterial,
-    VertexData,
-    HemisphericLight,
-    DynamicTexture,
-    Quaternion,
-    StandardMaterial,
-    Color4,
-    SceneLoader,
-    SSAORenderingPipeline,
-    SSAO2RenderingPipeline,
-    TonemappingOperator,
-    TonemapPostProcess,
-    Mesh,
-    ParticleSystem,
-    Texture,
-    MotionBlurPostProcess
-} from "@babylonjs/core";
-
-import { SimpleMaterial } from "@babylonjs/materials/simple/simpleMaterial";
-import { SkyMaterial } from "@babylonjs/materials/sky";
-
-// import cannon from 'cannon';
-import ammojs from "ammojs-typed";
-import { BookEntry } from "../model/BookEntry";
-import { BookBuilder } from "./BookBuilder";
-import { CustomEngine } from "./CustomEngine";
-
+import { AbstractMesh, ActionManager, Animation, Color3, Color4, CubeTexture, DirectionalLight, Engine, ExecuteCodeAction, FreeCamera, MeshBuilder, ParticleSystem, PBRMetallicRoughnessMaterial, PhysicsImpostor, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Tools, Vector3 } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
 import "@babylonjs/loaders/glTF";
-import { BookShelf } from './BookShelf';
-import { Grouper } from './Grouper';
-import { DateTime } from 'luxon';
-import { BookGrouping } from './BookGrouping';
-import uuid = require('uuid');
+import { BookEntry } from "../model/BookEntry";
+import { BookGrouping } from "./entities/BookGrouping";
+import { BookBuilder } from "./util/BookBuilder";
+import { CustomEngine } from "./util/CustomEngine";
+import { Grouper } from "./util/Grouper";
+
+import uuid = require("uuid");
 
 export class LibraryController {
     private entries: BookEntry[];
@@ -84,26 +41,26 @@ export class LibraryController {
         // this.scene.enablePhysics(gravityVector, physicsPlugin);
 
         // Setup camera
-        const camera = this.camera = new FreeCamera(
+        const camera = (this.camera = new FreeCamera(
             "camera",
             new Vector3(0, 6.0, 0),
             // new Vector3(0, 6.0, 0),
             this.scene
-        );
+        ));
 
         // @ts-ignore
-        window['camera'] = camera;
+        window["camera"] = camera;
         camera.keysDown.push("S".charCodeAt(0));
         camera.keysUp.push("W".charCodeAt(0));
         camera.keysLeft.push("A".charCodeAt(0));
         camera.keysRight.push("D".charCodeAt(0));
-        camera.ellipsoid = new Vector3(0.5, .8, 0.5);
+        camera.ellipsoid = new Vector3(0.5, 0.8, 0.5);
         camera.checkCollisions = true;
         camera.applyGravity = false;
         camera.speed = 0.1;
         camera.minZ = 0.01;
-    
-        this.scene.clearColor = new Color4(0,0,0,0);
+
+        this.scene.clearColor = new Color4(0, 0, 0, 0);
         // Setup lighting
         // const light = new HemisphericLight('light1', new Vector3(0, 1, 0), this.scene);
         // light.intensity = 0.2;
@@ -119,7 +76,7 @@ export class LibraryController {
         const hdrTexture = CubeTexture.CreateFromPrefilteredData(
             // "/assets/wooden_lounge_1kSpecularHDR.dds",
             "/assets/envSpecularHDR.dds",
-        //     // "https://assets.babylonjs.com/environments/environmentSpecular.env",
+            //     // "https://assets.babylonjs.com/environments/environmentSpecular.env",
             this.scene
         );
         hdrTexture.gammaSpace = false;
@@ -154,7 +111,7 @@ export class LibraryController {
             this.scene
         );
         ground.checkCollisions = true;
-        
+
         // ground.isVisible = false;
         // Setup shadows
         this.shadowGenerator = new ShadowGenerator(1024, light2);
@@ -175,13 +132,17 @@ export class LibraryController {
         });
 
         this.floorMesh = this.buildFloor();
-
     }
 
     private async buildFloor(): Promise<AbstractMesh> {
         // const meshes = await SceneLoader.ImportMeshAsync('', '/assets/', 'box.glb', this.scene);
         // meshes.meshes[1].receiveShadows = true;
-        const meshes = await SceneLoader.ImportMeshAsync('', '/assets/', 'floor.glb', this.scene);
+        const meshes = await SceneLoader.ImportMeshAsync(
+            "",
+            "/assets/",
+            "floor.glb",
+            this.scene
+        );
         meshes.meshes[1].receiveShadows = true;
         meshes.meshes[1].visibility = 0.0;
 
@@ -199,31 +160,50 @@ export class LibraryController {
 
         const baseColor = new Color4(86 / 255, 151 / 255, 10 / 255, 1.0);
         const darkColor = baseColor.scale(0.85);
-        const colors: Color4[] = [];    
- 
-        for(let i = 0; i < steps; i++) {
-            const t = i / (steps - 1); 
+        const colors: Color4[] = [];
+
+        for (let i = 0; i < steps; i++) {
+            const t = i / (steps - 1);
             const y = Math.sin(t * Math.PI * 2 * frequency) * height + offset;
             const x = Math.cos(t * Math.PI * 2) * distance;
             const z = Math.sin(t * Math.PI * 2) * distance;
-  
+
             paths[0].push(new Vector3(x, -100, z));
             paths[1].push(new Vector3(x, y - height * 0.4, z));
             paths[2].push(new Vector3(x, y - height * 0.4, z));
             paths[3].push(new Vector3(x, y, z));
         }
 
-        Array.prototype.push.apply(colors, new Array<Color4>(steps).fill(baseColor));
-        Array.prototype.push.apply(colors, new Array<Color4>(steps).fill(baseColor));
-        Array.prototype.push.apply(colors, new Array<Color4>(steps).fill(darkColor));
-        Array.prototype.push.apply(colors, new Array<Color4>(steps).fill(darkColor));
+        Array.prototype.push.apply(
+            colors,
+            new Array<Color4>(steps).fill(baseColor)
+        );
+        Array.prototype.push.apply(
+            colors,
+            new Array<Color4>(steps).fill(baseColor)
+        );
+        Array.prototype.push.apply(
+            colors,
+            new Array<Color4>(steps).fill(darkColor)
+        );
+        Array.prototype.push.apply(
+            colors,
+            new Array<Color4>(steps).fill(darkColor)
+        );
 
-        const ribbon = MeshBuilder.CreateRibbon("Ribbon", {
-            pathArray: paths,
-            colors: colors
-        }, this.scene);
+        const ribbon = MeshBuilder.CreateRibbon(
+            "Ribbon",
+            {
+                pathArray: paths,
+                colors: colors
+            },
+            this.scene
+        );
 
-        const mat: StandardMaterial = new StandardMaterial("Ribbon Mart", this.scene);
+        const mat: StandardMaterial = new StandardMaterial(
+            "Ribbon Mart",
+            this.scene
+        );
         ribbon.material = mat;
         // ribbon.scaling = new Vector3(100, 100, 100);
         mat.diffuseColor = Color3.White();
@@ -231,22 +211,32 @@ export class LibraryController {
         // mat.emissiveColor = new Color3(86 / 255, 151 / 255, 10 / 255);
         mat.disableLighting = true;
 
-        Animation.CreateAndStartAnimation("rotate_mesh", ribbon, "rotation.y", 60, 60 * 100, 0, Math.PI * 2, Animation.ANIMATIONLOOPMODE_CYCLE);
+        Animation.CreateAndStartAnimation(
+            "rotate_mesh",
+            ribbon,
+            "rotation.y",
+            60,
+            60 * 100,
+            0,
+            Math.PI * 2,
+            Animation.ANIMATIONLOOPMODE_CYCLE
+        );
     }
 
     private buildParticleSystem() {
-            
         // Create a particle system
         var particleSystem = new ParticleSystem("particles", 100, this.scene);
 
         //Texture of each particle
-        particleSystem.particleTexture = new Texture("/assets/textures/sprite.png", this.scene);
+        particleSystem.particleTexture = new Texture(
+            "/assets/textures/sprite.png",
+            this.scene
+        );
 
         // Colors of all particles
-        particleSystem.color1 =  Color4.FromHexString("#367700FF");
+        particleSystem.color1 = Color4.FromHexString("#367700FF");
         particleSystem.color2 = Color4.FromHexString("#56970aFF");
         particleSystem.colorDead = Color4.FromHexString("#56970a00");
-
 
         // Size of each particle (random between...
         particleSystem.minSize = 1;
@@ -264,8 +254,13 @@ export class LibraryController {
         particleSystem.preWarmStepOffset = 10;
 
         /******* Emission Space ********/
-        particleSystem.createDirectedCylinderEmitter(55,10,0, Vector3.Up(), Vector3.Up());
-
+        particleSystem.createDirectedCylinderEmitter(
+            55,
+            10,
+            0,
+            Vector3.Up(),
+            Vector3.Up()
+        );
 
         // Speed
         particleSystem.minEmitPower = 5;
@@ -282,15 +277,32 @@ export class LibraryController {
         this.entries = books;
 
         if (!this.initialized) {
-
             document.body.classList.add("rendering");
             this.camera.applyGravity = true;
             this.camera.attachControl(this.canvas, false);
 
-            Animation.CreateAndStartAnimation(uuid.v4(), this.camera, 'position.y', 60, 60, this.camera.position.y, 1.8, Animation.ANIMATIONLOOPMODE_CONSTANT);
-            
-            const floorMesh = (await this.floorMesh);
-            Animation.CreateAndStartAnimation(uuid.v4(), floorMesh, 'visibility', 60, 60, 0.0, 1.0, Animation.ANIMATIONLOOPMODE_CONSTANT);
+            Animation.CreateAndStartAnimation(
+                uuid.v4(),
+                this.camera,
+                "position.y",
+                60,
+                60,
+                this.camera.position.y,
+                1.8,
+                Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
+
+            const floorMesh = await this.floorMesh;
+            Animation.CreateAndStartAnimation(
+                uuid.v4(),
+                floorMesh,
+                "visibility",
+                60,
+                60,
+                0.0,
+                1.0,
+                Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
 
             this.initialized = true;
         }
@@ -302,12 +314,15 @@ export class LibraryController {
         //         text: book.created_at.substr(0, 4)
         //     };
         // });
-        const groupings = grouper.group((book, i) => {
-            return {
-                sortKey: Math.floor(i / 60) + '',
-                text: '#' + (Math.floor(i / 60) + 1)
-            };
-        }, book => book.author_name);
+        const groupings = grouper.group(
+            (book, i) => {
+                return {
+                    sortKey: Math.floor(i / 60) + "",
+                    text: "#" + (Math.floor(i / 60) + 1)
+                };
+            },
+            book => book.author_name
+        );
 
         const radius = 2.5;
         let focused: AbstractMesh = null;
@@ -317,7 +332,7 @@ export class LibraryController {
         let success = 0;
         let fail = 0;
 
-        for(let i = 0; i < groupings.length; i++) {
+        for (let i = 0; i < groupings.length; i++) {
             const group = groupings[i];
             const grouping = new BookGrouping(group[0].text, this.scene);
             const angle = (i / groupings.length) * Math.PI * 2;
@@ -333,15 +348,14 @@ export class LibraryController {
             grouping.group = group[0];
             grouping.books = group[1];
 
-
-            for(let book of grouping.books) {
+            for (let book of grouping.books) {
                 try {
                     const mesh = await this.bookBuilder.createMesh(book);
                     this.shadowGenerator.addShadowCaster(mesh);
-    
+
                     mesh.position = new Vector3(0, 5, 0);
                     mesh.setParent(grouping);
-                    
+
                     this.entities[book.id] = mesh;
                     const pos = grouping.getBookPosition(book);
                     let rot = new Vector3(0, -Math.PI * 0.5, 0);
@@ -369,7 +383,7 @@ export class LibraryController {
                         rot,
                         Animation.ANIMATIONLOOPMODE_CONSTANT
                     );
-    
+
                     let actionManager = new ActionManager(this.scene);
                     mesh.actionManager = actionManager;
                     //ON MOUSE ENTER
@@ -378,7 +392,7 @@ export class LibraryController {
                             ActionManager.OnPointerOverTrigger,
                             async ev => {
                                 if (!focusChangeable) return;
-    
+
                                 if (focused) {
                                     console.log("Unfocus " + focused.name);
                                     this.scene.stopAnimation(focused);
@@ -406,7 +420,7 @@ export class LibraryController {
                                 focused = mesh;
                                 focusChangeable = false;
                                 focusedOrigin = [pos, rot];
-    
+
                                 console.log("Focus " + mesh.name);
                                 this.scene.stopAnimation(focused);
                                 Animation.CreateAndStartAnimation(
@@ -440,7 +454,7 @@ export class LibraryController {
                             }
                         )
                     );
-    
+
                     success++;
                 } catch (e) {
                     console.error(e);
