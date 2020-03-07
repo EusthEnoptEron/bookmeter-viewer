@@ -198,7 +198,7 @@ export class LibraryController {
         const offset = height * 2;
 
         const baseColor = new Color4(86 / 255, 151 / 255, 10 / 255, 1.0);
-        const darkColor = baseColor.scale(0.8);
+        const darkColor = baseColor.scale(0.85);
         const colors: Color4[] = [];    
  
         for(let i = 0; i < steps; i++) {
@@ -208,8 +208,8 @@ export class LibraryController {
             const z = Math.sin(t * Math.PI * 2) * distance;
   
             paths[0].push(new Vector3(x, -100, z));
-            paths[1].push(new Vector3(x, y - height * 0.2, z));
-            paths[2].push(new Vector3(x, y - height * 0.2, z));
+            paths[1].push(new Vector3(x, y - height * 0.4, z));
+            paths[2].push(new Vector3(x, y - height * 0.4, z));
             paths[3].push(new Vector3(x, y, z));
         }
 
