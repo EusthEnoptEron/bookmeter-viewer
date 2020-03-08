@@ -2,6 +2,7 @@ import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalL
 import { CustomEngine } from "./util/CustomEngine";
 
 import './util/AnimationHelper';
+import TWEEN from '@tweenjs/tween.js';
 
 export class SceneController {
     scene: Scene;
@@ -24,6 +25,7 @@ export class SceneController {
         this.ready = this.setupScene();
         this.ready.then(() => {
             this.engine.runRenderLoop(() => {
+                TWEEN.update();
                 this.scene.render();
             });
         });

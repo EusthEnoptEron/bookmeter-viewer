@@ -1,7 +1,10 @@
 import { AbstractMesh, Scene, TransformNode, Mesh, MeshBuilder, Vector3, Quaternion, ColorGradingTexture, Observer } from '@babylonjs/core';
-import {AdvancedDynamicTexture, Rectangle, TextBlock } from '@babylonjs/gui'
+import {AdvancedDynamicTexture, Rectangle, TextBlock, Ellipse, Control, Container, StackPanel, TextWrapping } from '@babylonjs/gui'
 import { BookEntry } from '../../model/BookEntry';
 import { DateTime } from 'luxon';
+import TWEEN, { Tween } from '@tweenjs/tween.js';
+
+import '../util/AnimationHelper';
 
 export class BookPanel extends TransformNode {
     private _texture: AdvancedDynamicTexture;
@@ -12,7 +15,12 @@ export class BookPanel extends TransformNode {
 
     private _rect: Rectangle;
     private _text: TextBlock;
-    private _outline: Rectangle;
+
+    private _infoStack: StackPanel;
+    private _authorPanel: Rectangle;
+    private _pagePanel: Rectangle;
+
+    private _currentTween: TWEEN.Tween;
 
     private _width = 1;
     constructor(name: string, scene: Scene) {
@@ -21,13 +29,15 @@ export class BookPanel extends TransformNode {
         this._mesh.parent = this;
         this._mesh.rotation.y = Math.PI;
 
+
         this.rotationQuaternion = Quaternion.Identity();
 
         this._texture = AdvancedDynamicTexture.CreateForMesh(this._mesh, 1024, 1024, false);
+
         var rect1 = this._rect = new Rectangle();
         rect1.width = 1;
-        rect1.height = 0.1;
-        rect1.cornerRadius = 20;
+        rect1.heightInPixels = 100;
+        rect1.cornerRadius = 50;
         rect1.color = "#367700";
         rect1.thickness = 10;
         rect1.background = "#f5f6f2";
@@ -36,19 +46,72 @@ export class BookPanel extends TransformNode {
 
         const text = this._text = new TextBlock("");
         text.width = 1;
-        text.fontSize = 20;
+        text.fontFamily = "Kosugi Maru";
+        text.fontSizeInPixels = 40;
+
         rect1.addControl(text);
 
-        this._outline = new Rectangle();
-        this._outline.width = 0.3;
-        this._outline.height = 0.35;
-        this._outline.cornerRadius = 20;
-        this._outline.color = "#367700";
-        this._outline.thickness = 10;
-        this._outline.background = "transparent";
-        this._texture.addControl(this._outline);
+        this._infoStack = new StackPanel("StackPanel");
+        this._infoStack.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this._infoStack.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        this._infoStack.left = '65%';
+        this._infoStack.topInPixels = 390;
+        this._infoStack.width = 1;
+        this._infoStack.height = 1;
+
+        this._authorPanel = this.makeSubInfoPanel('作');
+        this._pagePanel = this.makeSubInfoPanel('項');
+
+        this._infoStack.addControl(this._authorPanel);
+        this._infoStack.addControl(this._pagePanel);
+        this._texture.addControl(this._infoStack);
 
         scene.onBeforeRenderObservable.add(() => this.update());
+    }
+
+    private makeSubInfoPanel(character: string): Rectangle {
+        var container  = new Rectangle();
+        container.width = 0.35;
+        container.heightInPixels = 110;
+        container.paddingTopInPixels = 10;
+        container.cornerRadius = 100;
+        container.color = "#367700";
+        container.thickness = 10;
+        container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        container.background = "#f5f6f2";
+
+        const ellipse = new Ellipse("Ellipse");
+        container.addControl(ellipse);
+
+        ellipse.thickness = 5;
+        ellipse.color = "#367700";
+        ellipse.background = "#56970a";
+        ellipse.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        ellipse.leftInPixels = 10;
+        ellipse.heightInPixels = 70;
+        ellipse.widthInPixels = 70;
+        ellipse.rotation = Math.PI * 0.2;
+        console.log(ellipse.heightInPixels);
+        
+        const charText = new TextBlock("Character", character);
+        ellipse.addControl(charText);
+
+        charText.fontFamily = "Kosugi Maru";
+        charText.fontSizeInPixels = 40;
+        charText.color = "white";
+
+        const text = new TextBlock("Text", "");
+        container.addControl(text);
+        text.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        text.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        
+        text.fontFamily = "Kosugi Maru";
+        text.fontSizeInPixels = 40;
+        text.color = "#367700";
+        text.text = "";
+        text.leftInPixels = 90;
+
+        return container;
     }
 
     update() {
@@ -66,25 +129,78 @@ export class BookPanel extends TransformNode {
     setTarget(mesh: AbstractMesh, model: BookEntry) {
         this._target = mesh;
         this._targetModel = model;
-        this._text.text = model.book.title;
+        this._text.text = this.formatBookTitle(model.book.title);
 
-        let t = -0.1;
+        const authorText = (this._authorPanel.getChildByName('Text') as TextBlock);
+        const pageText = (this._pagePanel.getChildByName('Text') as TextBlock);
 
-        this._outline.onBeforeDrawObservable.clear();
-        this._outline.onAfterDrawObservable.clear();
-        this._outline.onBeforeDrawObservable.add(() => {
-            const ctx = this._texture.getContext();
-            ctx.setLineDash([Math.max(0, t * 1000), 10000]);
+        this._authorPanel.widthInPixels = 0;
+        this._pagePanel.widthInPixels = 0;
 
-            t += this._scene.getEngine().getDeltaTime() * 0.001;
+        if(model.book.author.name) {
+            this._authorPanel.isVisible = true;
+            authorText.text = model.book.author.name;
+        } else {
+            this._authorPanel.isVisible = false;
+        }
 
-            this._texture.invalidateRect(0, 0, 1024, 1024);
-            this._texture.markAsDirty();
-        });
+        if(model.book.page) {
+            this._pagePanel.isVisible = true;
+            pageText.text = model.book.page + 'p';
+        } else {
+            this._pagePanel.isVisible = false;
+        }
 
-        this._outline.onAfterDrawObservable.add(() => {
-            this._texture.getContext().setLineDash([]);
-        });
+        const fontSizeAndWidth = this.evaluateFontSizeAndWidth(this._text.text, 40, 800);
+        this._text.fontSizeInPixels = fontSizeAndWidth[0];
+
+        const authorFontSizeAndWidth = this.evaluateFontSizeAndWidth(authorText.text, 40, 300);
+        authorText.fontSizeInPixels = authorFontSizeAndWidth[0];
+
+        const pageFontSizeAndWidth = this.evaluateFontSizeAndWidth(pageText.text, 40, 300);
+        pageText.fontSizeInPixels = pageFontSizeAndWidth[0];
+        
+        const authorTween = new TWEEN.Tween({widthInPixels: 0})
+            .to({widthInPixels: authorFontSizeAndWidth[1] + 150}, 200)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .onTarget(this._authorPanel);
+
+        const pageTween = new TWEEN.Tween({widthInPixels: 0})
+            .to({widthInPixels: pageFontSizeAndWidth[1] + 150}, 200)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .onTarget(this._pagePanel);
+
+        if(this._currentTween) {
+            this._currentTween.stopChainedTweens();
+            TWEEN.remove(this._currentTween);
+        }
+        this._currentTween = new TWEEN.Tween({ widthInPixels: 0})
+            .to({ widthInPixels: fontSizeAndWidth[1] + 80}, 300)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .onTarget(this._rect)
+            .chain(authorTween, pageTween)
+            .start();
+
+    }
+
+    private formatBookTitle(title: string): string {
+        return title.replace(/\(.*?\)$/, '').trim();
+    }
+
+    private evaluateFontSizeAndWidth(text: string, startFontSize: number, maxWidth: number): [number, number] {
+        let width = this.measureWidthWithFontSize(text, startFontSize);
+        while(width > maxWidth) {
+            startFontSize--;
+            width = this.measureWidthWithFontSize(text, startFontSize);
+        }
+
+        return [startFontSize, width];
+    }
+
+    private measureWidthWithFontSize(text: string, fontSize: number) {
+        const ctx = this._texture.getContext();
+        ctx.font =  `${fontSize}px '${this._text.fontFamily}'`;
+        return ctx.measureText(text).width * 1.05;
     }
 
     private roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {

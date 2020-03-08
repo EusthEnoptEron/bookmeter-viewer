@@ -32,6 +32,8 @@ export class LibraryController {
         await this.sceneController.ready;
         this.sceneController.floorMesh.transitionTo('visibility', 1.0, 1.0);
         this.sceneController.rotationSpeed = 0;
+
+        await new Promise((r) => window.setTimeout(r,1000));
     }
 
     private async onLeaveLibrary() {
