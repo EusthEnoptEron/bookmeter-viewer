@@ -26,7 +26,7 @@ export class LibraryController {
     }
 
     private async onEnterLibrary() {
-        document.body.classList.add("rendering");
+        document.body.classList.add("playing");
         this.sceneController.interactive = true;
 
         await this.sceneController.ready;
@@ -35,7 +35,7 @@ export class LibraryController {
     }
 
     private async onLeaveLibrary() {
-        document.body.classList.remove("rendering");
+        document.body.classList.remove("playing");
         this.sceneController.interactive = false;
 
         await this.sceneController.ready;

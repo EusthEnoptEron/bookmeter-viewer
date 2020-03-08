@@ -22,9 +22,10 @@ export class SceneController {
         window.addEventListener("resize", () => this.onResize());
 
         this.ready = this.setupScene();
-
-        this.engine.runRenderLoop(() => {
-            this.scene.render();
+        this.ready.then(() => {
+            this.engine.runRenderLoop(() => {
+                this.scene.render();
+            });
         });
     }
 

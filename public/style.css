@@ -14,10 +14,16 @@ body {
     /* position: absolute; */
     /* top: 0; */
     /* left: 0; */
+    opacity: 0;
     width   : 100%;
     height  : 100%;
     touch-action: none;
+    transition: opacity 500ms;
     /* z-index: 0; */
+}
+
+.rendering #render-target {
+    opacity: 1;
 }
 
 #container {
@@ -34,7 +40,7 @@ body {
     width: 100%;
 }
 
-.rendering #container {
+.playing #container {
     top: -500px;
     opacity: 0.0;
     z-index: -1;
