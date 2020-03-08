@@ -31,6 +31,7 @@ export class BookBuilder {
 
         const slot = await this.currentAtlas.addTextureAsync(UrlUtils.WrapUrl(book.book.image_url));
         const mesh = this._baseMesh.createInstance(book.book.title);
+        //TODO: don't update atlas every time
         this.currentAtlas.update();
 
         mesh.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(slot.x, slot.y);
@@ -40,6 +41,12 @@ export class BookBuilder {
 
         LinesMesh
         return mesh;
+    }
+
+    applyAllAtlases() {
+        for(let atlas of this._atlases) {
+            atlas.update();
+        }
     }
 
     private get currentAtlas() { return this._atlases[this._atlases.length - 1]; }

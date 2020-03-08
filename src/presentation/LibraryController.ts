@@ -1,4 +1,4 @@
-import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3, MeshBuilder } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
@@ -154,6 +154,8 @@ export class LibraryController {
                 }
             }
         }
+
+        // this.bookBuilder.applyAllAtlases();
 
         console.log("Success: " + success);
         console.log("Fail: " + fail);
