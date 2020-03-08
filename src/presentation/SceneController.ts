@@ -1,4 +1,4 @@
-import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalLight, CubeTexture, ParticleSystem, Texture, Animation, Color3, StandardMaterial, MeshBuilder, SceneLoader, AbstractMesh, Mesh, ShadowGenerator, Animatable } from "@babylonjs/core";
+import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalLight, CubeTexture, ParticleSystem, Texture, Animation, Color3, StandardMaterial, MeshBuilder, SceneLoader, AbstractMesh, Mesh, ShadowGenerator, Animatable, HighlightLayer, SpotLight, HemisphericLight } from "@babylonjs/core";
 import { CustomEngine } from "./util/CustomEngine";
 
 import './util/AnimationHelper';
@@ -13,6 +13,7 @@ export class SceneController {
     ribbon: Mesh;
     particleSystem: ParticleSystem;
     shadowGenerator: ShadowGenerator;
+    _highlightLayer: HighlightLayer;
 
     readonly ready: Promise<void>;
 
@@ -32,11 +33,13 @@ export class SceneController {
     }
 
     private async setupScene() {
-        this.engine = new CustomEngine(this.canvas, true);
+        this.engine = new CustomEngine(this.canvas, true, { stencil: true });
 
         this.scene = new Scene(this.engine);
         this.scene.clearColor = new Color4(0, 0, 0, 0);
         this.scene.gravity = new Vector3(0, -9.81, 0);
+
+        this._highlightLayer = new HighlightLayer("hl", this.scene);
 
         // Setup camera
         this.camera = this.buildCamera();
@@ -52,12 +55,25 @@ export class SceneController {
         this.particleSystem = this.buildParticleSystem();
     }
 
+    addHighlight(mesh: Mesh) {
+        this._highlightLayer.addMesh(mesh, Color3.Green());
+    }
+
+    removeHighlight(mesh: Mesh) {
+        this._highlightLayer.removeMesh(mesh);
+    }
+
     private setupLighting() {
+
+        const hemi = new HemisphericLight("hemi",  new Vector3(0, 0, 1), this.scene);
+        hemi.intensity = 0.5;
+
         this.shadowLight = new DirectionalLight(
             "shadowLight",
             new Vector3(0, -4, -2).normalize(),
             this.scene
         );
+        this.shadowLight.intensity = 0.7;
         this.shadowLight.position = new Vector3(0, 5, 5);
 
         const hdrTexture = CubeTexture.CreateFromPrefilteredData(
@@ -66,7 +82,9 @@ export class SceneController {
         );
         hdrTexture.gammaSpace = false;
         hdrTexture.rotationY = Math.PI;
+        
         this.scene.environmentTexture = hdrTexture;
+        this.scene.environmentIntensity = .7;
     }
 
     private buildCamera(): FreeCamera {
