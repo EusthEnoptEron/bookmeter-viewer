@@ -1,4 +1,4 @@
-import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalLight, CubeTexture, ParticleSystem, Texture, Animation, Color3, StandardMaterial, MeshBuilder, SceneLoader, AbstractMesh, Mesh, ShadowGenerator, Animatable, HighlightLayer, SpotLight, HemisphericLight } from "@babylonjs/core";
+import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalLight, CubeTexture, ParticleSystem, Texture, Animation, Color3, StandardMaterial, MeshBuilder, SceneLoader, AbstractMesh, Mesh, ShadowGenerator, Animatable, HighlightLayer, SpotLight, HemisphericLight, PointLight } from "@babylonjs/core";
 import { CustomEngine } from "./util/CustomEngine";
 
 import './util/AnimationHelper';
@@ -8,7 +8,8 @@ export class SceneController {
     scene: Scene;
     engine: Engine;
     camera: FreeCamera;
-    shadowLight: DirectionalLight;
+    shadowLight: PointLight;
+    // shadowLight: DirectionalLight;
     floorMesh: AbstractMesh;
     ribbon: Mesh;
     particleSystem: ParticleSystem;
@@ -47,8 +48,10 @@ export class SceneController {
         this.setupLighting();
 
         this.shadowGenerator = new ShadowGenerator(1024, this.shadowLight);
-        this.shadowGenerator.useBlurExponentialShadowMap = true;
-        this.shadowGenerator.blurKernel = 32;
+        // this.shadowGenerator.useBlurExponentialShadowMap = true;
+        // this.shadowGenerator.blurKernel = 32;
+        // this.shadowGenerator.useCloseExponentialShadowMap = true;
+        this.shadowGenerator.usePercentageCloserFiltering = true
 
         this.floorMesh = await this.buildFloor();
         this.ribbon = this.buildRibbon();
@@ -65,26 +68,31 @@ export class SceneController {
 
     private setupLighting() {
 
-        const hemi = new HemisphericLight("hemi",  new Vector3(0, 0, 1), this.scene);
+        const hemi = new HemisphericLight("hemi",  new Vector3(0, -1, 0), this.scene);
         hemi.intensity = 0.5;
 
-        this.shadowLight = new DirectionalLight(
-            "shadowLight",
-            new Vector3(0, -4, -2).normalize(),
-            this.scene
-        );
-        this.shadowLight.intensity = 0.7;
-        this.shadowLight.position = new Vector3(0, 5, 5);
 
+        this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
+        this.shadowLight.range = 15.0;
+        // this.shadowLight = new DirectionalLight(
+            // "shadowLight",
+            // new Vector3(0, -6, -2).normalize(),
+            // this.scene
+        // );
+        this.shadowLight.intensity = 15.0;
+        // this.shadowLight.position = new Vector3(0, 5, 5);
+
+        // const hdrTexture = new CubeTexture('/assets/textures/skybox', this.scene, [".png", "_py.jpg", ".png", ".png", "_ny.jpg", ".png"], null, null, null, null, null, true);
         const hdrTexture = CubeTexture.CreateFromPrefilteredData(
-            "/assets/envSpecularHDR.dds",
+            "/assets/textures/cubemap.dds",
+            // "/assets/envSpecularHDR.dds",
             this.scene
         );
         hdrTexture.gammaSpace = false;
         hdrTexture.rotationY = Math.PI;
         
         this.scene.environmentTexture = hdrTexture;
-        this.scene.environmentIntensity = .7;
+        this.scene.environmentIntensity = .3;
     }
 
     private buildCamera(): FreeCamera {

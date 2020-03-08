@@ -8,7 +8,8 @@ import {
     Vector3,
     AbstractMesh,
     Node,
-    TransformNode
+    TransformNode,
+    Color3
 } from "@babylonjs/core";
 
 import { PBRScalableMaterial } from "../materials/PBRScalableMaterial";
@@ -40,6 +41,7 @@ export class BookShelf extends AbstractMesh {
         this._backSide = this.createBlock("Shelf_Back");
         this._leftSide = this.createBlock("Shelf_Left");
         this._rightSide = this.createBlock("Shelf_Right");
+        this.receiveShadows = true;
 
         for (let i = 0; i < plateCount; i++) {
             this._plates.push(this.createBlock(`Shelf_Plate-${i}`));
@@ -150,6 +152,8 @@ export class BookShelf extends AbstractMesh {
         const mat = new PBRMetallicRoughnessMaterial("Box_Mat", this.scene);
         mat.baseTexture = new Texture(`${TEXTURE_PATH}_col.jpg`, this.scene);
         mat.normalTexture = new Texture(`${TEXTURE_PATH}_nrm.jpg`, this.scene);
+        // mat.baseColor = new Color3(1.0, 0.0, 1.0);
+        // // mat.emissiveColor = new Color3(0.0, 0.5, 0.0);
         mat.metallicRoughnessTexture = new Texture(
             `${TEXTURE_PATH}_rghMtl.jpg`,
             this.scene
