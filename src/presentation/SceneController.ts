@@ -68,8 +68,8 @@ export class SceneController {
 
     private setupLighting() {
 
-        const hemi = new HemisphericLight("hemi",  new Vector3(0, -1, 0), this.scene);
-        hemi.intensity = 0.5;
+        // const hemi = new HemisphericLight("hemi",  new Vector3(0, -1, 0), this.scene);
+        // hemi.intensity = 0.1;
 
 
         this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
@@ -92,7 +92,7 @@ export class SceneController {
         hdrTexture.rotationY = Math.PI;
         
         this.scene.environmentTexture = hdrTexture;
-        this.scene.environmentIntensity = .3;
+        this.scene.environmentIntensity = 0.2;
     }
 
     private buildCamera(): FreeCamera {
