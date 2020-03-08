@@ -19,6 +19,7 @@ export class BookPanel extends TransformNode {
     private _infoStack: StackPanel;
     private _authorPanel: Rectangle;
     private _pagePanel: Rectangle;
+    private _datePanel: Rectangle;
 
     private _currentTween: TWEEN.Tween;
 
@@ -61,8 +62,11 @@ export class BookPanel extends TransformNode {
 
         this._authorPanel = this.makeSubInfoPanel('作');
         this._pagePanel = this.makeSubInfoPanel('項');
+        this._datePanel = this.makeSubInfoPanel('時');
+
 
         this._infoStack.addControl(this._authorPanel);
+        this._infoStack.addControl(this._datePanel);
         this._infoStack.addControl(this._pagePanel);
         this._texture.addControl(this._infoStack);
 
@@ -133,9 +137,11 @@ export class BookPanel extends TransformNode {
 
         const authorText = (this._authorPanel.getChildByName('Text') as TextBlock);
         const pageText = (this._pagePanel.getChildByName('Text') as TextBlock);
+        const dateText = (this._datePanel.getChildByName('Text') as TextBlock);
 
         this._authorPanel.widthInPixels = 0;
         this._pagePanel.widthInPixels = 0;
+        this._datePanel.widthInPixels = 0;
 
         if(model.book.author.name) {
             this._authorPanel.isVisible = true;
@@ -151,6 +157,14 @@ export class BookPanel extends TransformNode {
             this._pagePanel.isVisible = false;
         }
 
+        if(model.created_at) {
+            this._datePanel.isVisible = true;
+            dateText.text = model.created_at;
+        } else {
+            this._datePanel.isVisible = false;
+        }
+
+
         const fontSizeAndWidth = this.evaluateFontSizeAndWidth(this._text.text, 40, 800);
         this._text.fontSizeInPixels = fontSizeAndWidth[0];
 
@@ -159,6 +173,9 @@ export class BookPanel extends TransformNode {
 
         const pageFontSizeAndWidth = this.evaluateFontSizeAndWidth(pageText.text, 40, 300);
         pageText.fontSizeInPixels = pageFontSizeAndWidth[0];
+
+        const dateFontSizeAndWidth = this.evaluateFontSizeAndWidth(dateText.text, 40, 300);
+        dateText.fontSizeInPixels = dateFontSizeAndWidth[0];
         
         const authorTween = new TWEEN.Tween({widthInPixels: 0})
             .to({widthInPixels: authorFontSizeAndWidth[1] + 150}, 200)
@@ -170,6 +187,11 @@ export class BookPanel extends TransformNode {
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .onTarget(this._pagePanel);
 
+        const dateTween = new TWEEN.Tween({widthInPixels: 0})
+            .to({widthInPixels: dateFontSizeAndWidth[1] + 150}, 200)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .onTarget(this._datePanel);
+
         if(this._currentTween) {
             this._currentTween.stopChainedTweens();
             TWEEN.remove(this._currentTween);
@@ -178,7 +200,7 @@ export class BookPanel extends TransformNode {
             .to({ widthInPixels: fontSizeAndWidth[1] + 80}, 300)
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .onTarget(this._rect)
-            .chain(authorTween, pageTween)
+            .chain(authorTween, pageTween, dateTween)
             .start();
 
     }
