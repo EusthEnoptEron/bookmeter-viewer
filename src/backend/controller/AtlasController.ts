@@ -35,14 +35,14 @@ export class AtlasController extends Controller {
             let buffer = await Cache.GetImage(userId + "/" + idString);
 
             if(buffer === null) {
-                const ids = idString.split('-').map(parseInt);
+                const ids = idString.split('-').map(str => parseInt(str));
                 const atlas = new BackendAtlas({ frameSize: 128, size: 4096 });
     
                 const booksMap = _.keyBy(await BookmeterService.GetBooks(userId), book => book.id);
-                const books = ids.map(id => booksMap[id]);
+                const books = _.take(ids.map(id => booksMap[id]), atlas.count);
 
-                if(ids.some(id => !id)) {
-                    throw "Invalid ID!";
+                if(books.some(book => !book)) {
+                    throw "Invalid IDs found!";
                 }
     
                 console.log("Drawing images...");
