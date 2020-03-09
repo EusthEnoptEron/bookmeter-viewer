@@ -7,8 +7,8 @@
     "build:prod": "webpack --config webpack.prod.js",
     "watch": "webpack --watch --config webpack.dev.js",
     "start": "webpack-dev-server --open  --config webpack.dev.js",
-    "build:ts": "tsc",
-    "watch:ts": "tsc -w",
+    "build:ts": "tsc -t ES2017",
+    "watch:ts": "tsc -w -t ES2017",
     "backend": "node build/backend.js"
   },
   "devDependencies": {
@@ -19,6 +19,7 @@
     "@types/async": "^3.0.8",
     "@types/cannon": "^0.1.4",
     "@types/express": "^4.17.2",
+    "@types/js-md5": "^0.4.2",
     "@types/lodash": "^4.14.149",
     "@types/luxon": "^1.21.0",
     "@types/randomcolor": "^0.5.3",
@@ -51,7 +52,9 @@
     "ammojs-typed": "^1.0.2",
     "async": "^3.2.0",
     "axios": "^0.19.2",
+    "canvas": "^2.6.1",
     "express": "^4.17.1",
+    "js-md5": "^0.7.3",
     "lodash": "^4.17.15",
     "luxon": "^1.22.0",
     "randomcolor": "^0.5.4",

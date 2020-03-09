@@ -48,15 +48,7 @@ export class BookmeterClient {
         Array.prototype.push.apply(entries, firstPage.resources);
 
         // Return type seems to be wrong, so cast to any...
-        const results: any = await async.mapLimit(pages, 10, async (p, callback) => {
-            // The code is transpiled, so async can't automagically recognize async methods...
-            try {
-                const results = await this.GetBookEntries(userId, p);
-                callback(null, results);
-            } catch(e) {
-                callback(e);
-            }
-        });
+        const results: any = await async.mapLimit(pages, 10, async (p, callback) => await this.GetBookEntries(userId, p));
 
         for(let result of results) {
             Array.prototype.push.apply(entries, result);
