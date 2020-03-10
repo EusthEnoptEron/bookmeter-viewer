@@ -34,6 +34,24 @@ export abstract class AtlasBase {
         this.count = this.rows * this.cols;
     }
 
+    static CalculateSpace(size: number, frameSize: number) {
+        return Math.pow(size / frameSize, 2);
+    }
+
+    static CalculateSlot(number: number, size: number, frameSize: number): ISlot {
+        const rows = size / frameSize;
+        const cols = rows;
+        const x = number % cols;
+        const y = Math.floor(number / cols);
+
+        return {
+            x: x / cols,
+            y: 1 - ((y + 1) / rows),
+            width: 1 / cols,
+            height: 1 / rows
+        };
+    }
+
     abstract getContext(): CanvasRenderingContext2D;
     abstract loadImage(url: string): Promise<any>;
 

@@ -42,7 +42,7 @@ export class MainController {
             this.inputButton.disabled = true;
             try {
                 const entries = await BackendClient.GetBookEntries(user);
-                this.library.setEntries(entries);
+                this.library.setEntries(user, entries);
                 
             } catch(e) {
                 console.error(e);

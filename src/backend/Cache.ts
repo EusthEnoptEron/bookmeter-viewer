@@ -87,17 +87,23 @@ export class Cache {
     }
 
     private static GetImagePath(url: string) {
-        const hash = md5(url);
-        return path.join(this.path, 'image-cache', hash.substr(0, 2), hash + ".bin");
-    }
+        let safeString = url.replace(/\W/g, "_");
+        if(safeString.length > 150) {
+            let firstPart = safeString.substr(0, 150);
+            let secondPart = md5(safeString.substr(150));
+            safeString = firstPart + "#" + secondPart;
+        }
 
+        return path.join(this.path, 'image-cache', safeString.substr(0, 2), safeString + ".bin");
+    }
+    
     static async GetImageLastModified(url: string): Promise<DateTime | null> {
         const path = this.GetImagePath(url);
 
         if(!fs.existsSync(path)) {
             return null;
         }
-
+        
         const stats = await fsp.lstat(path);
         return DateTime.fromJSDate(stats.mtime);
     }

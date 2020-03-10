@@ -7,6 +7,10 @@ import  _ from 'lodash';
 import { RequestFileError } from '@babylonjs/core';
 import { Cache } from '../Cache';
 
+
+const DEFAULT_ATLAS_SIZE = 4096;
+const DEFAULT_ATLAS_FRAME_SIZE = 256;
+
 export class AtlasController extends Controller {
     constructor() {
         super();
@@ -20,23 +24,26 @@ export class AtlasController extends Controller {
         try {
             const userId = await BookmeterService.GetUserId(req.params.userName);
             const idString = req.query.ids as string;
+            const frameSize = this.validateAtlasSize(req.query.frameSize as string, 9, DEFAULT_ATLAS_FRAME_SIZE);
+            const atlasSize =  this.validateAtlasSize(req.query.atlasSize as string, 13, DEFAULT_ATLAS_SIZE);
+
             if(!idString || !idString.match(/^(\d+-?)+$/)) {
                 res.status(400).send();
                 return;
             }
-
-            const cacheKey = userId + "/" + idString;
-            if(req.header('If-Modified-Since')) {
+            
+            const cacheKey = req.url;
+            console.log(cacheKey, frameSize, atlasSize);
+            if(req.header('If-Modified-Since') && Cache.GetImageLastModified(cacheKey) !== null) {
                 res.status(304).send();
                 return;
             }
 
-
-            let buffer = await Cache.GetImage(userId + "/" + idString);
+            let buffer = await Cache.GetImage(req.url);
 
             if(buffer === null) {
                 const ids = idString.split('-').map(str => parseInt(str));
-                const atlas = new BackendAtlas({ frameSize: 128, size: 4096 });
+                const atlas = new BackendAtlas({ frameSize: frameSize, size: atlasSize });
     
                 const booksMap = _.keyBy(await BookmeterService.GetBooks(userId), book => book.id);
                 const books = _.take(ids.map(id => booksMap[id]), atlas.count);
@@ -62,4 +69,20 @@ export class AtlasController extends Controller {
             next(e);
         } 
     }
+
+    private validateAtlasSize(userInput: string, maxLog: number, defaultSize: number) {
+        // @ts-ignore
+        if(isFinite(userInput)) {
+            let atlasSize = parseInt(userInput);
+            let log = Math.log2(atlasSize);
+            
+            if(log <= maxLog) {
+                log = Math.ceil(log);
+                return Math.pow(2, log);
+            }
+        }
+
+        return defaultSize;
+    }
+    
 }

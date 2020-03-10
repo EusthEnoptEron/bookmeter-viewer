@@ -1,4 +1,4 @@
-import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3, MeshBuilder } from "@babylonjs/core";
+import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3, MeshBuilder, Texture } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
@@ -10,19 +10,23 @@ import { BookBuilder } from "./util/BookBuilder";
 import { Grouper } from "./util/Grouper";
 import  './util/AnimationHelper';
 import { BookPanel } from './entities/BookPanel';
+import { BookEntity } from './entities/BookEntity';
+import { AtlasBase } from './materials/AtlasBase';
+import { BackendClient } from '../backend/BackendClient';
+import { PromiseUtil } from './util/PromiseUtil';
 
 export class LibraryController {
     private entries: BookEntry[];
-    private entities: { [key: number]: AbstractMesh } = {};
     private initialized = false;
     private bookBuilder: BookBuilder;
     private scene: Scene;
+
 
     private hasEntered = false;
 
     constructor(private sceneController: SceneController) {
         this.scene = sceneController.scene;
-        this.bookBuilder = new BookBuilder(this.scene);
+        this.bookBuilder = new BookBuilder(this.scene, this.sceneController.shadowGenerator);
     }
 
     private async onEnterLibrary() {
@@ -45,7 +49,7 @@ export class LibraryController {
         this.sceneController.rotationSpeed = 1;
     }
 
-    async setEntries(books: BookEntry[]) {
+    async setEntries(user: string, books: BookEntry[]) {
         this.entries = books;
 
         if (!this.hasEntered) {
@@ -53,8 +57,14 @@ export class LibraryController {
             this.hasEntered = true;
         }
 
+        const entities: BookEntity[] = [];
+        const meshes = await this.bookBuilder.createMeshes(books, user);
+        for(let i = 0; i < books.length; i++) {
+            entities.push(new BookEntity(books[i], meshes[i]));
+        }
+
         const textPanel = new BookPanel("", this.scene);
-        const grouper = new Grouper(books);
+        const grouper = new Grouper(entities);
         // const groupings = grouper.group(book => {
         //     return {
         //         sortKey: book.created_at.substr(0, 4),
@@ -96,14 +106,15 @@ export class LibraryController {
             grouping.books = group[1];
 
             for (let book of grouping.books) {
+                await PromiseUtil.Delay(10);
+
                 try {
-                    const mesh = await this.bookBuilder.createMesh(book);
-                    this.sceneController.shadowGenerator.addShadowCaster(mesh);
+                    const entity = book as BookEntity;
+                    const mesh = entity.mesh;
 
                     mesh.position = new Vector3(0, 5, 0);
                     mesh.setParent(grouping);
 
-                    this.entities[book.id] = mesh;
                     const pos = grouping.getBookPosition(book);
                     let rot = new Vector3(0, -Math.PI * 0.5, 0);
 
