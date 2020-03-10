@@ -13,6 +13,11 @@ const SEARCH_URL = 'https://bookmeter.com/users/search.json?name=%s';
 
 export class BookmeterClient {
 
+    // https://bookmeter.com/books/8242918/external_book_stores.json
+    // https://bookmeter.com/books/8242918/related_books/series.json?limit=8
+    // https://bookmeter.com/books/8242918/related_books/author.json?limit=8
+    // https://bookmeter.com/books/8242918/reviews.json?offset=0&limit=40
+    
     public static async FindUser(userName: string): Promise<UserInfo|null>
     {
         const url = sprintf(SEARCH_URL, userName);
