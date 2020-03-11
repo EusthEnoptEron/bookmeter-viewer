@@ -3,6 +3,7 @@ import { AbstractMesh, Node, Scene, Mesh, MeshBuilder, VertexBuffer, Color4, PBR
 import { BookShelf } from './BookShelf';
 import { BookEntry } from '../../model/BookEntry';
 import randomColor from 'randomcolor';
+import { Label } from './Label';
 
 const PODEST_HEIGHT = 0.1;
 const MARBLE_TEXTURE_PATH = "/assets/textures/Marble012_2K";
@@ -14,6 +15,7 @@ export class BookGrouping extends AbstractMesh {
     private _books: BookEntry[];
     private _shelf: BookShelf;
     private _podest: AbstractMesh;
+    private _label: Label;
 
     constructor(name: string, scene: Scene)  {
         super(name, scene);
@@ -31,9 +33,20 @@ export class BookGrouping extends AbstractMesh {
         );
 
         // Set up book shelf
-        this._shelf = new BookShelf('bookShelf', scene);
+        this._shelf = new BookShelf('bookShelf', scene, undefined, undefined, undefined, undefined, 0.25);
         this._shelf.parent = this;
         this._shelf.position.y = PODEST_HEIGHT;
+
+        this._label = new Label(`${name}_label`, scene, "", { width: 0.97, height: 0.25, baseTexture: this._shelf.getWoodTexture() });
+        // this._label.position.z += 0.5;
+        // this._label.position.y += PODEST_HEIGHT + 0.125;
+        // this._label.lookAt(new Vector3(0, -1, -1));
+        this._label.lookAt(new Vector3(0, 0, -1));
+
+        this._label.position.y += PODEST_HEIGHT + 0.125;
+        this._label.position.z += 0.05;
+
+        this._label.parent = this;
     }
 
     get group() {
@@ -42,6 +55,7 @@ export class BookGrouping extends AbstractMesh {
 
     set group(group: IGrouping) {
         this._group = group;
+        this._label.setText(group.text);
     }
 
     get books() {

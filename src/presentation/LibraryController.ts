@@ -71,14 +71,12 @@ export class LibraryController {
         //         text: book.created_at.substr(0, 4)
         //     };
         // });
-        const groupings = grouper.group(
-            (book, i) => {
-                return {
-                    sortKey: Math.floor(i / 60) + "",
-                    text: "#" + (Math.floor(i / 60) + 1)
-                };
+        const groupings = grouper.chunk(
+            60,
+            books => {
+                return books[0].author_name + " ... " + books[books.length - 1].book.author.name;
             },
-            book => book.author_name
+            book => book.book.author.name
         );
 
         const radius = 2.5;

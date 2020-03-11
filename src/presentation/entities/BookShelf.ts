@@ -9,7 +9,8 @@ import {
     AbstractMesh,
     Node,
     TransformNode,
-    Color3
+    Color3,
+    BaseTexture
 } from "@babylonjs/core";
 
 import { PBRScalableMaterial } from "../materials/PBRScalableMaterial";
@@ -37,7 +38,6 @@ export class BookShelf extends AbstractMesh {
         plateCount: number = 5
     ) {
         super(name, scene);
-
         this._backSide = this.createBlock("Shelf_Back");
         this._leftSide = this.createBlock("Shelf_Left");
         this._rightSide = this.createBlock("Shelf_Right");
@@ -48,6 +48,10 @@ export class BookShelf extends AbstractMesh {
         }
 
         this.fit();
+    }
+
+    getWoodTexture(): BaseTexture {
+        return (this._backSide.material as PBRMetallicRoughnessMaterial).baseTexture;
     }
 
     private fit() {
