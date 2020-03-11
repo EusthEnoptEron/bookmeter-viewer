@@ -5,6 +5,7 @@ import { BackendClient } from '../backend/BackendClient';
 import { LibraryController } from './LibraryController';
 import { SceneController } from './SceneController';
 import { Scene } from '@babylonjs/core';
+import { PromiseUtil } from './util/PromiseUtil';
 
 export class MainController {
     private router: Router;
@@ -42,8 +43,7 @@ export class MainController {
             this.inputButton.disabled = true;
             try {
                 const entries = await BackendClient.GetBookEntries(user);
-                await this.library.setEntries(user, entries);
-                
+                this.library.setEntries(user, entries);
             } catch(e) {
                 console.error(e);
                 this.inputField.disabled = false;

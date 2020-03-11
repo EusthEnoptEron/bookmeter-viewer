@@ -14,7 +14,6 @@ export class SceneController {
     ribbon: Mesh;
     particleSystem: ParticleSystem;
     shadowGenerator: ShadowGenerator;
-    _highlightLayer: HighlightLayer;
 
     readonly ready: Promise<void>;
 
@@ -34,13 +33,11 @@ export class SceneController {
     }
 
     private async setupScene() {
-        this.engine = new CustomEngine(this.canvas, true, { stencil: true });
+        this.engine = new CustomEngine(this.canvas, true, null, true);
 
         this.scene = new Scene(this.engine);
         this.scene.clearColor = new Color4(0, 0, 0, 0);
         this.scene.gravity = new Vector3(0, -9.81, 0);
-
-        this._highlightLayer = new HighlightLayer("hl", this.scene);
 
         // Setup camera
         this.camera = this.buildCamera();
@@ -58,13 +55,13 @@ export class SceneController {
         this.particleSystem = this.buildParticleSystem();
     }
 
-    addHighlight(mesh: Mesh) {
-        this._highlightLayer.addMesh(mesh, Color3.Green());
-    }
+    // addHighlight(mesh: Mesh) {
+    //     this._highlightLayer.addMesh(mesh, Color3.Green());
+    // }
 
-    removeHighlight(mesh: Mesh) {
-        this._highlightLayer.removeMesh(mesh);
-    }
+    // removeHighlight(mesh: Mesh) {
+    //     this._highlightLayer.removeMesh(mesh);
+    // }
 
     private setupLighting() {
 
