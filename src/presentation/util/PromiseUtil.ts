@@ -8,7 +8,7 @@ export class PromiseUtil {
     static LoadTexture(url: string, scene: Scene): Promise<Texture> {
         return new Promise((resolve, fail) => {
             let tex: Texture;
-            tex = new Texture(url, scene, null, null, null, () => resolve(tex), fail);
+            tex = new Texture(url, scene, false, true, Texture.BILINEAR_SAMPLINGMODE, () => resolve(tex), fail);
         });
     }
 }

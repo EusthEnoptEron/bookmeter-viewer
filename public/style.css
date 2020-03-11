@@ -11,7 +11,7 @@ body {
 }
 
 #render-target {
-    /* position: absolute; */
+    position: absolute;
     /* top: 0; */
     /* left: 0; */
     opacity: 0;
@@ -19,11 +19,15 @@ body {
     height  : 100%;
     touch-action: none;
     transition: opacity 500ms;
-    /* z-index: 0; */
+    z-index: -1;
 }
 
 .rendering #render-target {
     opacity: 1;
+}
+
+.playing #render-target {
+    z-index: 1;
 }
 
 #container {
@@ -32,22 +36,32 @@ body {
     text-align: center;
     margin-top: 5em;
     /* transition: opacity 500ms linear; */
-    transition: opacity 1s, top 1s;
-    position: absolute;
-    top: 0;
+    transition: opacity 1s, transform 1s;
     opacity: 1;
-    z-index: 1;
-    width: 100%;
 }
 
 .playing #container {
-    top: -500px;
+    transform: translateY(-500px);
     opacity: 0.0;
     z-index: -1;
 }
 
 button {
     transition: background-color 200ms linear;
+}
+
+input[type=text]:focus {
+    border-color: #56970a;
+}
+
+button.button-primary {
+    background-color: #76A72a;
+    border-color: #76A72a;
+}
+
+button.button-primary:hover {
+    background-color: #56970a;
+    border-color: #56970a;
 }
 
 button[disabled] {
