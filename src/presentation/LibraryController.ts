@@ -15,6 +15,7 @@ import { AtlasBase } from './materials/AtlasBase';
 import { BackendClient } from '../backend/BackendClient';
 import { PromiseUtil } from './util/PromiseUtil';
 import { MemoryPool } from './util/MemoryPool';
+import { SelectionManager } from './SelectionManager';
 
 export class LibraryController {
     private _entries: BookEntry[];
@@ -25,6 +26,7 @@ export class LibraryController {
     private _user: string;
     private _textPanel: BookPanel;
     private _groupingPool: MemoryPool<BookGrouping>;
+    private _selectionManager = new SelectionManager();
     private hasEntered = false;
 
     constructor(private sceneController: SceneController) {
@@ -126,43 +128,21 @@ export class LibraryController {
                     const pos = grouping.getBookPosition(book);
                     let rot = new Vector3(0, -Math.PI * 0.5, 0);
 
-                    mesh.transitionTo('position', pos, 1.0);
-                    mesh.transitionTo('rotation', rot, 1.0);
-                    
+                    entity.setTarget(pos, rot);
+                
                     let actionManager = new ActionManager(this._scene);
                     mesh.actionManager = actionManager;
                     //ON MOUSE ENTER
                     mesh.actionManager.registerAction(
                         new ExecuteCodeAction(
                             ActionManager.OnPointerOverTrigger,
-                            async ev => {
-                                if (!focusChangeable) return;
-
-                                if (focused) {
-                                    console.log("Unfocus " + focused.name);
-                                    focused.stopAnimations();
-                                    focused.transitionTo('position', focusedOrigin[0], 0.2);
-                                    focused.transitionTo('rotation', focusedOrigin[1], 0.2);
-                                }
-
-                                this._textPanel.setTarget(mesh, book);
-                                focused = mesh;
-                                focusChangeable = false;
-                                focusedOrigin = [pos, rot];
-
-                                console.log("Focus " + mesh.name);
-                                focused.stopAnimations();
-                                focused.transitionTo('position', pos.add(new Vector3(0, 0, 0.2)), 0.1);
-                                focused.transitionTo('rotation', Vector3.Zero(), 0.2);
-                            }
+                            () => this._selectionManager.setFocused(entity)
                         )
                     );
                     mesh.actionManager.registerAction(
                         new ExecuteCodeAction(
-                            ActionManager.OnPointerOutTrigger,
-                            async ev => {
-                                focusChangeable = true;
-                            }
+                            ActionManager.OnPointerOutTrigger, 
+                            () => { this._selectionManager.setUnfocused(entity) }
                         )
                     );
 
