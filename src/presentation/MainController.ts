@@ -28,7 +28,11 @@ export class MainController {
             inputField.addEventListener('change', () => this.onValidate());
             inputField.addEventListener('keyup', () => this.onValidate());
             inputButton.addEventListener('click', () => this.onVisualize());
-            
+            inputField.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.onValidate();
+            });
+
             this.scene.ready.then(() => {
                 document.body.classList.add("rendering");
             });
