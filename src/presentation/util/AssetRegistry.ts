@@ -38,6 +38,7 @@ export class AssetRegistry
             this.bookModel.isVisible = false;
         };
 
+        manager.useDefaultLoadingScreen = false;
         await manager.loadAsync();
     }
 }
