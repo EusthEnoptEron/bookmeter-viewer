@@ -8,6 +8,7 @@ import { chunk } from 'lodash';
 import { AtlasBase, ISlot } from '../materials/AtlasBase';
 import { PromiseUtil } from './PromiseUtil';
 import Axios from 'axios';
+import { AssetRegistry } from './AssetRegistry';
 
 let atlasSize = 4096;
 let frameSize = 256;
@@ -30,10 +31,11 @@ export class BookBuilder {
     }
 
     private async createBaseMesh(atlasTexture: Texture = null): Promise<Mesh> {
-        const meshes = await SceneLoader.ImportMeshAsync('', '/assets/', 'book.glb', this.scene);
-        const mesh = meshes.meshes[1] as Mesh;
+        // const meshes = await SceneLoader.ImportMeshAsync('', '/assets/', 'book.glb', this.scene);
+        // const mesh = meshes.meshes[1] as Mesh;
+        const mesh = AssetRegistry.Instance.bookModel.clone();
+        mesh.makeGeometryUnique();
         mesh.setParent(null);
-        mesh.setEnabled(false);
         mesh.registerInstancedBuffer(PBRScalableMaterial.ScaleKind, 2);
         mesh.registerInstancedBuffer(PBRScalableMaterial.OffsetKind, 2);
         mesh.material = this.generateMaterial(atlasTexture);

@@ -3,6 +3,7 @@ import { CustomEngine } from "./util/CustomEngine";
 
 import './util/AnimationHelper';
 import TWEEN from '@tweenjs/tween.js';
+import { AssetRegistry } from './util/AssetRegistry';
 
 export class SceneController {
     scene: Scene;
@@ -53,6 +54,8 @@ export class SceneController {
         this.floorMesh = await this.buildFloor();
         this.ribbon = this.buildRibbon();
         this.particleSystem = this.buildParticleSystem();
+
+        await AssetRegistry.Instance.load(this.scene);
     }
 
     // addHighlight(mesh: Mesh) {

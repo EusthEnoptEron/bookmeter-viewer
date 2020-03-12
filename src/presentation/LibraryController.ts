@@ -1,4 +1,4 @@
-import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3, MeshBuilder, Texture } from "@babylonjs/core";
+import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3, MeshBuilder, Texture, AssetsManager } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
@@ -14,19 +14,25 @@ import { BookEntity } from './entities/BookEntity';
 import { AtlasBase } from './materials/AtlasBase';
 import { BackendClient } from '../backend/BackendClient';
 import { PromiseUtil } from './util/PromiseUtil';
+import { MemoryPool } from './util/MemoryPool';
 
 export class LibraryController {
-    private entries: BookEntry[];
-    private initialized = false;
-    private bookBuilder: BookBuilder;
-    private scene: Scene;
-
-
+    private _entries: BookEntry[];
+    private _initialized = false;
+    private _bookBuilder: BookBuilder;
+    private _scene: Scene;
+    private _grouper: Grouper;
+    private _user: string;
+    private _textPanel: BookPanel;
+    private _groupingPool: MemoryPool<BookGrouping>;
     private hasEntered = false;
 
     constructor(private sceneController: SceneController) {
-        this.scene = sceneController.scene;
-        this.bookBuilder = new BookBuilder(this.scene, this.sceneController.shadowGenerator);
+        this._scene = sceneController.scene;
+        this._bookBuilder = new BookBuilder(this._scene, this.sceneController.shadowGenerator);
+        this._textPanel = new BookPanel("", this._scene);
+        this._grouper = new Grouper();
+        this._groupingPool = new MemoryPool<BookGrouping>(() => new BookGrouping("Grouping", this._scene));
     }
 
     private async onEnterLibrary() {
@@ -50,28 +56,31 @@ export class LibraryController {
     }
 
     async setEntries(user: string, books: BookEntry[]) {
-        this.entries = books;
+        this._entries = books;
+        this._user = user;
 
+        const meshes = await this._bookBuilder.createMeshes(books, user);
+        const entities = books.map((book, i) => new BookEntity(book, meshes[i]));
+
+        this._grouper.setEntries(entities);
+        this._groupingPool.prewarm(10);
+    }
+
+    
+    async show() {
         if (!this.hasEntered) {
             await this.onEnterLibrary();
             this.hasEntered = true;
         }
 
-        const entities: BookEntity[] = [];
-        const meshes = await this.bookBuilder.createMeshes(books, user);
-        for(let i = 0; i < books.length; i++) {
-            entities.push(new BookEntity(books[i], meshes[i]));
-        }
-
-        const textPanel = new BookPanel("", this.scene);
-        const grouper = new Grouper(entities);
+        AssetsManager
         // const groupings = grouper.group(book => {
         //     return {
         //         sortKey: book.created_at.substr(0, 4),
         //         text: book.created_at.substr(0, 4)
         //     };
         // });
-        const groupings = grouper.chunk(
+        const groupings = this._grouper.chunk(
             60,
             books => {
                 return books[0].author_name + " ... " + books[books.length - 1].book.author.name;
@@ -89,7 +98,7 @@ export class LibraryController {
 
         for (let i = 0; i < groupings.length; i++) {
             const group = groupings[i];
-            const grouping = new BookGrouping(group[0].text, this.scene);
+            const grouping = this._groupingPool.spawn();
             const angle = -(i / groupings.length) * Math.PI * 2 + Math.PI * 0.5;
 
             this.sceneController.shadowGenerator.addShadowCaster(grouping);
@@ -119,7 +128,7 @@ export class LibraryController {
                     mesh.transitionTo('position', pos, 1.0);
                     mesh.transitionTo('rotation', rot, 1.0);
                     
-                    let actionManager = new ActionManager(this.scene);
+                    let actionManager = new ActionManager(this._scene);
                     mesh.actionManager = actionManager;
                     //ON MOUSE ENTER
                     mesh.actionManager.registerAction(
@@ -135,7 +144,7 @@ export class LibraryController {
                                     focused.transitionTo('rotation', focusedOrigin[1], 0.2);
                                 }
 
-                                textPanel.setTarget(mesh, book);
+                                this._textPanel.setTarget(mesh, book);
                                 focused = mesh;
                                 focusChangeable = false;
                                 focusedOrigin = [pos, rot];

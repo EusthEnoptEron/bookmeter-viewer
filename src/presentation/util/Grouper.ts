@@ -10,7 +10,13 @@ export class Grouper {
     private _groupings: Map<string, BookEntry[]> = new Map();
     private _books: BookEntry[] = [];
 
-    constructor(books: BookEntry[]) {
+    constructor(books: BookEntry[] = null) {
+        if(books) {
+            this.setEntries(books);
+        }
+    }
+
+    setEntries(books: BookEntry[]) {
         this._books = orderBy(books, book => book.created_at);
     }
 

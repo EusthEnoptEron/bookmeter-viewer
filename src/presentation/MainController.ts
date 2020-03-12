@@ -18,12 +18,12 @@ export class MainController {
         private canvas: HTMLCanvasElement) {
             this.router = new Router();
 
+            this.scene = new SceneController(this.canvas);
+            this.library = new LibraryController(this.scene);
+            
             this.router.onState()
                 .pipe(filter(uri => !isEmpty(uri)))
                 .subscribe(uri => this.onUser(uri));
-
-            this.scene = new SceneController(this.canvas);
-            this.library = new LibraryController(this.scene);
             
             inputField.addEventListener('change', () => this.onValidate());
             inputField.addEventListener('keyup', () => this.onValidate());
@@ -46,8 +46,12 @@ export class MainController {
             this.inputField.disabled = true;
             this.inputButton.disabled = true;
             try {
+                await this.scene.ready;
                 const entries = await BackendClient.GetBookEntries(user);
-                this.library.setEntries(user, entries);
+                await this.library.setEntries(user, entries);
+                await PromiseUtil.Delay(1000);
+
+                this.library.show();
             } catch(e) {
                 console.error(e);
                 this.inputField.disabled = false;

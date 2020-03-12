@@ -4,6 +4,7 @@ import { BookShelf } from './BookShelf';
 import { BookEntry } from '../../model/BookEntry';
 import randomColor from 'randomcolor';
 import { Label } from './Label';
+import { AssetRegistry } from '../util/AssetRegistry';
 
 const PODEST_HEIGHT = 0.1;
 const MARBLE_TEXTURE_PATH = "/assets/textures/Marble012_2K";
@@ -37,7 +38,7 @@ export class BookGrouping extends AbstractMesh {
         this._shelf.parent = this;
         this._shelf.position.y = PODEST_HEIGHT;
 
-        this._label = new Label(`${name}_label`, scene, "", { width: 0.97, height: 0.25, baseTexture: this._shelf.getWoodTexture() });
+        this._label = new Label(`${name}_label`, scene, "", { width: 0.97, height: 0.25, baseTexture:  AssetRegistry.Instance.woodColorTexture });
         // this._label.position.z += 0.5;
         // this._label.position.y += PODEST_HEIGHT + 0.125;
         // this._label.lookAt(new Vector3(0, -1, -1));
@@ -101,11 +102,8 @@ export class BookGrouping extends AbstractMesh {
             });
             
             const mat = new PBRMetallicRoughnessMaterial("Marble_Mat", scene);
-            mat.baseTexture = new Texture(`${MARBLE_TEXTURE_PATH}_Color.jpg`, scene);
-            mat.metallicRoughnessTexture = new Texture(
-                `${MARBLE_TEXTURE_PATH}_rghMtl.jpg`,
-                scene
-            );
+            mat.baseTexture = AssetRegistry.Instance.marbleColorTexture;;
+            mat.metallicRoughnessTexture =  AssetRegistry.Instance.marbleRoughnessTexture;
 
             this._templatePodest.material = mat;
             this._templatePodest.registerInstancedBuffer(VertexBuffer.ColorKind, 4);
