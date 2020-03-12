@@ -26,6 +26,11 @@ export class SelectionManager {
         return this._selectionSubject.asObservable();
     }
 
+    private _focusSubject = new BehaviorSubject<ISelectable>(null);
+    get onFocusChanged() {
+        return this._focusSubject.asObservable();
+    }
+
     setSelection(selection: ISelectable) {
         this._selection?.onDeselect();
         this._selection = selection;
@@ -39,6 +44,7 @@ export class SelectionManager {
 
         if(this._focuses.length == 1) {
             this.currentFocus?.onMouseOver();
+            this._focusSubject.next(this.currentFocus);
         }
     }
 
@@ -50,11 +56,14 @@ export class SelectionManager {
 
         if(idx == 0) {
             element?.onMouseOut();
+            
+            if(this._focuses.length > 0) {
+                this.currentFocus?.onMouseOver();
+            }
+            
+            this._focusSubject.next(this.currentFocus);
         }
-
-        if(this._focuses.length > 0) {
-            this.currentFocus?.onMouseOver();
-        }
+     
     }
 
 }

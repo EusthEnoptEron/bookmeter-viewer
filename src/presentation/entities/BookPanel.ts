@@ -1,17 +1,15 @@
-import { AbstractMesh, Scene, TransformNode, Mesh, MeshBuilder, Vector3, Quaternion, ColorGradingTexture, Observer } from '@babylonjs/core';
+import { AbstractMesh, Scene, TransformNode, Mesh, MeshBuilder, Vector3, Quaternion, ColorGradingTexture, Observer, Nullable } from '@babylonjs/core';
 import {AdvancedDynamicTexture, Rectangle, TextBlock, Ellipse, Control, Container, StackPanel, TextWrapping } from '@babylonjs/gui'
-import { BookEntry } from '../../model/BookEntry';
-import { DateTime } from 'luxon';
 import TWEEN, { Tween } from '@tweenjs/tween.js';
 
 import '../util/AnimationHelper';
+import { BookEntity } from './BookEntity';
 
 export class BookPanel extends TransformNode {
     private _texture: AdvancedDynamicTexture;
     private _mesh: Mesh;
 
-    private _target: AbstractMesh;
-    private _targetModel: BookEntry;
+    private _target: BookEntity;
 
     private _rect: Rectangle;
     private _text: TextBlock;
@@ -122,19 +120,21 @@ export class BookPanel extends TransformNode {
         if(!this._target) return;
 
         // console.log("Mov");
-        const offset = this._target.getBoundingInfo().boundingSphere.radius * 1.5;
+        const offset = this._target.mesh.getBoundingInfo().boundingSphere.radius * 1.5;
         // const targetPosition = this._target.absolutePosition.add(this._target.right.scale((-offset - this._width * 0.5 )));
 // 
         // this.position = Vector3.Lerp(this.position, this._target.absolutePosition, this._scene.getEngine().getDeltaTime() * 0.005);
-        this.position = this._target.absolutePosition;
-        this.rotationQuaternion = this._target.absoluteRotationQuaternion;
+        this.position = this._target.mesh.absolutePosition;
+        this.rotationQuaternion = this._target.mesh.absoluteRotationQuaternion;
     }
 
-    setTarget(mesh: AbstractMesh, model: BookEntry) {
-        this._mesh.isVisible = true;
-        this._target = mesh;
-        this._targetModel = model;
-        this._text.text = this.formatBookTitle(model.book.title);
+    setTarget(entity: Nullable<BookEntity>) {
+        this._mesh.isVisible = entity != null;
+        this._target = entity;
+
+        if(entity == null) return;
+
+        this._text.text = this.formatBookTitle(entity.book.title);
 
         const authorText = (this._authorPanel.getChildByName('Text') as TextBlock);
         const pageText = (this._pagePanel.getChildByName('Text') as TextBlock);
@@ -144,23 +144,23 @@ export class BookPanel extends TransformNode {
         this._pagePanel.widthInPixels = 0;
         this._datePanel.widthInPixels = 0;
 
-        if(model.book.author.name) {
+        if(entity.book.author.name) {
             this._authorPanel.isVisible = true;
-            authorText.text = model.book.author.name;
+            authorText.text = entity.book.author.name;
         } else {
             this._authorPanel.isVisible = false;
         }
 
-        if(model.book.page) {
+        if(entity.book.page) {
             this._pagePanel.isVisible = true;
-            pageText.text = model.book.page + 'p';
+            pageText.text = entity.book.page + 'p';
         } else {
             this._pagePanel.isVisible = false;
         }
 
-        if(model.created_at) {
+        if(entity.created_at) {
             this._datePanel.isVisible = true;
-            dateText.text = model.created_at;
+            dateText.text = entity.created_at;
         } else {
             this._datePanel.isVisible = false;
         }

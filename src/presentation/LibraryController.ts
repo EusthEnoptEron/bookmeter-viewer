@@ -35,6 +35,10 @@ export class LibraryController {
         this._textPanel = new BookPanel("", this._scene);
         this._grouper = new Grouper();
         this._groupingPool = new MemoryPool<BookGrouping>(() => new BookGrouping("Grouping", this._scene));
+
+        this._selectionManager.onFocusChanged.subscribe(target => {
+            this._textPanel.setTarget(target as BookEntity);
+        });
     }
 
     private async onEnterLibrary() {
@@ -64,6 +68,30 @@ export class LibraryController {
         const meshes = await this._bookBuilder.createMeshes(books, user);
         const entities = books.map((book, i) => new BookEntity(book, meshes[i]));
 
+        for(let entity of entities) {
+            let actionManager = new ActionManager(entity.mesh.getScene());
+            entity.mesh.actionManager = actionManager;
+            //ON MOUSE ENTER
+            entity.mesh.actionManager.registerAction(
+                new ExecuteCodeAction(
+                    ActionManager.OnPointerOverTrigger,
+                    () => this._selectionManager.setFocused(entity)
+                )
+            );
+            entity.mesh.actionManager.registerAction(
+                new ExecuteCodeAction(
+                    ActionManager.OnPointerOutTrigger, 
+                    () => { this._selectionManager.setUnfocused(entity) }
+                )
+            );
+            entity.mesh.actionManager.registerAction(
+                new ExecuteCodeAction(
+                    ActionManager.OnPickTrigger, 
+                    () => { this._selectionManager.setSelection(entity) }
+                )
+            );
+        }
+
         this._grouper.setEntries(entities);
         this._groupingPool.prewarm(10);
     }
@@ -91,10 +119,6 @@ export class LibraryController {
         );
 
         const radius = 2.5;
-        let focused: AbstractMesh = null;
-        let focusedOrigin: [Vector3, Vector3];
-        let focusChangeable = true;
-        let counter = 0;
         let success = 0;
         let fail = 0;
 
@@ -124,28 +148,11 @@ export class LibraryController {
                     mesh.position = new Vector3(0, 5, 0);
                     mesh.isVisible = true;
                     mesh.setParent(grouping);
-
-                    const pos = grouping.getBookPosition(book);
-                    let rot = new Vector3(0, -Math.PI * 0.5, 0);
-
-                    entity.setTarget(pos, rot);
+                    entity.setTarget(
+                        grouping.getBookPosition(book), 
+                        new Vector3(0, -Math.PI * 0.5, 0)
+                    );
                 
-                    let actionManager = new ActionManager(this._scene);
-                    mesh.actionManager = actionManager;
-                    //ON MOUSE ENTER
-                    mesh.actionManager.registerAction(
-                        new ExecuteCodeAction(
-                            ActionManager.OnPointerOverTrigger,
-                            () => this._selectionManager.setFocused(entity)
-                        )
-                    );
-                    mesh.actionManager.registerAction(
-                        new ExecuteCodeAction(
-                            ActionManager.OnPointerOutTrigger, 
-                            () => { this._selectionManager.setUnfocused(entity) }
-                        )
-                    );
-
                     success++;
                 } catch (e) {
                     console.error(e);

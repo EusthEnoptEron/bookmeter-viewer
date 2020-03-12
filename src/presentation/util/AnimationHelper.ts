@@ -1,6 +1,6 @@
-import { Nullable, Animatable, Animation, Node } from '@babylonjs/core';
+import { Nullable, Animatable, Animation, Node, Vector3, Quaternion, EasingFunction, SineEase } from '@babylonjs/core';
 import { v4 as uuid } from 'uuid';
-import { get, set } from 'lodash';
+import { get, set, mapKeys } from 'lodash';
 import TWEEN from '@tweenjs/tween.js';
 
 declare module '@babylonjs/core/node' {
@@ -16,12 +16,51 @@ declare module "@tweenjs/tween.js" {
     }
 }
 
+function getMany(obj: any, paths: string[]) {
+    const result: any = {};
+
+    for(let path of paths) {
+        result[path] = get(obj, path);
+    }
+
+    return result;
+}
+
+function unpack(obj: any) {
+    const result: any = {};
+
+    for(let key of Object.keys(obj)) {
+        const val = obj[key];
+        if(val instanceof Vector3) {
+            result[key + '.x'] = val.x;
+            result[key + '.y'] = val.y;
+            result[key + '.z'] = val.z;
+        } else {
+            result[key] = val;
+        }
+    }
+
+    return result;
+}
+
+const SIN_IN_OUT = new SineEase();
+SIN_IN_OUT.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+
 export class AnimationHelper {
     static Touch() {
 
     }
 
     static TransitionTo(node: Node, attribute: string, targetValue: any, duration: number): Animatable {
+
+        // console.log("From", getMany(node, [attribute]), "to", { [attribute]: targetValue },  duration * 1000);
+        // new TWEEN.Tween(unpack(getMany(node, [attribute])))
+        //     .to(unpack({ [attribute]: targetValue }), duration * 1000)
+        //     .onTarget(node)
+        //     .easing(TWEEN.Easing.Sinusoidal.InOut)
+        //     .start();
+        // return null;
+
         return Animation.CreateAndStartAnimation(
             uuid(),
             node,
@@ -30,7 +69,8 @@ export class AnimationHelper {
             Math.round(60 * duration),
             get(node, attribute),
             targetValue,
-            Animation.ANIMATIONLOOPMODE_CONSTANT
+            Animation.ANIMATIONLOOPMODE_CONSTANT,
+            SIN_IN_OUT
         );
     }
 }

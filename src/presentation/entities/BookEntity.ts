@@ -1,5 +1,5 @@
 import {
-    Mesh, AbstractMesh, Vector3
+    Mesh, AbstractMesh, Vector3, Observer, Scene, TransformNode, Quaternion
 } from "@babylonjs/core";
 import { Book } from "../../model/Book";
 import { BookEntry } from "../../model/BookEntry";
@@ -12,11 +12,12 @@ export class BookEntity implements BookEntry, ISelectable {
 
     constructor(public bookEntry: BookEntry, public mesh: AbstractMesh) {}
     
-
+    private _parent: TransformNode;
     private _targetPosition: Vector3;
     private _targetRotation: Vector3;
 
     setTarget(targetPosition: Vector3, targetRotation: Vector3) {
+        this._parent = this.mesh.parent as TransformNode;
         this._targetPosition = targetPosition;
         this._targetRotation = targetRotation;
 
@@ -26,10 +27,20 @@ export class BookEntity implements BookEntry, ISelectable {
 
     onSelect() {
         this._selected = true;
+
+        const cam = this.mesh.getScene().getCameraByID("mainCamera");
+
+        this.mesh.setParent(cam);
+        this.mesh.transitionTo('position', Vector3.Forward().scale(0.5), 0.5);
+        this.mesh.transitionTo('rotation', Vector3.Zero(), 0.5);
     }
 
     onDeselect() {
         this._selected = false;
+
+        this.mesh.setParent(this._parent);
+        this.mesh.transitionTo('position', this._targetPosition, 0.5);
+        this.mesh.transitionTo('rotation', this._targetRotation, 0.5);
     }
 
     onMouseOver() {
