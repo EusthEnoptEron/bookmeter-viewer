@@ -44,7 +44,7 @@ export class BookGrouping extends AbstractMesh {
         this._label.lookAt(new Vector3(0, 0, -1));
 
         this._label.position.y += PODEST_HEIGHT + 0.125;
-        this._label.position.z += 0.05;
+        this._label.position.z += 0.1;
 
         this._label.parent = this;
     }

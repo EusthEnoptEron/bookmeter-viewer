@@ -90,7 +90,7 @@ export class LibraryController {
         for (let i = 0; i < groupings.length; i++) {
             const group = groupings[i];
             const grouping = new BookGrouping(group[0].text, this.scene);
-            const angle = (i / groupings.length) * Math.PI * 2;
+            const angle = -(i / groupings.length) * Math.PI * 2 + Math.PI * 0.5;
 
             this.sceneController.shadowGenerator.addShadowCaster(grouping);
 
