@@ -120,6 +120,7 @@ export class LibraryController {
                     const mesh = entity.mesh;
 
                     mesh.position = new Vector3(0, 5, 0);
+                    mesh.isVisible = true;
                     mesh.setParent(grouping);
 
                     const pos = grouping.getBookPosition(book);

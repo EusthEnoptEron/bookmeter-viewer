@@ -46,7 +46,6 @@ export class BookBuilder {
     async createMeshes(books: BookEntry[], user: string): Promise<AbstractMesh[]> {
         const chunks = chunk(books, AtlasBase.CalculateSpace(atlasSize, frameSize));
         const meshes: AbstractMesh[] = [];
-        const promises = [];
 
         for(let group of chunks) {
             Tools.UseFallbackTexture = false;
@@ -88,7 +87,8 @@ export class BookBuilder {
 
         mesh.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(slot.x, slot.y);
         mesh.instancedBuffers[PBRScalableMaterial.ScaleKind] = new Vector2(slot.width, slot.height);
-        
+        mesh.isVisible = false;
+
         this.shadowGenerator.addShadowCaster(mesh);
 
         return mesh;

@@ -35,6 +35,7 @@ export class AssetRegistry
         manager.addMeshTask('book', '', '/assets/', 'book.glb').onSuccess = task => {
             this.bookModel = task.loadedMeshes[1] as Mesh;
             this.bookModel.setEnabled(false);
+            this.bookModel.isVisible = false;
         };
 
         await manager.loadAsync();

@@ -29,6 +29,7 @@ export class BookPanel extends TransformNode {
         this._mesh = MeshBuilder.CreatePlane(`${name}_plane`, { width: this._width, height: 1 }, scene);
         this._mesh.parent = this;
         this._mesh.rotation.y = Math.PI;
+        this._mesh.isVisible = false;
 
 
         this.rotationQuaternion = Quaternion.Identity();
@@ -95,7 +96,6 @@ export class BookPanel extends TransformNode {
         ellipse.heightInPixels = 70;
         ellipse.widthInPixels = 70;
         ellipse.rotation = Math.PI * 0.2;
-        console.log(ellipse.heightInPixels);
         
         const charText = new TextBlock("Character", character);
         ellipse.addControl(charText);
@@ -131,6 +131,7 @@ export class BookPanel extends TransformNode {
     }
 
     setTarget(mesh: AbstractMesh, model: BookEntry) {
+        this._mesh.isVisible = true;
         this._target = mesh;
         this._targetModel = model;
         this._text.text = this.formatBookTitle(model.book.title);
