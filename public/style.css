@@ -151,6 +151,16 @@ button[disabled] {
     font-weight: bold;
     font-size: 3rem;
     text-decoration: none;
+    border-radius: 3rem;
+    display: inline-block;
+    width: 5rem;
+    height: 5rem;
+    text-align: center;
+    background-color: rgba(0,0,0,0.3);
+}
+
+#outline-container .btn-close:hover {
+    background-color: rgba(0,0,0,0.5);
 }
 
 
@@ -206,5 +216,15 @@ button[disabled] {
 
     #outline {
         padding: 3em;
-    }    
+    }
+
+    #outline-container .btn-close {
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    #outline-container .btn-close:hover {
+        background-color: rgba(0,0,0,1.0);
+    }
+
+    
 }

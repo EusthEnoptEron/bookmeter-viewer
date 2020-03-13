@@ -1,4 +1,4 @@
-import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalLight, CubeTexture, ParticleSystem, Texture, Animation, Color3, StandardMaterial, MeshBuilder, SceneLoader, AbstractMesh, Mesh, ShadowGenerator, Animatable, HighlightLayer, SpotLight, HemisphericLight, PointLight } from "@babylonjs/core";
+import { Scene, Engine, Vector3, Camera, FreeCamera, Color4, Light, DirectionalLight, CubeTexture, ParticleSystem, Texture, Animation, Color3, StandardMaterial, MeshBuilder, SceneLoader, AbstractMesh, Mesh, ShadowGenerator, Animatable, HighlightLayer, SpotLight, HemisphericLight, PointLight, UniversalCamera, DeviceOrientationCamera } from "@babylonjs/core";
 import { CustomEngine } from "./util/CustomEngine";
 
 import './util/AnimationHelper';
