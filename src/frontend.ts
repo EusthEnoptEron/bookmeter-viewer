@@ -5,6 +5,6 @@ new MainController(
     document.querySelector('#id-input'),
     document.querySelector('button'),
     document.querySelector('#render-target'),
-    document.querySelector('#outline'),
+    document.querySelector('#outline-container'),
     template(document.querySelector('#outline-template').textContent)
 );

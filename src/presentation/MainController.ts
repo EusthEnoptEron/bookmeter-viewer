@@ -17,6 +17,7 @@ export class MainController {
     private selectionManager: SelectionManager;
     private scene: SceneController;
 
+    private outlineContent: HTMLElement;
     constructor(
         private inputField: HTMLInputElement,
         private inputButton: HTMLButtonElement,
@@ -34,6 +35,8 @@ export class MainController {
             .pipe(filter(uri => !isEmpty(uri)))
             .subscribe(uri => this.onUser(uri));
 
+        this.outlineContent = this.outlineContainer.querySelector('.target');
+
         this.selectionManager.onSelectionChanged.subscribe(selection => this.onSelectionChanged(selection));
         inputField.addEventListener('change', () => this.onValidate());
         inputField.addEventListener('keyup', () => this.onValidate());
@@ -41,6 +44,13 @@ export class MainController {
         inputField.form.addEventListener('submit', (e) => {
             e.preventDefault();
             this.onValidate();
+        });
+
+        const closeBtn = outlineContainer.querySelector('.btn-close');
+        closeBtn.addEventListener('click', e => {
+            e.preventDefault();
+            
+            this.selectionManager.setSelection(null);
         });
 
         window.addEventListener('keyup', (e) => {
@@ -53,6 +63,7 @@ export class MainController {
             document.body.classList.add("rendering");
         });
 
+        
         this.onValidate();
     }
 
@@ -64,10 +75,10 @@ export class MainController {
 
     private onSelectionChanged(selection: ISelectable) {
         if(selection === null) {
-            this.outlineContainer.innerHTML = "";
+            this.outlineContent.innerHTML = "";
             this.outlineContainer.classList.remove("active");
         } else {
-            this.outlineContainer.innerHTML = this.outlineTemplate({ entry: selection });
+            this.outlineContent.innerHTML = this.outlineTemplate({ entry: selection });
             this.outlineContainer.classList.add("active");
         }
     }

@@ -10,11 +10,6 @@ body {
     background: linear-gradient(0deg, rgba(213,214,210,1) 0%, rgba(213,214,210,1) 50%, rgba(229,230,226,1) 80%, rgba(245,246,242,1) 100%);
 }
 
-#outline {
-    position: absolute;
-    width: 100%;
-    z-index: 2;
-}
 
 #render-target {
     position: absolute;
@@ -87,13 +82,11 @@ button[disabled] {
     border-color: #BBB !important;
 }
 
-#outline {
+#outline-container {
     width: 100%;
     height: 100%;
     top: 0;
-    align-items: center;
     padding: 2em;
-    display: flex;
     background: rgba(0,0,0,0.7);
     opacity: 0;
     padding: 0;
@@ -102,16 +95,25 @@ button[disabled] {
     transition: opacity 500ms;
     color: white;
     overflow: hidden;
+    position: absolute;
+    z-index: -2;
 }
 
-#outline.active {
+#outline-container .target 
+{
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+#outline-container.active {
     display: flex;
     background: rgba(0,0,0,0.7);
     opacity: 1.0;
     z-index: 2;
 }
 
-#outline > div {
+#outline {
     align-items: unset;
     display: flex;
     flex: 1;
@@ -122,15 +124,26 @@ button[disabled] {
     max-height: 100%;
 }
 
+#outline-container .btn-close {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    color: white;
+    font-weight: bold;
+    font-size: 3rem;
+    text-decoration: none;
+}
+
+
 #outline img {
     height: 100%;
 }
 
-#outline > div > * {
+#outline > * {
     padding: 1em;
 }
 
-#outline > div > figure {
+#outline > figure {
     height: 50%;
     flex-shrink: 0;
 }
@@ -142,7 +155,11 @@ button[disabled] {
 
 #outline h3 {
     font-size: 2rem;
-    margin-left: 2em;
+    margin-left: 1em;
+}
+
+#outline h3:before {
+    content: "by ";
 }
 
 #nprogress .bar {
@@ -164,11 +181,11 @@ button[disabled] {
         font-size: 3rem;
     }
     
-    #outline > div {
+    #outline {
         flex-wrap: nowrap;
     }
 
-    #outline > div {
+    #outline {
         padding: 3em;
     }    
 }
