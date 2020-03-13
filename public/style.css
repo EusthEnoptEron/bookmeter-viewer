@@ -70,7 +70,7 @@ button.button-primary {
     border-color: #76A72a;
 }
 
-button.button-primary:hover {
+button.button-primary:hover, button.button-primary:focus {
     background-color: #56970a;
     border-color: #56970a;
 }

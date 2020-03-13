@@ -1,16 +1,12 @@
 import express from 'express';
-import { StoreEntry } from './backend/StoreEntry';
-import { BookmeterClient } from './backend/BookmeterClient';
-import fs from 'fs';
 import path from 'path';
-import { DateTime } from 'luxon';
-import Axios from 'axios';
-import { nextTick } from 'async';
-import { BackendAtlas } from './backend/BackendAtlas';
-import { BookController } from './backend/controller/BookController';
 import { Cache } from './backend/Cache';
 import { AtlasController } from './backend/controller/AtlasController';
+import { BookController } from './backend/controller/BookController';
 import { ProxyController } from './backend/controller/ProxyController';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const port = 8080;
 const app = express()
