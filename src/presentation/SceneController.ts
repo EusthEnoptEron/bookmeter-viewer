@@ -15,7 +15,7 @@ export class SceneController {
     ribbon: Mesh;
     particleSystem: ParticleSystem;
     shadowGenerator: ShadowGenerator;
-
+    time: number = new Date().getTime();
     readonly ready: Promise<void>;
 
     private _ribbonRotation: Animatable;
@@ -27,6 +27,7 @@ export class SceneController {
         this.ready = this.setupScene();
         this.ready.then(() => {
             this.engine.runRenderLoop(() => {
+                this.time = new Date().getTime();
                 TWEEN.update();
                 this.scene.render();
             });

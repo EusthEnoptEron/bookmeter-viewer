@@ -16,6 +16,7 @@ import { BackendClient } from '../backend/BackendClient';
 import { PromiseUtil } from './util/PromiseUtil';
 import { MemoryPool } from './util/MemoryPool';
 import { SelectionManager } from './SelectionManager';
+import { DateTime } from 'luxon';
 
 export class LibraryController {
     private _entries: BookEntry[];
@@ -70,11 +71,16 @@ export class LibraryController {
         for(let entity of entities) {
             let actionManager = new ActionManager(entity.mesh.getScene());
             entity.mesh.actionManager = actionManager;
+
+            let hovered = false;
             //ON MOUSE ENTER
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
                     ActionManager.OnPointerOverTrigger,
-                    () => this._selectionManager.setFocused(entity)
+                    () => {
+                        hovered = true;
+                        this._selectionManager.setFocused(entity);
+                    }
                 )
             );
             entity.mesh.actionManager.registerAction(
@@ -86,7 +92,12 @@ export class LibraryController {
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
                     ActionManager.OnPickTrigger, 
-                    () => { this._selectionManager.setSelection(entity) }
+                    (e) => {
+                        if(e.sourceEvent?.pointerType === 'mouse' || !hovered) {
+                            this._selectionManager.setSelection(entity) 
+                        }
+                        hovered = false;
+                    }
                 )
             );
         }
