@@ -10,6 +10,12 @@ body {
     background: linear-gradient(0deg, rgba(213,214,210,1) 0%, rgba(213,214,210,1) 50%, rgba(229,230,226,1) 80%, rgba(245,246,242,1) 100%);
 }
 
+#outline {
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+}
+
 #render-target {
     position: absolute;
     /* top: 0; */
@@ -79,4 +85,84 @@ button[disabled] {
 
     background-color: #BBB !important;
     border-color: #BBB !important;
+}
+
+#outline {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    align-items: center;
+    padding: 2em;
+    display: flex;
+    background: rgba(0,0,0,0.7);
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    z-index: -2;
+    transition: opacity 500ms;
+    color: white;
+    overflow: hidden;
+}
+
+#outline.active {
+    display: flex;
+    background: rgba(0,0,0,0.7);
+    opacity: 1.0;
+    z-index: 2;
+}
+
+#outline > div {
+    align-items: unset;
+    display: flex;
+    flex: 1;
+    justify-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: auto;
+    max-height: 100%;
+}
+
+#outline img {
+    height: 100%;
+}
+
+#outline > div > * {
+    padding: 1em;
+}
+
+#outline > div > figure {
+    height: 50%;
+    flex-shrink: 0;
+}
+
+
+#outline h2 {
+    font-size: 2.5rem;
+}
+
+#outline h3 {
+    font-size: 2rem;
+    text-align: right;
+
+}
+
+
+/* Larger than tablet */
+@media (min-width: 750px) {
+
+    #outline h2 {
+        font-size: 3.6rem;
+    }
+
+    #outline h3 {
+        font-size: 3rem;
+    }
+    
+    #outline > div {
+        flex-wrap: nowrap;
+    }
+
+    #outline > div {
+        padding: 3em;
+    }    
 }

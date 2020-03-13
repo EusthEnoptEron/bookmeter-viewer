@@ -26,10 +26,9 @@ export class LibraryController {
     private _user: string;
     private _textPanel: BookPanel;
     private _groupingPool: MemoryPool<BookGrouping>;
-    private _selectionManager = new SelectionManager();
     private hasEntered = false;
 
-    constructor(private sceneController: SceneController) {
+    constructor(private sceneController: SceneController, private _selectionManager: SelectionManager) {
         this._scene = sceneController.scene;
         this._bookBuilder = new BookBuilder(this._scene, this.sceneController.shadowGenerator);
         this._textPanel = new BookPanel("", this._scene);

@@ -28,19 +28,19 @@ export class BookEntity implements BookEntry, ISelectable {
     onSelect() {
         this._selected = true;
 
-        const cam = this.mesh.getScene().getCameraByID("mainCamera");
+        // const cam = this.mesh.getScene().getCameraByID("mainCamera");
 
-        this.mesh.setParent(cam);
-        this.mesh.transitionTo('position', Vector3.Forward().scale(0.5), 0.5);
-        this.mesh.transitionTo('rotation', Vector3.Zero(), 0.5);
+        // this.mesh.setParent(cam);
+        // this.mesh.transitionTo('position', Vector3.Forward().scale(0.5), 0.5);
+        // this.mesh.transitionTo('rotation', Vector3.Zero(), 0.5);
     }
 
     onDeselect() {
         this._selected = false;
 
-        this.mesh.setParent(this._parent);
-        this.mesh.transitionTo('position', this._targetPosition, 0.5);
-        this.mesh.transitionTo('rotation', this._targetRotation, 0.5);
+        // this.mesh.setParent(this._parent);
+        // this.mesh.transitionTo('position', this._targetPosition, 0.5);
+        // this.mesh.transitionTo('rotation', this._targetRotation, 0.5);
     }
 
     onMouseOver() {
