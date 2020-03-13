@@ -24,11 +24,7 @@ export class BookmeterClient {
         const response = await axios.get(url);
         const data = response.data as BookResponse<UserInfo>;
 
-        if(data.resources.length > 0) {
-            return data.resources[0];
-        }
-        
-        return null;
+        return data.resources.find(user => user.name == userName);
     }
 
     public static async GetResponse(userId: number, page?: number): Promise<BookResponse<BookEntry>>  {

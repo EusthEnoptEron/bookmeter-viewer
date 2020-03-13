@@ -8,6 +8,8 @@ import { Scene } from '@babylonjs/core';
 import { PromiseUtil } from './util/PromiseUtil';
 import { SelectionManager, ISelectable } from './SelectionManager';
 import { TemplateExecutor } from 'lodash';
+import nProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 
 export class MainController {
     private router: Router;
@@ -23,6 +25,7 @@ export class MainController {
         private outlineTemplate: TemplateExecutor) {
         this.router = new Router();
 
+        this.configureLoadingBar();
         this.scene = new SceneController(this.canvas);
         this.selectionManager = new SelectionManager();
         this.library = new LibraryController(this.scene, this.selectionManager);
@@ -50,9 +53,13 @@ export class MainController {
             document.body.classList.add("rendering");
         });
 
-        
-
         this.onValidate();
+    }
+
+    private configureLoadingBar() {
+        nProgress.configure({
+            parent: '#container'
+        });
     }
 
     private onSelectionChanged(selection: ISelectable) {
@@ -71,13 +78,18 @@ export class MainController {
             this.inputField.disabled = true;
             this.inputButton.disabled = true;
             try {
+                nProgress.start();
+                
                 await this.scene.ready;
                 const entries = await BackendClient.GetBookEntries(user);
                 await this.library.setEntries(user, entries);
-                await PromiseUtil.Delay(1000);
 
+                nProgress.done();
+
+                await PromiseUtil.Delay(1000);
                 this.library.show();
             } catch(e) {
+                nProgress.done();
                 console.error(e);
                 this.inputField.disabled = false;
                 this.inputButton.disabled = false;

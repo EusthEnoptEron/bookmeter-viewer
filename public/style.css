@@ -142,10 +142,16 @@ button[disabled] {
 
 #outline h3 {
     font-size: 2rem;
-    text-align: right;
-
+    margin-left: 2em;
 }
 
+#nprogress .bar {
+    bottom: 0;
+    top: unset;
+}
+#nprogress .peg {
+    display: none;
+}
 
 /* Larger than tablet */
 @media (min-width: 750px) {
