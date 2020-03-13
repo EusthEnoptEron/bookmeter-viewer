@@ -18,7 +18,7 @@ export class BookmeterClient {
     // https://bookmeter.com/books/8242918/related_books/author.json?limit=8
     // https://bookmeter.com/books/8242918/reviews.json?offset=0&limit=40
     
-    public static async FindUser(userName: string): Promise<UserInfo|null>
+    public static async FindUser(userName: string): Promise<UserInfo|undefined>
     {
         const url = sprintf(SEARCH_URL, userName);
         const response = await axios.get(url);

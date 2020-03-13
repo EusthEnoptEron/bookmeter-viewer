@@ -2,13 +2,14 @@ import { Cache } from './Cache';
 import { BookmeterClient } from './BookmeterClient';
 import { BookEntry } from '../model/BookEntry';
 import { StoreEntry } from './StoreEntry';
+import { WebException } from './WebException';
 
 export class BookmeterService {
     private static readonly NUMBER_REGEX = /^\d+$/;
 
     static async GetUserId(userNameOrId: string): Promise<number> {
         if(userNameOrId === null || userNameOrId === undefined || userNameOrId.length == 0) {
-            throw "User id is missing!";
+            throw new WebException(400, "Please provide a user name.");
         }
 
         if(userNameOrId.match(this.NUMBER_REGEX)) {
@@ -21,6 +22,9 @@ export class BookmeterService {
         }
         
         const user = await BookmeterClient.FindUser(userNameOrId);
+        if(user === undefined) {
+            throw new WebException(404, 'User could not be found.');
+        }
         Cache.PutUser(user.name, user.id);
 
         return user.id;

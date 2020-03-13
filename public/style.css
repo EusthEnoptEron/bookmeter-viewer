@@ -4,12 +4,26 @@
     height  : 100%;
     margin  : 0;
     padding : 0;
+    font-family: 'Open Sans', sans-serif;
 }
+
 body {
     background: rgb(213,214,210);
     background: linear-gradient(0deg, rgba(213,214,210,1) 0%, rgba(213,214,210,1) 50%, rgba(229,230,226,1) 80%, rgba(245,246,242,1) 100%);
 }
 
+h1, h2, h3, h4 {
+    font-family: Ubuntu, sans-serif;
+}
+
+input[type=text] {
+    font-family: 'Open Sans', sans-serif;
+}
+
+form {
+    margin: 0;
+    padding: 0;
+}
 
 #render-target {
     position: absolute;
@@ -80,6 +94,11 @@ button[disabled] {
 
     background-color: #BBB !important;
     border-color: #BBB !important;
+}
+
+.error {
+    color: #ef0000;
+    margin: 0;
 }
 
 #outline-container {

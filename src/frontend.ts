@@ -6,5 +6,6 @@ new MainController(
     document.querySelector('button'),
     document.querySelector('#render-target'),
     document.querySelector('#outline-container'),
-    template(document.querySelector('#outline-template').textContent)
+    template(document.querySelector('#outline-template').textContent),
+    document.querySelector('.error')
 );

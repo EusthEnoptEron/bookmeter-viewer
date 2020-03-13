@@ -4,7 +4,7 @@ import { filter } from 'rxjs/operators';
 import { BackendClient } from '../backend/BackendClient';
 import { LibraryController } from './LibraryController';
 import { SceneController } from './SceneController';
-import { Scene } from '@babylonjs/core';
+import { Scene, ArcFollowCamera } from '@babylonjs/core';
 import { PromiseUtil } from './util/PromiseUtil';
 import { SelectionManager, ISelectable } from './SelectionManager';
 import { TemplateExecutor } from 'lodash';
@@ -23,7 +23,8 @@ export class MainController {
         private inputButton: HTMLButtonElement,
         private canvas: HTMLCanvasElement,
         private outlineContainer: HTMLElement,
-        private outlineTemplate: TemplateExecutor) {
+        private outlineTemplate: TemplateExecutor,
+        private errorContainer: HTMLElement) {
         this.router = new Router();
 
         this.configureLoadingBar();
@@ -84,6 +85,8 @@ export class MainController {
     }
 
     private async onUser(user: string) {
+        this.errorContainer.textContent = '';
+
         if(!isEmpty(user)) {
             this.inputField.value = user;
             this.inputField.disabled = true;
@@ -101,7 +104,8 @@ export class MainController {
                 this.library.show();
             } catch(e) {
                 nProgress.done();
-                console.error(e);
+                console.error(e.response);
+                this.errorContainer.textContent = e?.response?.data ?? e;
                 this.inputField.disabled = false;
                 this.inputButton.disabled = false;
             }
