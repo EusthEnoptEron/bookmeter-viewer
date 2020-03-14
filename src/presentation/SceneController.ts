@@ -1,4 +1,4 @@
-import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3, BoxParticleEmitter } from "@babylonjs/core";
 import TWEEN from '@tweenjs/tween.js';
 import './util/AnimationHelper';
 import { AssetRegistry } from './util/AssetRegistry';
@@ -233,8 +233,8 @@ export class SceneController {
         particleSystem.colorDead = Color4.FromHexString("#56970a00");
 
         // Size of each particle (random between...
-        particleSystem.minSize = 1;
-        particleSystem.maxSize = 7;
+        particleSystem.minSize = .5;
+        particleSystem.maxSize = 5;
 
         particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;
 
@@ -248,14 +248,15 @@ export class SceneController {
         particleSystem.preWarmStepOffset = 10;
 
         /******* Emission Space ********/
-        particleSystem.createDirectedCylinderEmitter(
-            55,
-            10,
+        const emitter = particleSystem.createDirectedCylinderEmitter(
+            30,
+            0,
             0,
             Vector3.Up(),
             Vector3.Up()
         );
 
+        particleSystem.worldOffset = new Vector3(0, -5, 0);
         // Speed
         particleSystem.minEmitPower = 5;
         particleSystem.maxEmitPower = 10;
