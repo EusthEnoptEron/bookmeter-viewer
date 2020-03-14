@@ -122,6 +122,7 @@ export class BookGrouping extends AbstractMesh {
             mat.metallicRoughnessTexture =  AssetRegistry.Instance.marbleRoughnessTexture;
 
             this._templatePodest.material = mat;
+            this._templatePodest.receiveShadows = true;
             this._templatePodest.registerInstancedBuffer(VertexBuffer.ColorKind, 4);
 
             return this._templatePodest;

@@ -156,7 +156,7 @@ export class LibraryController {
             grouping.group = group[0];
             grouping.books = group[1];
 
-            for (let book of grouping.books) {
+            for (let book of group[1]) {
                 await PromiseUtil.Delay(10);
 
                 try {

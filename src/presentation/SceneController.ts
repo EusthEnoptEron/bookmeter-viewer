@@ -51,6 +51,7 @@ export class SceneController {
         // this.shadowGenerator.blurKernel = 32;
         // this.shadowGenerator.useCloseExponentialShadowMap = true;
         this.shadowGenerator.usePercentageCloserFiltering = true
+        this.shadowGenerator.bias = 0.000005;
 
         this.floorMesh = await this.buildFloor();
         this.ribbon = this.buildRibbon();

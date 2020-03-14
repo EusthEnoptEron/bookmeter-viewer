@@ -86,7 +86,7 @@ Node.prototype.stopAnimations = function(): void {
 TWEEN.Tween.prototype.onTarget = function(target: any): TWEEN.Tween {
     this.onUpdate((values: any) => {
         for(let path of Object.keys(values)) {
-            console.log(`${path} => ${values[path]}`)
+            // console.log(`${path} => ${values[path]}`)
             set(target, path, values[path]);
         }
     });

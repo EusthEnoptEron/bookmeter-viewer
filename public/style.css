@@ -156,11 +156,11 @@ button[disabled] {
     width: 5rem;
     height: 5rem;
     text-align: center;
-    background-color: rgba(0,0,0,0.3);
+    background-color: rgba(0,0,0,0.7);
 }
 
 #outline-container .btn-close:hover {
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,1.0);
 }
 
 
@@ -219,11 +219,11 @@ button[disabled] {
     }
 
     #outline-container .btn-close {
-        background-color: rgba(0,0,0,0.8);
+        background-color: rgba(0,0,0,0.3);
     }
 
     #outline-container .btn-close:hover {
-        background-color: rgba(0,0,0,1.0);
+        background-color: rgba(0,0,0,0.5);
     }
 
     
