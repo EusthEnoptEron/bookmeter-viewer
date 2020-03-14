@@ -18,7 +18,8 @@ export class Label extends Mesh {
         if(options.baseTexture) {
             console.log("I have a base texture", options.baseTexture);
             mat.baseTexture = options.baseTexture;
-            mat.metallicRoughnessTexture = this._texture;
+            mat.normalTexture = this._texture;
+            // mat.metallicRoughnessTexture = this._texture;
             // mat.metallic = 0.0;
             // mat.roughness = 1.0;
         } else {
@@ -40,14 +41,50 @@ export class Label extends Mesh {
         const ctx = this._texture.getContext();
         const size = this._texture.getSize();
 
-        ctx.fillStyle = '#00FF00';
+        ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, size.width, size.height);
 
         ctx.font = 'bold 64px Ubuntu';
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = "#0099FF";
+        ctx.fillStyle = "#FFFFFF";
         ctx.fillText(this._text, size.width * 0.5, size.height * 0.5, size.width * 0.9);
+
+        const data = ctx.getImageData(0, 0, size.width, size.height);
+        const modified = ctx.createImageData(data);
+        const stride = data.width * 4;
+        const pixels = data.width * data.height;
+
+        function getPixel(x: number, y: number): number {
+            return data.data[y * stride + x * 4];
+        }
+
+        for(let x = 1; x < data.width - 1; x++)
+        for(let y = 1; y < data.height; y++) {
+            const idx = y * stride + x * 4;
+            const Gx = getPixel(x - 1, y - 1)
+                     - getPixel(x + 1, y - 1)
+                     + getPixel(x - 1, y) * 2
+                     - getPixel(x + 1, y) * 2
+                     + getPixel(x - 1, y + 1)
+                     - getPixel(x + 1, y + 1);
+
+            const Gy = getPixel(x - 1, y - 1)
+                     + getPixel(x, y - 1) * 2
+                     + getPixel(x + 1, y - 1)
+                     - getPixel(x - 1, y + 1)
+                     - getPixel(x, y + 1) * 2
+                     - getPixel(x + 1, y + 1);
+
+            modified.data[idx] = Gx;
+            modified.data[idx + 1] = Gy;
+            modified.data[idx + 2] = 255;
+            modified.data[idx + 3] = 255;
+        }
+        console.log(modified.data);
+
+        ctx.putImageData(modified, 0, 0);
+
         this._texture.update();
     }
     
