@@ -81,7 +81,7 @@ export class SceneController {
             // new Vector3(0, -6, -2).normalize(),
             // this.scene
         // );
-        this.shadowLight.intensity = 15.0;
+        this.shadowLight.intensity = 18.0;
         // this.shadowLight.position = new Vector3(0, 5, 5);
 
         // const hdrTexture = new CubeTexture('/assets/textures/skybox', this.scene, [".png", "_py.jpg", ".png", ".png", "_ny.jpg", ".png"], null, null, null, null, null, true);

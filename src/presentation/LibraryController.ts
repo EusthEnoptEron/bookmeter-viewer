@@ -15,6 +15,7 @@ import { Grouper } from "./util/Grouper";
 import { MemoryPool } from './util/MemoryPool';
 import { PromiseUtil } from './util/PromiseUtil';
 import { uniq } from 'lodash';
+import { Categories } from './util/CategoryBuilder';
 
 
 export class LibraryController {
@@ -112,30 +113,7 @@ export class LibraryController {
             this.hasEntered = true;
         }
 
-        // const groupings = grouper.group(book => {
-        //     return {
-        //         sortKey: book.created_at.substr(0, 4),
-        //         text: book.created_at.substr(0, 4)
-        //     };
-        // });
-        const groupings = this._grouper.chunk(
-            60,
-            books => {
-                const authors = uniq(books.map(book => book.book.author.name).filter(author => author));
-                
-                if(authors.length == 0) {
-                    return '';
-                }
-                if(authors.length == 1) {
-                    return authors[0];
-                }
-                return authors[0] + " ... " + authors[authors.length - 1];
-            },
-            ['book.author.name', 'book.created_at'],
-            ['asc', 'asc'],
-            book => book.book.author.name
-        );
-
+        const groupings = Categories[0].apply(this._grouper);
         const radius = Math.max(1, this._entries.length * 0.006);
         let success = 0;
         let fail = 0;

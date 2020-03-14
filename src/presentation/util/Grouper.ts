@@ -1,5 +1,5 @@
 import { BookEntry } from "../../model/BookEntry";
-import { orderBy, chunk } from "lodash";
+import { orderBy, chunk, Many, ListIteratee, NotVoid } from "lodash";
 
 export interface IGrouping {
     text: string;
@@ -8,7 +8,7 @@ export interface IGrouping {
 }
 
 export class Grouper {
-    private _groupings: Map<string, BookEntry[]> = new Map();
+    private _groupings: Map<string, [IGrouping, BookEntry[]]> = new Map();
     private _books: BookEntry[] = [];
 
     constructor(books: BookEntry[] = null) {
@@ -23,33 +23,26 @@ export class Grouper {
 
     group(
         rule: (book: BookEntry, i: number) => IGrouping,
-        presorter: (book: BookEntry) => any = null,
-        sortDirection: "asc" | "desc" = "asc"
+        sorter: Many<ListIteratee<BookEntry>> = 'book.title',
+        sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
     ): [IGrouping, BookEntry[]][] {
         this._groupings.clear();
         const knownGroupings: { [key: string]: IGrouping} = {};
+        this._books = orderBy(this._books, sorter, sortDirection);
 
-        if(presorter == null) {
-            this._books = orderBy(this._books, book => book.created_at);
-        } else {
-            this._books = orderBy(this._books, presorter);
-        }
         let i = 0;
         for(let book of this._books) {
             const group = rule(book, i++);
             knownGroupings[group.sortKey] = group;
 
             if (!this._groupings.has(group.sortKey)) {
-                this._groupings.set(group.sortKey, [book]);
+                this._groupings.set(group.sortKey, [group, [book]]);
             } else {
-                this._groupings.get(group.sortKey).push(book);
+                this._groupings.get(group.sortKey)[1].push(book);
             }
         }
 
-        let groups = Object.values(knownGroupings);
-        groups = orderBy(groups, g => g.sortKey, sortDirection);
-
-        return groups.map(group => [group, this._groupings.get(group.sortKey)]);
+        return Array.from(this._groupings.values());
     }
 
 
@@ -60,7 +53,6 @@ export class Grouper {
         sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
         skipKeyExtractor: (entry: BookEntry) => string = null
     ): [IGrouping, BookEntry[]][] {
-        this._groupings.clear();
         this._books = orderBy(this._books, sorter, sortDirection);
         
         const chunks = chunk(this._books, chunkSize);
@@ -74,7 +66,6 @@ export class Grouper {
                 skipKeyExtractor
             };
             
-            this._groupings.set(group.sortKey, chunk);
             result.push([group, chunk]);
             i++;
         }
