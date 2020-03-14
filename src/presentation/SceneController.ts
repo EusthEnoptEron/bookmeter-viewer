@@ -127,7 +127,6 @@ export class SceneController {
 
     
     private async buildFloor(): Promise<AbstractMesh> {
-        // const meshes = await SceneLoader.ImportMeshAsync('', '/assets/', 'box.glb', this.scene);
         // meshes.meshes[1].receiveShadows = true;
         const meshes = await SceneLoader.ImportMeshAsync(
             "",
@@ -147,9 +146,9 @@ export class SceneController {
 
         const steps = 200;
         const frequency = 8;
-        const distance = 25;
+        const distance = 15;
         const height = distance / 12;
-        const offset = height * 2;
+        const offset = height * 2 + 0.5;
 
         const baseColor = new Color4(86 / 255, 151 / 255, 10 / 255, 1.0);
         const darkColor = baseColor.scale(0.85);
