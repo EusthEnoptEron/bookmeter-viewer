@@ -207,7 +207,7 @@ export class BookPanel extends TransformNode {
     }
 
     private formatBookTitle(title: string): string {
-        return title.replace(/\(.*?\)$/, '').trim();
+        return title.replace(/\([^(]*?\)$/, '').trim();
     }
 
     private evaluateFontSizeAndWidth(text: string, startFontSize: number, maxWidth: number): [number, number] {

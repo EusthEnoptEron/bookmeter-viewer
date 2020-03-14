@@ -38,7 +38,7 @@ export class BookGrouping extends AbstractMesh {
         this._shelf.parent = this;
         this._shelf.position.y = PODEST_HEIGHT;
 
-        this._label = new Label(`${name}_label`, scene, "", { width: 0.97, height: 0.25, baseTexture:  AssetRegistry.Instance.woodColorTexture });
+        this._label = new Label(`${name}_label`, scene, "", { width: 1, height: 0.25, baseTexture:  AssetRegistry.Instance.woodColorTexture });
         // this._label.position.z += 0.5;
         // this._label.position.y += PODEST_HEIGHT + 0.125;
         // this._label.lookAt(new Vector3(0, -1, -1));
@@ -64,10 +64,26 @@ export class BookGrouping extends AbstractMesh {
     }
 
     set books(books: BookEntry[]) {
-        this._books = books;
+        this._books = [...books];
 
-        this._shelf.width = Math.max(1, BookShelf.CalculateOptimalWidth(books.length, this._shelf.rows));
+        if(this.group.skipKeyExtractor != null) {
+            let prevKey: string = this.group.skipKeyExtractor(this._books[0]);
+
+            for(let i = 1; i < this._books.length; i++) {
+                let key = this.group.skipKeyExtractor(this._books[i]);
+
+                if(key != prevKey) {
+                    this._books.splice(i, 0, null);
+                    i++;
+
+                    prevKey = key;
+                }
+            }
+        }
+        
+        this._shelf.width = Math.max(1, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
         this._podest.scaling.x = this._podest.scaling.z = this._shelf.width * 1.5;
+        this._label.scaling.x = this._shelf.width - 0.03;
     }
 
     getBookPosition(book: BookEntry) {

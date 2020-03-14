@@ -4,6 +4,7 @@ import { orderBy, chunk } from "lodash";
 export interface IGrouping {
     text: string;
     sortKey: string;
+    skipKeyExtractor?: (entry: BookEntry) => string;
 }
 
 export class Grouper {
@@ -33,7 +34,6 @@ export class Grouper {
         } else {
             this._books = orderBy(this._books, presorter);
         }
-
         let i = 0;
         for(let book of this._books) {
             const group = rule(book, i++);
@@ -56,8 +56,9 @@ export class Grouper {
     chunk(
         chunkSize: number,
         labelSupplier: (chunk: BookEntry[]) => string,
-        sorter: (book: BookEntry) => any = b => b.book.title,
-        sortDirection: "asc" | "desc" = "asc"
+        sorter: string | string[] = 'book.title',
+        sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
+        skipKeyExtractor: (entry: BookEntry) => string = null
     ): [IGrouping, BookEntry[]][] {
         this._groupings.clear();
         this._books = orderBy(this._books, sorter, sortDirection);
@@ -69,7 +70,8 @@ export class Grouper {
         for(let chunk of chunks) {
             const group = {
                 sortKey: '#' + i,
-                text: labelSupplier(chunk)
+                text: labelSupplier(chunk),
+                skipKeyExtractor
             };
             
             this._groupings.set(group.sortKey, chunk);

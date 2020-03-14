@@ -1,22 +1,21 @@
-import { AbstractMesh, ActionManager, ExecuteCodeAction, Scene, Vector3, MeshBuilder, Texture, AssetsManager } from "@babylonjs/core";
+import { ActionManager, AssetsManager, ExecuteCodeAction, Scene, Vector3 } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
 import "@babylonjs/loaders/glTF";
 import { BookEntry } from "../model/BookEntry";
+import { BookEntity } from './entities/BookEntity';
 import { BookGrouping } from "./entities/BookGrouping";
+import { BookPanel } from './entities/BookPanel';
 import { SceneController } from './SceneController';
+import { SelectionManager } from './SelectionManager';
+import './util/AnimationHelper';
 import { BookBuilder } from "./util/BookBuilder";
 import { Grouper } from "./util/Grouper";
-import  './util/AnimationHelper';
-import { BookPanel } from './entities/BookPanel';
-import { BookEntity } from './entities/BookEntity';
-import { AtlasBase } from './materials/AtlasBase';
-import { BackendClient } from '../backend/BackendClient';
-import { PromiseUtil } from './util/PromiseUtil';
 import { MemoryPool } from './util/MemoryPool';
-import { SelectionManager } from './SelectionManager';
-import { DateTime } from 'luxon';
+import { PromiseUtil } from './util/PromiseUtil';
+import { uniq } from 'lodash';
+
 
 export class LibraryController {
     private _entries: BookEntry[];
@@ -113,7 +112,6 @@ export class LibraryController {
             this.hasEntered = true;
         }
 
-        AssetsManager
         // const groupings = grouper.group(book => {
         //     return {
         //         sortKey: book.created_at.substr(0, 4),
@@ -123,12 +121,22 @@ export class LibraryController {
         const groupings = this._grouper.chunk(
             60,
             books => {
-                return books[0].author_name + " ... " + books[books.length - 1].book.author.name;
+                const authors = uniq(books.map(book => book.book.author.name).filter(author => author));
+                
+                if(authors.length == 0) {
+                    return '';
+                }
+                if(authors.length == 1) {
+                    return authors[0];
+                }
+                return authors[0] + " ... " + authors[authors.length - 1];
             },
+            ['book.author.name', 'book.created_at'],
+            ['asc', 'asc'],
             book => book.book.author.name
         );
 
-        const radius = 2.5;
+        const radius = Math.max(1, this._entries.length * 0.006);
         let success = 0;
         let fail = 0;
 
