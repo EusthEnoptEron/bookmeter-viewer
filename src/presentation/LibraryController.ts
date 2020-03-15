@@ -15,7 +15,9 @@ import { Grouper } from "./util/Grouper";
 import { MemoryPool } from './util/MemoryPool';
 import { PromiseUtil } from './util/PromiseUtil';
 import { uniq } from 'lodash';
-import { Categories } from './util/CategoryBuilder';
+import { Categories, CategoryBuilder } from './util/CategoryBuilder';
+import { CategoryBubble } from './entities/CategoryBubble';
+import { BillboardBehavior } from './behaviors/BillboardBehavior';
 
 
 export class LibraryController {
@@ -39,6 +41,29 @@ export class LibraryController {
         this._selectionManager.onFocusChanged.subscribe(target => {
             this._textPanel.setTarget(target as BookEntity);
         });
+
+        let selected: CategoryBubble = null;
+        const bubbles = new CategoryBuilder(this._scene).build();
+        for(let [i, bubble] of bubbles.entries()) {
+            const rad = Math.PI * 0.5 - (i * Math.PI * 0.1);
+            bubble.mesh.position = new Vector3(
+                Math.cos(rad) * 15,
+                8,
+                Math.sin(rad) * 15
+            );
+            bubble.mesh.scaling = new Vector3(3,3,3);
+            bubble.mesh.addBehavior(new BillboardBehavior());
+
+            bubble.onPicked.subscribe(_ => {
+                if(selected) {
+                    selected.selected = false;
+                }
+                selected = bubble;
+                if(selected) {
+                    selected.selected = true;
+                }
+            });
+        }
     }
 
     private async onEnterLibrary() {

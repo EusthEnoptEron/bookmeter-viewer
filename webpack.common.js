@@ -29,6 +29,10 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
+        test: /\.fx$/i,
+        use: 'raw-loader',
+      },
+      {
         test: /\.(png|svg|jpg|gif|proto)$/,
         use: [
           'file-loader',

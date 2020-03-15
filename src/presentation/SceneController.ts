@@ -1,9 +1,11 @@
-import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3, BoxParticleEmitter } from "@babylonjs/core";
+import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import TWEEN from '@tweenjs/tween.js';
 import './util/AnimationHelper';
 import { AssetRegistry } from './util/AssetRegistry';
 import { CustomEngine } from "./util/CustomEngine";
-
+import "@babylonjs/core/Debug/debugLayer";
+import '@babylonjs/gui';
+import '@babylonjs/inspector';
 
 export class SceneController {
     scene: Scene;
@@ -41,6 +43,18 @@ export class SceneController {
         this.scene.clearColor = new Color4(0, 0, 0, 0);
         this.scene.gravity = new Vector3(0, -9.81, 0);
 
+        window.addEventListener('keydown', e => {
+            if(e.keyCode == 121) {
+                if(this.scene.debugLayer.isVisible()) {
+                    this.scene.debugLayer.hide();
+                } else {
+                    this.scene.debugLayer.show();
+                }
+            }
+         }
+        );
+
+
         // Setup camera
         this.camera = this.buildCamera();
 
@@ -52,6 +66,7 @@ export class SceneController {
         // this.shadowGenerator.useCloseExponentialShadowMap = true;
         this.shadowGenerator.usePercentageCloserFiltering = true
         this.shadowGenerator.bias = 0.000005;
+        this.shadowGenerator.filteringQuality = ShadowGenerator.QUALITY_LOW;
 
         this.floorMesh = await this.buildFloor();
         this.ribbon = this.buildRibbon();

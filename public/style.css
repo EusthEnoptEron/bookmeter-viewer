@@ -199,6 +199,11 @@ button[disabled] {
     display: none;
 }
 
+#scene-explorer-host, #inspector-host {
+    position: absolute !important;
+    z-index: 100;
+}
+
 /* Larger than tablet */
 @media (min-width: 750px) {
 
