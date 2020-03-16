@@ -1,5 +1,6 @@
 import { BookEntry } from "../../model/BookEntry";
 import { orderBy, chunk, Many, ListIteratee, NotVoid } from "lodash";
+import { BookEntity } from '../entities/BookEntity';
 
 export interface IGrouping {
     text: string;
@@ -8,24 +9,24 @@ export interface IGrouping {
 }
 
 export class Grouper {
-    private _groupings: Map<string, [IGrouping, BookEntry[]]> = new Map();
-    private _books: BookEntry[] = [];
+    private _groupings: Map<string, [IGrouping, BookEntity[]]> = new Map();
+    private _books: BookEntity[] = [];
 
-    constructor(books: BookEntry[] = null) {
+    constructor(books: BookEntity[] = null) {
         if(books) {
             this.setEntries(books);
         }
     }
 
-    setEntries(books: BookEntry[]) {
+    setEntries(books: BookEntity[]) {
         this._books = orderBy(books, book => book.created_at);
     }
 
     group(
-        rule: (book: BookEntry, i: number) => IGrouping,
-        sorter: Many<ListIteratee<BookEntry>> = 'book.title',
+        rule: (book: BookEntity, i: number) => IGrouping,
+        sorter: Many<ListIteratee<BookEntity>> = 'book.title',
         sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
-    ): [IGrouping, BookEntry[]][] {
+    ): [IGrouping, BookEntity[]][] {
         this._groupings.clear();
         const knownGroupings: { [key: string]: IGrouping} = {};
         this._books = orderBy(this._books, sorter, sortDirection);
@@ -48,15 +49,15 @@ export class Grouper {
 
     chunk(
         chunkSize: number,
-        labelSupplier: (chunk: BookEntry[]) => string,
+        labelSupplier: (chunk: BookEntity[]) => string,
         sorter: string | string[] = 'book.title',
         sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
-        skipKeyExtractor: (entry: BookEntry) => string = null
-    ): [IGrouping, BookEntry[]][] {
+        skipKeyExtractor: (entry: BookEntity) => string = null
+    ): [IGrouping, BookEntity[]][] {
         this._books = orderBy(this._books, sorter, sortDirection);
         
         const chunks = chunk(this._books, chunkSize);
-        const result: [IGrouping, BookEntry[]][] = [];
+        const result: [IGrouping, BookEntity[]][] = [];
 
         let i = 0;
         for(let chunk of chunks) {

@@ -18,6 +18,7 @@ import { uniq } from 'lodash';
 import { Categories, CategoryBuilder } from './util/CategoryBuilder';
 import { CategoryBubble } from './entities/CategoryBubble';
 import { BillboardBehavior } from './behaviors/BillboardBehavior';
+import { Category } from './util/Category';
 
 
 export class LibraryController {
@@ -31,6 +32,11 @@ export class LibraryController {
     private _groupingPool: MemoryPool<BookGrouping>;
     private hasEntered = false;
 
+    private _selectedCategory: CategoryBubble;
+    private _bubbles: CategoryBubble[];
+    private _groupings: BookGrouping[] = [];
+    private _abortController: AbortController;
+
     constructor(private sceneController: SceneController, private _selectionManager: SelectionManager) {
         this._scene = sceneController.scene;
         this._bookBuilder = new BookBuilder(this._scene, this.sceneController.shadowGenerator);
@@ -42,9 +48,12 @@ export class LibraryController {
             this._textPanel.setTarget(target as BookEntity);
         });
 
-        let selected: CategoryBubble = null;
-        const bubbles = new CategoryBuilder(this._scene).build();
-        for(let [i, bubble] of bubbles.entries()) {
+        this.setupCategories();
+    }
+
+    private setupCategories() {
+        this._bubbles = new CategoryBuilder(this._scene).build();
+        for(let [i, bubble] of this._bubbles.entries()) {
             const rad = Math.PI * 0.5 - (i * Math.PI * 0.1);
             bubble.mesh.position = new Vector3(
                 Math.cos(rad) * 15,
@@ -52,18 +61,24 @@ export class LibraryController {
                 Math.sin(rad) * 15
             );
             bubble.mesh.scaling = new Vector3(3,3,3);
+            bubble.mesh.setEnabled(false);
             bubble.mesh.addBehavior(new BillboardBehavior());
-
+            
             bubble.onPicked.subscribe(_ => {
-                if(selected) {
-                    selected.selected = false;
+                if(this._selectedCategory) {
+                    this._selectedCategory.selected = false;
                 }
-                selected = bubble;
-                if(selected) {
-                    selected.selected = true;
+                this._selectedCategory = bubble;
+                if(this._selectedCategory) {
+                    this._selectedCategory.selected = true;
                 }
+
+                this.onCategoryChanged(this._selectedCategory.category);
             });
         }
+
+        this._selectedCategory = this._bubbles[0];
+        this._bubbles[0].selected = true;
     }
 
     private async onEnterLibrary() {
@@ -73,6 +88,8 @@ export class LibraryController {
         await this.sceneController.ready;
         this.sceneController.floorMesh.transitionTo('visibility', 1.0, 1.0);
         this.sceneController.rotationSpeed = 0;
+
+        this._bubbles.forEach(bubble => bubble.mesh.setEnabled(true));
 
         await new Promise((r) => window.setTimeout(r,1000));
     }
@@ -84,6 +101,8 @@ export class LibraryController {
         await this.sceneController.ready;
         this.sceneController.floorMesh.transitionTo('visibility', 0.0, 1.0);
         this.sceneController.rotationSpeed = 1;
+
+        this._bubbles.forEach(bubble => bubble.mesh.setEnabled(false));
     }
 
     async setEntries(user: string, books: BookEntry[]) {
@@ -95,8 +114,9 @@ export class LibraryController {
 
         for(let entity of entities) {
             let actionManager = new ActionManager(entity.mesh.getScene());
+            entity.mesh.position = new Vector3(0, 5, 0);
             entity.mesh.actionManager = actionManager;
-
+            
             let hovered = false;
             //ON MOUSE ENTER
             entity.mesh.actionManager.registerAction(
@@ -131,21 +151,41 @@ export class LibraryController {
         this._groupingPool.prewarm(10);
     }
 
+    async onCategoryChanged(category: Category) {
+        this.show();
+    }
     
     async show() {
+        if(this._abortController) {
+            this._abortController.abort();
+        }
+
+        this._abortController = new AbortController();
+        this._show(this._abortController.signal);
+    }
+
+    private async _show(signal: AbortSignal) {
         if (!this.hasEntered) {
             await this.onEnterLibrary();
             this.hasEntered = true;
         }
+        if(signal.aborted) return;
 
-        const groupings = Categories[0].apply(this._grouper);
+        for(let grouping of this._groupings) {
+            grouping.hurlOutBooks();
+            this._groupingPool.despawn(grouping);
+        }
+
+        this._groupings = [];
+        const groupings = this._selectedCategory.category.apply(this._grouper);
         const radius = Math.max(1, this._entries.length * 0.006);
         let success = 0;
-        let fail = 0;
+        let fail = 0; 
 
-        for (let i = 0; i < groupings.length; i++) {
-            const group = groupings[i];
+        groupings.forEach((group, i) => {
             const grouping = this._groupingPool.spawn();
+            this._groupings.push(grouping);
+
             const angle = -(i / groupings.length) * Math.PI * 2 + Math.PI * 0.5;
 
             this.sceneController.shadowGenerator.addShadowCaster(grouping);
@@ -158,19 +198,25 @@ export class LibraryController {
             grouping.lookAt(Vector3.Zero());
             grouping.group = group[0];
             grouping.books = group[1];
+        });
 
+        await PromiseUtil.Delay(600);
+        if(signal.aborted) return;
+
+        groupings.forEach(async (group, i) => {
             for (let book of group[1]) {
                 await PromiseUtil.Delay(10);
+                if(signal.aborted) return;
 
                 try {
-                    const entity = book as BookEntity;
+                    const entity = book;
                     const mesh = entity.mesh;
 
-                    mesh.position = new Vector3(0, 5, 0);
+                    // mesh.position = new Vector3(0, 5, 0);
                     mesh.isVisible = true;
-                    mesh.setParent(grouping);
+                    mesh.setParent(this._groupings[i]);
                     entity.setTarget(
-                        grouping.getBookPosition(book), 
+                        this._groupings[i].getBookPosition(book), 
                         new Vector3(0, -Math.PI * 0.5, 0)
                     );
                 
@@ -180,11 +226,6 @@ export class LibraryController {
                     fail++;
                 }
             }
-        }
-
-        // this.bookBuilder.applyAllAtlases();
-
-        console.log("Success: " + success);
-        console.log("Fail: " + fail);
+        });
     }
 }

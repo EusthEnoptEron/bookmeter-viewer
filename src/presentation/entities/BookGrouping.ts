@@ -5,6 +5,9 @@ import { BookEntry } from '../../model/BookEntry';
 import randomColor from 'randomcolor';
 import { Label } from './Label';
 import { AssetRegistry } from '../util/AssetRegistry';
+import { BookEntity } from './BookEntity';
+import { v4 as uuid } from 'uuid';
+import TWEEN from '@tweenjs/tween.js';
 
 const PODEST_HEIGHT = 0.1;
 const MARBLE_TEXTURE_PATH = "/assets/textures/Marble012_2K";
@@ -13,10 +16,11 @@ export class BookGrouping extends AbstractMesh {
     private static _templatePodest: Mesh = null;
 
     private _group: IGrouping;
-    private _books: BookEntry[];
+    private _books: BookEntity[];
     private _shelf: BookShelf;
     private _podest: AbstractMesh;
     private _label: Label;
+    private _id = uuid();
 
     constructor(name: string, scene: Scene)  {
         super(name, scene);
@@ -50,6 +54,24 @@ export class BookGrouping extends AbstractMesh {
         this._label.parent = this;
     }
 
+    hurlOutBooks() {
+        for(let book of this._books) {
+            if (book) {
+                book.mesh.setParent(null);
+                book.setTarget(
+                    new Vector3(Math.random(), Math.random() + 4, Math.random()),
+                    new Vector3(
+                        Math.random() * Math.PI * 2, 
+                        Math.random() * Math.PI * 2, 
+                        Math.random() * Math.PI * 2
+                    )
+                )
+            }
+        }
+
+        this._books.length = 0;
+    }
+
     get group() {
         return this._group;
     }
@@ -63,7 +85,7 @@ export class BookGrouping extends AbstractMesh {
         return this._books;
     }
 
-    set books(books: BookEntry[]) {
+    set books(books: BookEntity[]) {
         this._books = [...books];
 
         if(this.group.skipKeyExtractor != null) {
@@ -81,12 +103,18 @@ export class BookGrouping extends AbstractMesh {
             }
         }
         
-        this._shelf.width = Math.max(1, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
-        this._podest.scaling.x = this._podest.scaling.z = this._shelf.width * 1.5;
-        this._label.scaling.x = this._shelf.width - 0.03;
+        let targetWidth = Math.max(1, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
+        new TWEEN.Tween({ width: this._shelf.width })
+            .to({ width: targetWidth}, 200)
+            .onTarget(this._shelf)
+            .withId(this._id)
+            .start();
+
+        this._podest.scaling.x = this._podest.scaling.z = targetWidth * 1.5;
+        this._label.scaling.x = targetWidth - 0.03;
     }
 
-    getBookPosition(book: BookEntry) {
+    getBookPosition(book: BookEntity) {
         const idx = this.books.indexOf(book);
         if(idx >= 0) {
             return this._shelf.position.add(this._shelf.getBookPosition(idx));
@@ -95,7 +123,7 @@ export class BookGrouping extends AbstractMesh {
         }
     }
 
-    getAbsoluteBookPosition(book: BookEntry) {
+    getAbsoluteBookPosition(book: BookEntity) {
         const idx = this.books.indexOf(book);
         if(idx >= 0) {
             return this._shelf.getAbsoluteBookPosition(idx);

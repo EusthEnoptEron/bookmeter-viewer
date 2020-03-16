@@ -13,6 +13,7 @@ declare module '@babylonjs/core/node' {
 declare module "@tweenjs/tween.js" {
     export interface Tween {
         onTarget(obj: any): Tween;
+        withId(id: string): Tween
     }
 }
 
@@ -91,4 +92,18 @@ TWEEN.Tween.prototype.onTarget = function(target: any): TWEEN.Tween {
         }
     });
     return this;
+}
+
+const activeTweens: { [key: string]: TWEEN.Tween } = {};
+TWEEN.Tween.prototype.withId = function(id: string): TWEEN.Tween {
+    const self = this as TWEEN.Tween;
+    if(activeTweens[id]) {
+        activeTweens[id].stop();
+    }
+
+    activeTweens[id] = self;
+    self.onComplete(() => {
+        delete activeTweens[id];
+    });
+    return self;
 }
