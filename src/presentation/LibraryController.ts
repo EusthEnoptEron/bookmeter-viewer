@@ -14,7 +14,7 @@ import { BookBuilder } from "./util/BookBuilder";
 import { Grouper } from "./util/Grouper";
 import { MemoryPool } from './util/MemoryPool';
 import { PromiseUtil } from './util/PromiseUtil';
-import { uniq } from 'lodash';
+import { max } from 'lodash';
 import { Categories, CategoryBuilder } from './util/CategoryBuilder';
 import { CategoryBubble } from './entities/CategoryBubble';
 import { BillboardBehavior } from './behaviors/BillboardBehavior';
@@ -42,7 +42,11 @@ export class LibraryController {
         this._bookBuilder = new BookBuilder(this._scene, this.sceneController.shadowGenerator);
         this._textPanel = new BookPanel("", this._scene);
         this._grouper = new Grouper();
-        this._groupingPool = new MemoryPool<BookGrouping>(() => new BookGrouping("Grouping", this._scene));
+        this._groupingPool = new MemoryPool<BookGrouping>(() => { 
+            const instance = new BookGrouping("Grouping", this._scene);
+            this.sceneController.shadowGenerator.addShadowCaster(instance);
+            return instance;
+        });
 
         this._selectionManager.onFocusChanged.subscribe(target => {
             this._textPanel.setTarget(target as BookEntity);
@@ -178,27 +182,39 @@ export class LibraryController {
 
         this._groupings = [];
         const groupings = this._selectedCategory.category.apply(this._grouper);
-        const radius = Math.max(1, this._entries.length * 0.006);
+        // const radius = Math.max(1, this._entries.length * 0.006);
         let success = 0;
         let fail = 0; 
 
         groupings.forEach((group, i) => {
             const grouping = this._groupingPool.spawn();
             this._groupings.push(grouping);
-
-            const angle = -(i / groupings.length) * Math.PI * 2 + Math.PI * 0.5;
-
-            this.sceneController.shadowGenerator.addShadowCaster(grouping);
-
-            grouping.position = new Vector3(
-                Math.cos(angle) * radius,
-                0.0,
-                Math.sin(angle) * radius
-            );
-            grouping.lookAt(Vector3.Zero());
+            
             grouping.group = group[0];
             grouping.books = group[1];
         });
+
+        const maxWidth = max(this._groupings.map(g => g.width)) * 1.5;
+        const radius = maxWidth * 0.5 / Math.sin(Math.PI / this._groupings.length);
+
+        this._groupings.forEach((grouping, i) => {
+            const angle = -(i / groupings.length) * Math.PI * 2 + Math.PI * 0.5;
+            const pos = new Vector3(
+                Math.cos(angle) * radius,
+                0.001,
+                Math.sin(angle) * radius
+            );
+            const rot = (i / groupings.length) * Math.PI * 2 + Math.PI;
+
+            if(grouping.position.length() == 0) {
+                grouping.position = pos;
+                grouping.rotation.y = rot;
+            } else {
+                grouping.transitionTo('position', pos, 0.2);
+                grouping.transitionTo('rotation.y', rot, 0.2);
+            }
+           
+        })
 
         await PromiseUtil.Delay(600);
         if(signal.aborted) return;

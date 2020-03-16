@@ -21,6 +21,7 @@ export class BookGrouping extends AbstractMesh {
     private _podest: AbstractMesh;
     private _label: Label;
     private _id = uuid();
+    width: number = 1.0;
 
     constructor(name: string, scene: Scene)  {
         super(name, scene);
@@ -103,15 +104,15 @@ export class BookGrouping extends AbstractMesh {
             }
         }
         
-        let targetWidth = Math.max(1, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
+        this.width = Math.max(1, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
         new TWEEN.Tween({ width: this._shelf.width })
-            .to({ width: targetWidth}, 200)
+            .to({ width: this.width}, 200)
             .onTarget(this._shelf)
             .withId(this._id)
             .start();
 
-        this._podest.scaling.x = this._podest.scaling.z = targetWidth * 1.5;
-        this._label.scaling.x = targetWidth - 0.03;
+        this._podest.scaling.x = this._podest.scaling.z = this.width * 1.5;
+        this._label.scaling.x = this.width - 0.03;
     }
 
     getBookPosition(book: BookEntity) {
