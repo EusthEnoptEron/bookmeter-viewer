@@ -16,14 +16,11 @@ export class Label extends Mesh {
         this.material = mat;
 
         if(options.baseTexture) {
-            console.log("I have a base texture", options.baseTexture);
             mat.baseTexture = options.baseTexture;
             mat.metallicRoughnessTexture = this._texture;
             // mat.metallic = 0.0;
             // mat.roughness = 1.0;
         } else {
-            console.log("I have no base texture", options.baseTexture);
-
             mat.baseColor = Color3.Gray();
             mat.baseTexture = this._texture;
             mat.metallic = 1.0;

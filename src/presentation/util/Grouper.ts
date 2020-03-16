@@ -1,6 +1,7 @@
 import { BookEntry } from "../../model/BookEntry";
 import { orderBy, chunk, Many, ListIteratee, NotVoid } from "lodash";
 import { BookEntity } from '../entities/BookEntity';
+import { uniq } from 'lodash';
 
 export interface IGrouping {
     text: string;
@@ -49,7 +50,7 @@ export class Grouper {
 
     chunk(
         chunkSize: number,
-        labelSupplier: (chunk: BookEntity[]) => string,
+        labelSupplier: (entity: BookEntity) => string,
         sorter: string | string[] = 'book.title',
         sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
         skipKeyExtractor: (entry: BookEntity) => string = null
@@ -63,7 +64,7 @@ export class Grouper {
         for(let chunk of chunks) {
             const group = {
                 sortKey: '#' + i,
-                text: labelSupplier(chunk),
+                text: this.getChunkText(chunk, labelSupplier),
                 skipKeyExtractor
             };
             
@@ -72,5 +73,17 @@ export class Grouper {
         }
 
         return result;
+    }
+
+    private getChunkText(books: BookEntity[], labelSupplier: (entity: BookEntity) => string): string {
+        const values = uniq(books.map(labelSupplier).filter(val => val));
+                
+        if(values.length == 0) {
+            return '';
+        }
+        if(values.length == 1) {
+            return values[0];
+        }
+        return values[0] + " ... " + values[values.length - 1];
     }
 }

@@ -1,25 +1,15 @@
 import { AbstractMesh, ActionManager, Color4, DynamicTexture, ExecuteCodeAction, Mesh, MeshBuilder, Scene, Texture, Vector2, VertexBuffer, BaseTexture } from '@babylonjs/core';
-import { uniq } from 'lodash';
 import { DateTime } from 'luxon';
 import { CategoryBubble } from '../entities/CategoryBubble';
 import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
 import { ScalableMaterial } from '../materials/ScalableMaterial';
 import { Category } from './Category';
+import { padStart } from 'lodash';
 
 export const Categories = [
     new Category('By Author', grouper => {
         return grouper.chunk(60,
-            books => {
-                const authors = uniq(books.map(book => book.book.author.name).filter(author => author));
-                
-                if(authors.length == 0) {
-                    return '';
-                }
-                if(authors.length == 1) {
-                    return authors[0];
-                }
-                return authors[0] + " ... " + authors[authors.length - 1];
-            },
+            books => books.book.author.name,
             ['book.author.name', 'book.created_at'],
             ['asc', 'asc'],
             book => book.book.author.name    
@@ -35,6 +25,19 @@ export const Categories = [
         }, 
         'created_at')
     }),
+    new Category('By Month', grouper => {
+        return grouper.group(book => {
+            const date = DateTime.fromFormat(book.created_at, 'yyyy/MM/dd');
+            
+            return {
+                sortKey: date.isValid ? date.toFormat('LL') : '-1',
+                text: date.isValid ? date.toFormat('LLLL') : 'Unknown',
+                skipKeyExtractor: book => book.created_at.substr(0, 4)
+            };
+        },
+        [book => DateTime.fromFormat(book.created_at, 'yyyy/MM/dd').toFormat('LL'), 'created_at'],
+        ['asc', 'asc'])
+    }),
     new Category('By Weekday', grouper => {
         return grouper.group(book => {
             const date = DateTime.fromFormat(book.created_at, 'yyyy/MM/dd');
@@ -47,6 +50,22 @@ export const Categories = [
         },
         [book => DateTime.fromFormat(book.created_at, 'yyyy/MM/dd').weekday.toString(), 'created_at'],
         ['asc', 'asc'])
+    }),
+
+    new Category('By Pages', grouper => {
+        return grouper.chunk(60,
+            book => book.book.page.toString(),
+            ['book.page', 'book.title'],
+            ['asc', 'asc']
+        )
+    }),
+
+    new Category('By Popularity', grouper => {
+        return grouper.chunk(60,
+            book => book.book.registration_count.toString(),
+            ['book.registration_count', 'book.title'],
+            ['asc', 'asc']
+        )
     }),
 ];
 
@@ -61,8 +80,9 @@ export class CategoryBuilder {
         let width = 1024;
         let count = Categories.length;
         let cols = (width / this._itemWidth);
-        let rows = Math.ceil(count / cols);
-        let height = Math.pow(2, Math.ceil(Math.log2(this._itemHeight * rows)));
+        let requiredRows = Math.ceil(count / cols);
+        let height = Math.pow(2, Math.ceil(Math.log2(this._itemHeight * requiredRows)));
+        let rows = height / this._itemHeight;
 
         console.log(`Creating a texture of ${width}x${height}`);
         this._texture = new DynamicTexture('categories_tex', { width, height }, this._scene, true);
@@ -79,7 +99,8 @@ export class CategoryBuilder {
         ctx.fillRect(0, 0, width, height);
         for(let [i, category] of Categories.entries()) {
             const x = (i % cols) * this._itemWidth;
-            const y = (Math.floor(i / cols)) * this._itemHeight;
+            const row = (Math.floor(i / cols));
+            const y = row * this._itemHeight;
             const cx = x + this._itemWidth * 0.5;
             const cy = y + this._itemHeight * 0.5;
 
@@ -95,7 +116,9 @@ export class CategoryBuilder {
             const instance = template.instantiateHierarchy() as AbstractMesh;
             const textMesh = (instance.getChildMeshes()[0] as AbstractMesh);
             textMesh.instancedBuffers[PBRScalableMaterial.ScaleKind] = new Vector2(1 / cols, 1 / rows);
-            textMesh.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(x / width, (1 / rows) - (y / height));
+            textMesh.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(x / width, 1 - (1 / rows) * (row + 1));
+
+            console.log(textMesh.instancedBuffers[PBRScalableMaterial.ScaleKind], textMesh.instancedBuffers[PBRScalableMaterial.OffsetKind] );
 
             instance.instancedBuffers[PBRScalableMaterial.ScaleKind] = new Vector2(0.5, 1.0);
             instance.instancedBuffers[PBRScalableMaterial.OffsetKind] = new Vector2(0.0, 0.0);
