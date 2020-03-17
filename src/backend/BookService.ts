@@ -3,8 +3,11 @@ import { BookmeterClient } from './BookmeterClient';
 import { BookEntry } from '../model/BookEntry';
 import { StoreEntry } from './StoreEntry';
 import { WebException } from './WebException';
+import {  AmazonClient } from './AmazonClient';
+import { pbrDirectLightingFalloffFunctions } from '@babylonjs/core/Shaders/ShadersInclude/pbrDirectLightingFalloffFunctions';
+import { AmazonInfos } from '../model/AmazonInfos';
 
-export class BookmeterService {
+export class BookService {
     private static readonly NUMBER_REGEX = /^\d+$/;
 
     static async GetUserId(userNameOrId: string): Promise<number> {
@@ -47,6 +50,22 @@ export class BookmeterService {
         }
         
         return booksEntry.items;
+    }
+
+    static async GetDetails(asin: string): Promise<AmazonInfos> {
+        asin = asin?.replace(/\W/g, '').trim();
+
+        if(!asin) {
+            throw new WebException(400, 'Invalid asin');
+        }
+
+        let details = Cache.GetDetails(asin);
+        if(details === null) {
+            details = await AmazonClient.GetInfos(asin);
+            Cache.PutDetails(asin, details);
+        }
+
+        return details;
     }
 
     static async GetCovers(entries: BookEntry[]) {

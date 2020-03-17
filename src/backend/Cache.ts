@@ -4,12 +4,14 @@ import { promises as fsp } from 'fs';
 import path from 'path';
 import { DateTime } from 'luxon';
 import md5 from 'js-md5';
+import { AmazonInfos } from '../model/AmazonInfos';
 
 const STORE_NAME = 'store.json';
 export class Cache {
     
     private static store: { [key: number]: StoreEntry } = {}
     private static userMapping: { [key: string]: number } = {}
+    private static details: { [key: string]: AmazonInfos } = {}
     private static path = __dirname;
 
     static SetPath(path: string) {
@@ -112,5 +114,17 @@ export class Cache {
         console.log("Saving books...");
         const json = JSON.stringify(this.store);
         await fsp.writeFile(this.storePath, json);
+    }
+
+    static GetDetails(asin: string): AmazonInfos | null {
+        if(this.details[asin]) {
+            return this.details[asin];
+        }
+
+        return null;
+    }
+
+    static PutDetails(asin: string, details: AmazonInfos) {
+        this.details[asin] = details;
     }
 }

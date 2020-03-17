@@ -1,7 +1,7 @@
 import { Controller } from './Controller';
 import { Router, Request, Response, NextFunction } from 'express';
 import { BackendAtlas } from '../BackendAtlas';
-import { BookmeterService } from '../BookmeterService';
+import { BookService } from '../BookService';
 import async from 'async';
 import  _ from 'lodash';
 import { RequestFileError } from '@babylonjs/core';
@@ -22,7 +22,7 @@ export class AtlasController extends Controller {
 
     async getAtlas(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = await BookmeterService.GetUserId(req.params.userName);
+            const userId = await BookService.GetUserId(req.params.userName);
             const idString = req.query.ids as string;
             const frameSize = this.validateAtlasSize(req.query.frameSize as string, 9, DEFAULT_ATLAS_FRAME_SIZE);
             const atlasSize =  this.validateAtlasSize(req.query.atlasSize as string, 13, DEFAULT_ATLAS_SIZE);
@@ -45,7 +45,7 @@ export class AtlasController extends Controller {
                 const ids = idString.split('-').map(str => parseInt(str));
                 const atlas = new BackendAtlas({ frameSize: frameSize, size: atlasSize });
     
-                const booksMap = _.keyBy(await BookmeterService.GetBooks(userId), book => book.id);
+                const booksMap = _.keyBy(await BookService.GetBooks(userId), book => book.id);
                 const books = _.take(ids.map(id => booksMap[id]), atlas.count);
 
                 if(books.some(book => !book)) {
