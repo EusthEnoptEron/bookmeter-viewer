@@ -10,6 +10,7 @@ import { SelectionManager, ISelectable } from './SelectionManager';
 import { TemplateExecutor } from 'lodash';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
+import { BookEntry } from '../model/BookEntry';
 
 export class MainController {
     private router: Router;
@@ -74,13 +75,25 @@ export class MainController {
         });
     }
 
-    private onSelectionChanged(selection: ISelectable) {
+    private async onSelectionChanged(selection: ISelectable) {
         if(selection === null) {
             this.outlineContent.innerHTML = "";
             this.outlineContainer.classList.remove("active");
         } else {
             this.outlineContent.innerHTML = this.outlineTemplate({ entry: selection });
             this.outlineContainer.classList.add("active");
+
+            const details = await BackendClient.GetDetails((selection as any).book);
+            if(this.selectionManager.currentSelection === selection) {
+                // Hasn't changed!
+
+                const description = this.outlineContent.querySelector('.description');
+                if(details && details.description) {
+                    description.innerHTML = details.description;
+                } else {
+                    description.innerHTML = 'No data available. (´・ω・｀)';
+                }
+            }
         }
     }
 

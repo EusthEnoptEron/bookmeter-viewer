@@ -61,7 +61,7 @@ export class BookService {
 
         let details = Cache.GetDetails(asin);
         if(details === null) {
-            details = await AmazonClient.GetInfos(asin);
+            details = await AmazonClient.Instance.GetInfos(asin);
             Cache.PutDetails(asin, details);
         }
 

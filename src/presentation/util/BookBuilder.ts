@@ -51,7 +51,7 @@ export class BookBuilder {
             Tools.UseFallbackTexture = false;
             
             const url = UrlUtils.GetAtlasUrl(user, group, frameSize, atlasSize);
-            const texture = await PromiseUtil.LoadTexture(url, this.scene);
+            const texture = await BookBuilder.LoadTexture(url, this.scene);
             const baseMesh = await this.createBaseMesh(texture);
 
             let i = 0;
@@ -123,6 +123,13 @@ export class BookBuilder {
         }
         
         return mat;
+    }
+
+    private static LoadTexture(url: string, scene: Scene): Promise<Texture> {
+        return new Promise((resolve, fail) => {
+            let tex: Texture;
+            tex = new Texture(url, scene, false, true, Texture.BILINEAR_SAMPLINGMODE, () => resolve(tex), fail);
+        });
     }
 
 }

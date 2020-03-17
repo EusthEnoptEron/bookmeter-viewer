@@ -1,6 +1,7 @@
 import { BookEntry } from '../model/BookEntry';
 import Axios from 'axios';
 import { Book } from '../model/Book';
+import { AmazonInfos } from '../model/AmazonInfos';
 
 export class BackendClient {
     public static async GetBookEntries(userId: number|string): Promise<BookEntry[]> {
@@ -11,5 +12,19 @@ export class BackendClient {
     public static async GetBooks(userId: number|string): Promise<Book[]> {
         const entries = await this.GetBookEntries(userId);
         return entries.map(e => e.book);
+    }
+
+    public static async GetDetails(book: Book): Promise<AmazonInfos | null> {
+        const asin = book.amazon_urls?.registration.replace(/^.+?\/dp\//, '').trim();
+        if(asin) {
+            try {
+                const result = await Axios.get(`/books/details/${asin}`);
+                return result.data;
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        return null;
     }
 }
