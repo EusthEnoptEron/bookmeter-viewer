@@ -3,8 +3,10 @@ import cheerio from 'cheerio';
 import striptags from 'striptags';
 import { AmazonInfos } from '../model/AmazonInfos';
 import { PromiseUtil } from '../presentation/util/PromiseUtil';
+import debugFn from 'debug';
 
 const BASE_URL = 'https://www.amazon.co.jp/dp/';
+const debug = debugFn('AmazonClient');
 
 export class AmazonClient {
 
@@ -45,14 +47,14 @@ export class AmazonClient {
                     isbn
                 };
             } catch(e) {
-                console.log(`Failed fetching ${asin} (${attempt})`);
+                debug(`Failed fetching ${asin} (${attempt})`);
                 error = e;
 
                 await PromiseUtil.Delay(1000);
             }
         }
 
-        console.log("Failed completely: ", error);
+        debug("Failed completely: ", error);
         return null;
     }
 }

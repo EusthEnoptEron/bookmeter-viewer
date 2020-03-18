@@ -2,6 +2,8 @@ import { AtlasBase, IAtlasOptions } from '../presentation/materials/AtlasBase';
 import { createCanvas, loadImage, Canvas, Image } from 'canvas';
 import Axios, { AxiosResponse } from 'axios';
 import { Cache } from './Cache';
+import debugFn from 'debug';
+const debug = debugFn('BackendAtlas');
 
 export class BackendAtlas extends AtlasBase {
     private _canvas: Canvas;
@@ -23,7 +25,7 @@ export class BackendAtlas extends AtlasBase {
     async loadImage(url: string): Promise<any> {
         let buffer = await Cache.GetImage(url);
         if(buffer === null) {
-            console.log(`Loading ${url}...`);
+            debug(`Loading ${url}...`);
             const response: AxiosResponse<Buffer> = await Axios.get(url, {
                 responseType: 'arraybuffer'
             });
@@ -31,7 +33,7 @@ export class BackendAtlas extends AtlasBase {
             buffer = response.data;
 
             // Fire and forget
-            console.log(`Saving ${url} to cache...`)
+            debug(`Saving ${url} to cache...`)
             await Cache.SaveImage(url, buffer);
 
         }

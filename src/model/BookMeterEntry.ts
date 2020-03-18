@@ -2,11 +2,15 @@ import { Book } from './Book';
 import { User } from './User';
 import { BookDetails } from './BookDetails';
 
-export interface BookEntry {
+export interface BookmeterEntry {
     path: string;
     id: number;
+    priority?: any;
     created_at: string;
+    page: number;
+    author_name: string;
     bookcase_names: string[];
     book: Book;
-    details?: BookDetails;
+    user: User;
+    contents: Book;
 }

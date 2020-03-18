@@ -6,7 +6,8 @@ import async from 'async';
 import  _ from 'lodash';
 import { RequestFileError } from '@babylonjs/core';
 import { Cache } from '../Cache';
-
+import debugFn from 'debug';
+const debug = debugFn('BookService');
 
 const DEFAULT_ATLAS_SIZE = 4096;
 const DEFAULT_ATLAS_FRAME_SIZE = 256;
@@ -33,7 +34,7 @@ export class AtlasController extends Controller {
             }
             
             const cacheKey = req.url;
-            console.log(cacheKey, frameSize, atlasSize);
+            debug(cacheKey, frameSize, atlasSize);
             if(req.header('If-Modified-Since') && Cache.GetImageLastModified(cacheKey) !== null) {
                 res.status(304).send();
                 return;
@@ -52,7 +53,7 @@ export class AtlasController extends Controller {
                     throw "Invalid IDs found!";
                 }
     
-                console.log("Drawing images...");
+                debug("Drawing images...");
                 // Return type seems to be wrong, so cast to any...
                 await async.mapLimit(books, 10, async book => await atlas.addTextureAsync(book.book.image_url));
 

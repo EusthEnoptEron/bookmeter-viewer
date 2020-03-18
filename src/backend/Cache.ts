@@ -1,10 +1,12 @@
-import { StoreEntry } from './StoreEntry'
-import fs from 'fs';
-import { promises as fsp } from 'fs';
-import path from 'path';
-import { DateTime } from 'luxon';
+import fs, { promises as fsp } from 'fs';
 import md5 from 'js-md5';
+import _ from 'lodash';
+import { DateTime } from 'luxon';
+import path from 'path';
 import { AmazonInfos } from '../model/AmazonInfos';
+import { StoreEntry } from './StoreEntry';
+import debugFn from 'debug';
+const debug = debugFn('BookService');
 
 const STORE_NAME = 'store.json';
 export class Cache {
@@ -53,7 +55,7 @@ export class Cache {
 
     static async Load(): Promise<void> {
         if(fs.existsSync(this.storePath)) {
-            console.log("Loading books from cache...");
+            debug("Loading books from cache...");
             const json = await fsp.readFile(this.storePath, 'utf-8');
             const deserialized = JSON.parse(json);
     
@@ -64,10 +66,14 @@ export class Cache {
         }
     }
 
+    private static NormalizeTitle(title: string) {
+        return _.kebabCase(title.normalize('NFKC').replace(/[^\d](\d+?)[^\d].*$/g, '$1').replace(/[\s]/g, ''));
+    }
+
     static GetImage(url: string): Promise<Buffer | null> {
         const path = this.GetImagePath(url);
         if(fs.existsSync(path)) {
-            console.log(`Loading ${url} from cache...`);
+            debug(`Loading ${url} from cache...`);
             return fsp.readFile(path);
         }
 
@@ -111,7 +117,7 @@ export class Cache {
     }
 
     static async SaveBooks(): Promise<void> {
-        console.log("Saving books...");
+        debug("Saving books...");
         const json = JSON.stringify(this.store);
         await fsp.writeFile(this.storePath, json);
     }

@@ -12,4 +12,16 @@ export class UrlUtils {
     static GetAtlasUrl(user: string, books: BookEntry[], frameSize: number = 128, atlasSize: number = 4096): string {
         return `/atlas/${user}/?ids=${books.map(b => b.id).join('-')}&atlasSize=${atlasSize}&frameSize=${frameSize}`;
     }
+
+    static ExtractAsin(amazonUrl: string): string | null {
+        if(!amazonUrl) {
+            return null;
+        }
+
+        const match = amazonUrl.match(/\/dp\/(.+)$/)
+        if(match) {
+            return match[1].trim();
+        }
+        return null;
+    }
 }

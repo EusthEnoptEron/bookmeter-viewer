@@ -1,16 +1,20 @@
 import axios from 'axios';
 import { sprintf } from 'sprintf-js';
 import { Book } from '../model/Book';
-import { BookEntry } from '../model/BookEntry';
+import { BookmeterEntry } from '../model/BookmeterEntry';
 import { BookResponse } from '../model/BookResponse';
 import async  from 'async';
 
 import { range } from 'lodash';
 import { UserInfo } from '../model/UserInfo';
+import debugFn from 'debug';
+const debug = debugFn('BookmeterClient');
 
 const READ_URL = 'https://bookmeter.com/users/%d/books/read.json?page=%d';
 const SEARCH_URL = 'https://bookmeter.com/users/search.json?name=%s';
 
+
+// TODO: remove "contents" property on BookmeterEntry
 export class BookmeterClient {
 
     // https://bookmeter.com/books/8242918/external_book_stores.json
@@ -27,17 +31,17 @@ export class BookmeterClient {
         return data.resources.find(user => user.name == userName);
     }
 
-    public static async GetResponse(userId: number, page?: number): Promise<BookResponse<BookEntry>>  {
+    public static async GetResponse(userId: number, page?: number): Promise<BookResponse<BookmeterEntry>>  {
         // Page is 1-based
         const url = sprintf(READ_URL, userId, (page ?? 0) + 1)
-        console.log(`Fetching ${url}...`);
+        debug(`Fetching ${url}...`);
         const response =  await axios.get(url);
-        console.log(`Got response for ${url}`);
-        return response.data as BookResponse<BookEntry>;
+        debug(`Got response for ${url}`);
+        return response.data as BookResponse<BookmeterEntry>;
     }
 
-    public static async GetAllBookEntries(userId: number): Promise<BookEntry[]>  {
-        const entries: BookEntry[] = [];
+    public static async GetAllBookEntries(userId: number): Promise<BookmeterEntry[]>  {
+        const entries: BookmeterEntry[] = [];
  
         const firstPage = await this.GetResponse(userId, 0);
         const pageSize = firstPage.metadata.limit;
@@ -67,7 +71,7 @@ export class BookmeterClient {
      * Gets a book entries page
      * @param page 
      */
-    public static async GetBookEntries(userId: number, page?: number): Promise<BookEntry[]>  {
+    public static async GetBookEntries(userId: number, page?: number): Promise<BookmeterEntry[]>  {
         const res = await this.GetResponse(userId, page);
         return res.resources;
     }

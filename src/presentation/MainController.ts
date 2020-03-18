@@ -83,7 +83,12 @@ export class MainController {
             this.outlineContent.innerHTML = this.outlineTemplate({ entry: selection });
             this.outlineContainer.classList.add("active");
 
-            const details = await BackendClient.GetDetails((selection as any).book);
+            let details: { description?: string } = (selection as any).details;
+            if(!details || !details.description) {
+                console.log("Fetch details from Amazon...");
+                details = await BackendClient.GetDetails((selection as any).book);
+            }
+
             if(this.selectionManager.currentSelection === selection) {
                 // Hasn't changed!
 

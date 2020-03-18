@@ -2,6 +2,7 @@ import { BookEntry } from '../model/BookEntry';
 import Axios from 'axios';
 import { Book } from '../model/Book';
 import { AmazonInfos } from '../model/AmazonInfos';
+import { UrlUtils } from '../util/UrlUtils';
 
 export class BackendClient {
     public static async GetBookEntries(userId: number|string): Promise<BookEntry[]> {
@@ -15,7 +16,7 @@ export class BackendClient {
     }
 
     public static async GetDetails(book: Book): Promise<AmazonInfos | null> {
-        const asin = book.amazon_urls?.registration.replace(/^.+?\/dp\//, '').trim();
+        const asin = UrlUtils.ExtractAsin(book.amazon_urls?.registration);
         if(asin) {
             try {
                 const result = await Axios.get(`/books/details/${asin}`);

@@ -1,4 +1,6 @@
-import express, { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
+import express, { NextFunction, Request, Response } from 'express';
+import compression  from 'compression';
 import path from 'path';
 import { Cache } from './backend/Cache';
 import { AtlasController } from './backend/controller/AtlasController';
@@ -6,7 +8,6 @@ import { BookController } from './backend/controller/BookController';
 import { ProxyController } from './backend/controller/ProxyController';
 import { WebException } from './backend/WebException';
 
-import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const proxyController = new ProxyController();
 Cache.SetPath(__dirname);
 Cache.Load();
 
+app.use(compression());
 app.use(express.static(path.join(__dirname, '../dist')));
 app.use('/books', bookController.router);
 app.use('/atlas', atlasControler.router);
@@ -39,4 +41,4 @@ app.use(function(err: any | WebException, req: Request, res: Response, next: Nex
     next(err);
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`Backend listening on port ${port}!`));

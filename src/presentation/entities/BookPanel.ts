@@ -119,7 +119,6 @@ export class BookPanel extends TransformNode {
     update() {
         if(!this._target) return;
 
-        // console.log("Mov");
         const offset = this._target.mesh.getBoundingInfo().boundingSphere.radius * 1.5;
         // const targetPosition = this._target.absolutePosition.add(this._target.right.scale((-offset - this._width * 0.5 )));
 // 
