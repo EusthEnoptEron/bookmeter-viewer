@@ -227,7 +227,6 @@ export class BookPanel extends TransformNode {
     private measureWidthWithFontSize(text: string, fontSize: number) {
         const ctx = this._texture.getContext();
         ctx.font =  `${fontSize}px 'Kosugi Maru'`;
-        console.log(ctx.font, `${fontSize}px "${this._text.fontFamily}"`);
         return ctx.measureText(text).width;
     }
 
