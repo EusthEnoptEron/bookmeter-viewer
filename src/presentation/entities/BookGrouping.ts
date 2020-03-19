@@ -104,7 +104,7 @@ export class BookGrouping extends AbstractMesh {
             }
         }
         
-        this.width = Math.max(1, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
+        this.width = Math.max(0.4, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
         new TWEEN.Tween({ width: this._shelf.width })
             .to({ width: this.width}, 200)
             .onTarget(this._shelf)

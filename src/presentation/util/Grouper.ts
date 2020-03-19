@@ -51,7 +51,7 @@ export class Grouper {
     chunk(
         chunkSize: number,
         labelSupplier: (entity: BookEntity) => string,
-        sorter: string | string[] = 'book.title',
+        sorter: Many<ListIteratee<BookEntity>> = 'book.title',
         sortDirection: "asc" | "desc" | ("asc" | "desc")[] = "asc",
         skipKeyExtractor: (entry: BookEntity) => string = null
     ): [IGrouping, BookEntity[]][] {

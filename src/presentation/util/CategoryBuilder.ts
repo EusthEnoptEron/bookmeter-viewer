@@ -5,6 +5,7 @@ import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
 import { ScalableMaterial } from '../materials/ScalableMaterial';
 import { Category } from './Category';
 import { padStart } from 'lodash';
+import { StringUtils } from '../../util/StringUtils';
 
 export const Categories = [
     new Category('By Author', grouper => {
@@ -15,7 +16,7 @@ export const Categories = [
             book => book.book.author.name    
         )
     }),
-    new Category('By Year', grouper => {
+    new Category('By Year\n(Reading Date)', grouper => {
         return grouper.group(book => {
             return {
                 sortKey: book.created_at.substr(0, 4),
@@ -25,7 +26,7 @@ export const Categories = [
         }, 
         'created_at')
     }),
-    new Category('By Month', grouper => {
+    new Category('By Month\n(Reading Date)', grouper => {
         return grouper.group(book => {
             const date = DateTime.fromFormat(book.created_at, 'yyyy/MM/dd');
             
@@ -38,7 +39,7 @@ export const Categories = [
         [book => DateTime.fromFormat(book.created_at, 'yyyy/MM/dd').toFormat('LL'), 'created_at'],
         ['asc', 'asc'])
     }),
-    new Category('By Weekday', grouper => {
+    new Category('By Weekday\n(Reading Date)', grouper => {
         return grouper.group(book => {
             const date = DateTime.fromFormat(book.created_at, 'yyyy/MM/dd');
             
@@ -51,7 +52,6 @@ export const Categories = [
         [book => DateTime.fromFormat(book.created_at, 'yyyy/MM/dd').weekday.toString(), 'created_at'],
         ['asc', 'asc'])
     }),
-
     new Category('By Pages', grouper => {
         return grouper.chunk(60,
             book => book.book.page.toString(),
@@ -59,11 +59,29 @@ export const Categories = [
             ['asc', 'asc']
         )
     }),
-
     new Category('By Popularity', grouper => {
         return grouper.chunk(60,
             book => book.book.registration_count.toString(),
             ['book.registration_count', 'book.title'],
+            ['asc', 'asc']
+        )
+    }),
+    new Category('By Release Year', grouper => {
+        return grouper.group(book => {
+            const year = book.details?.publicationDate?.substr(0, 4) ?? "Unknown";
+            const date = StringUtils.ParsePublicationDate(book.details?.publicationDate);
+            return {
+                sortKey: year,
+                text: year,
+                skipKeyExtractor: b => StringUtils.ParsePublicationDate(b.details?.publicationDate)?.toFormat('LLLL') ?? 'Unknown'
+            };
+        },
+        ['details.publicationDate'])
+    }),
+    new Category('By Name', grouper => {
+        return grouper.chunk(60,
+            book => book.details?.titleReading?.substr(0,1) ?? '?',
+            [book => book.details?.titleReading ?? '?', 'book.title'],
             ['asc', 'asc']
         )
     }),
@@ -111,7 +129,9 @@ export class CategoryBuilder {
             // ctx.closePath();
 
             ctx.fillStyle = 'white';
-            ctx.fillText(category.label, cx, cy, this._itemWidth * 0.9);
+            
+            CategoryBuilder.fillTextMultiline(ctx, category.label, cx, cy, this._itemWidth * 0.9, 76, false);
+            // ctx.fillText(category.label, cx, cy, this._itemWidth * 0.9);
             
             const instance = template.instantiateHierarchy() as AbstractMesh;
             const textMesh = (instance.getChildMeshes()[0] as AbstractMesh);
@@ -157,6 +177,45 @@ export class CategoryBuilder {
         this._texture.update();
         return result;
     }
+
+    private static fillTextMultiline(context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number, wrap: boolean = true) {
+        var cars = text.split("\n");
+        let texts = [];
+        
+        for (var ii = 0; ii < cars.length; ii++) {
+
+            var line = "";
+            var words = cars[ii].split(" ");
+
+            for (var n = 0; n < words.length; n++) {
+                var testLine = line + words[n] + " ";
+
+                if(!wrap) {
+                    line = testLine;
+                    continue;
+                }
+
+                var metrics = context.measureText(testLine);
+                var testWidth = metrics.width;
+
+                if (testWidth > maxWidth) {
+                    texts.push(line);
+                    line = words[n] + " ";
+                }
+                else {
+                    line = testLine;
+                }
+            }
+
+            texts.push(line.trim());
+        }
+
+        const totalHeight = lineHeight * texts.length;
+        const yBase = y - totalHeight * 0.5 + lineHeight * 0.5;
+        for(let [i, line] of texts.entries()) {
+            context.fillText(line, x, yBase + i * lineHeight, maxWidth);
+        }
+     }
 
     private createTemplate(texture: DynamicTexture): Mesh {
         const disc = MeshBuilder.CreatePlane('Category-Template', {});

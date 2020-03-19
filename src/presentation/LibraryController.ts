@@ -195,7 +195,7 @@ export class LibraryController {
         });
 
         const maxWidth = max(this._groupings.map(g => g.width)) * 1.5;
-        const radius = maxWidth * 0.5 / Math.sin(Math.PI / this._groupings.length);
+        const radius = Math.min(14, maxWidth * 0.5 / Math.sin(Math.PI / this._groupings.length));
 
         this._groupings.forEach((grouping, i) => {
             const angle = -(i / groupings.length) * Math.PI * 2 + Math.PI * 0.5;
