@@ -46,7 +46,7 @@ export class BookPanel extends TransformNode {
 
         const text = this._text = new TextBlock("");
         text.width = 1;
-        text.fontFamily = "Kosugi Maru";
+        text.fontFamily = `"Kosugi Maru"`;
         text.fontSizeInPixels = 40;
 
         rect1.addControl(text);
@@ -98,7 +98,7 @@ export class BookPanel extends TransformNode {
         const charText = new TextBlock("Character", character);
         ellipse.addControl(charText);
 
-        charText.fontFamily = "Kosugi Maru";
+        charText.fontFamily = `"Kosugi Maru"`;
         charText.fontSizeInPixels = 40;
         charText.color = "white";
 
@@ -107,7 +107,7 @@ export class BookPanel extends TransformNode {
         text.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
         text.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
         
-        text.fontFamily = "Kosugi Maru";
+        text.fontFamily = `"Kosugi Maru"`;
         text.fontSizeInPixels = 40;
         text.color = "#367700";
         text.text = "";
@@ -164,31 +164,34 @@ export class BookPanel extends TransformNode {
             this._datePanel.isVisible = false;
         }
 
+        const fontSize = 40;
+        const requiredWidth = Math.min(920, this.measureWidthWithFontSize(this._text.text, 40));
+        this._text.fontSizeInPixels = fontSize;
 
-        const fontSizeAndWidth = this.evaluateFontSizeAndWidth(this._text.text, 40, 800);
-        this._text.fontSizeInPixels = fontSizeAndWidth[0];
+        const authorRequiredWidth = Math.min(200, this.measureWidthWithFontSize(authorText.text, 40));
+        authorText.fontSizeInPixels = fontSize;
 
-        const authorFontSizeAndWidth = this.evaluateFontSizeAndWidth(authorText.text, 40, 300);
-        authorText.fontSizeInPixels = authorFontSizeAndWidth[0];
+        const pageRequiredWidth = Math.min(350, this.measureWidthWithFontSize(pageText.text, 40));
+        pageText.fontSizeInPixels = fontSize;
 
-        const pageFontSizeAndWidth = this.evaluateFontSizeAndWidth(pageText.text, 40, 300);
-        pageText.fontSizeInPixels = pageFontSizeAndWidth[0];
+        const dateRequiredWidth = Math.min(350, this.measureWidthWithFontSize(dateText.text, 40));
+        dateText.fontSizeInPixels = fontSize;
 
-        const dateFontSizeAndWidth = this.evaluateFontSizeAndWidth(dateText.text, 40, 300);
-        dateText.fontSizeInPixels = dateFontSizeAndWidth[0];
-        
+        authorText.widthInPixels = authorRequiredWidth;
         const authorTween = new TWEEN.Tween({widthInPixels: 0})
-            .to({widthInPixels: authorFontSizeAndWidth[1] + 150}, 200)
+            .to({widthInPixels: authorRequiredWidth + 140}, 200)
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .onTarget(this._authorPanel);
 
+        pageText.widthInPixels = pageRequiredWidth;
         const pageTween = new TWEEN.Tween({widthInPixels: 0})
-            .to({widthInPixels: pageFontSizeAndWidth[1] + 150}, 200)
+            .to({widthInPixels: pageRequiredWidth + 140}, 200)
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .onTarget(this._pagePanel);
 
+        dateText.widthInPixels = dateRequiredWidth;
         const dateTween = new TWEEN.Tween({widthInPixels: 0})
-            .to({widthInPixels: dateFontSizeAndWidth[1] + 150}, 200)
+            .to({widthInPixels: dateRequiredWidth + 140}, 200)
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .onTarget(this._datePanel);
 
@@ -196,8 +199,10 @@ export class BookPanel extends TransformNode {
             this._currentTween.stopChainedTweens();
             TWEEN.remove(this._currentTween);
         }
+
+        this._text.widthInPixels = requiredWidth;
         this._currentTween = new TWEEN.Tween({ widthInPixels: 0})
-            .to({ widthInPixels: fontSizeAndWidth[1] + 80}, 300)
+            .to({ widthInPixels: requiredWidth + 60}, 300)
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .onTarget(this._rect)
             .chain(authorTween, pageTween, dateTween)
@@ -221,8 +226,9 @@ export class BookPanel extends TransformNode {
 
     private measureWidthWithFontSize(text: string, fontSize: number) {
         const ctx = this._texture.getContext();
-        ctx.font =  `${fontSize}px '${this._text.fontFamily}'`;
-        return ctx.measureText(text).width * 1.05;
+        ctx.font =  `${fontSize}px 'Kosugi Maru'`;
+        console.log(ctx.font, `${fontSize}px "${this._text.fontFamily}"`);
+        return ctx.measureText(text).width;
     }
 
     private roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -237,4 +243,36 @@ export class BookPanel extends TransformNode {
         ctx.closePath();
         return this;
       }
+}
+
+
+// @ts-ignore
+TextBlock.prototype._drawText = function(text: string, textWidth: number, y: number, context: CanvasRenderingContext2D): void {
+    var width = this._currentMeasure.width;
+    var x = 0;
+    switch (this._textHorizontalAlignment) {
+        case Control.HORIZONTAL_ALIGNMENT_LEFT:
+            context.textAlign = "left";
+            break;
+        case Control.HORIZONTAL_ALIGNMENT_RIGHT:
+            x = this.widthInPixels;
+            context.textAlign = "right";
+            break;
+        case Control.HORIZONTAL_ALIGNMENT_CENTER:
+            x = this.widthInPixels * 0.5;
+            context.textAlign = "center";
+            break;
+    }
+
+    if (this.shadowBlur || this.shadowOffsetX || this.shadowOffsetY) {
+        context.shadowColor = this.shadowColor;
+        context.shadowBlur = this.shadowBlur;
+        context.shadowOffsetX = this.shadowOffsetX;
+        context.shadowOffsetY = this.shadowOffsetY;
+    }
+
+    if (this.outlineWidth) {
+        context.strokeText(text, this._currentMeasure.left + x, y);
+    }
+    context.fillText(text, this._currentMeasure.left + x, y, this.widthInPixels);
 }
