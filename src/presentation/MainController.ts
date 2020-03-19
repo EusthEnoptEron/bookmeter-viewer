@@ -4,13 +4,13 @@ import { filter } from 'rxjs/operators';
 import { BackendClient } from '../backend/BackendClient';
 import { LibraryController } from './LibraryController';
 import { SceneController } from './SceneController';
-import { Scene, ArcFollowCamera } from '@babylonjs/core';
 import { PromiseUtil } from './util/PromiseUtil';
 import { SelectionManager, ISelectable } from './SelectionManager';
-import { TemplateExecutor } from 'lodash';
+import { TemplateExecutor, startCase } from 'lodash';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { BookEntry } from '../model/BookEntry';
+import { fromKana } from 'romaji';
 
 export class MainController {
     private router: Router;
@@ -80,7 +80,18 @@ export class MainController {
             this.outlineContent.innerHTML = "";
             this.outlineContainer.classList.remove("active");
         } else {
-            this.outlineContent.innerHTML = this.outlineTemplate({ entry: selection });
+            // @ts-ignore
+            const entry = selection as BookEntry;
+            const romaji = startCase(fromKana(entry.details?.titleReading ?? ""));
+
+            this.outlineContent.innerHTML = this.outlineTemplate({ 
+                image_url: entry.book.image_url,
+                titleReading: entry.details?.titleReading,
+                titleReadingRomaji: romaji,
+                title: entry.book.title.replace(/\([^\)]+\)$/, ''),
+                subtitle: entry.book.title.replace(/^.+(\([^\)]+\))$/, '$1'),
+                author: entry.book.author.name
+            });
             this.outlineContainer.classList.add("active");
 
             let details: { description?: string } = (selection as any).details;

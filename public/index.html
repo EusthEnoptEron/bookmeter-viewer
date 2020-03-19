@@ -32,11 +32,23 @@
     <script type="text/template" id="outline-template">
         <div id="outline">
             <figure>
-                <img src="${entry.book.image_url}" style="max-width: 100%;" />
+                <img src="${image_url}" style="max-width: 100%;" />
             </figure>
             <div class="details">
-                <h2>${entry.book.title}</h2>
-                <h3>${entry.book.author.name}</h3>
+                <h2>
+                    <% if(titleReading) {%>
+                        <ruby title="${titleReadingRomaji}">
+                    <% } %>
+                    ${title}
+                    <% if(titleReading) {%>
+                            <rp>(</rp>
+                            <rt>${titleReading}</rt>
+                            <rp>)</rp>
+                        </ruby>
+                    <% } %>
+                    ${subtitle}
+                </h2>
+                <h3>${author}</h3>
                 <div class="description" style="display: block;">
                     <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                 </div>
