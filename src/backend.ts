@@ -8,8 +8,12 @@ import { BookController } from './backend/controller/BookController';
 import { ProxyController } from './backend/controller/ProxyController';
 import { WebException } from './backend/WebException';
 
-
 dotenv.config();
+
+const o = process.argv.indexOf('-o');
+const publicPath = o == -1
+    ? 'dist'
+    : process.argv[o + 1];
 
 const port = 8080;
 const app = express()
@@ -21,12 +25,12 @@ Cache.SetPath(__dirname);
 Cache.Load();
 
 app.use(compression());
-app.use(express.static(path.join(__dirname, '../dist')));
+app.use(express.static(path.join(__dirname, '../' + publicPath)));
 app.use('/books', bookController.router);
 app.use('/atlas', atlasControler.router);
 app.get('/proxy', proxyController.router);
 app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+    res.sendFile(path.join(__dirname, `../${publicPath}/index.html`));
 });
 
 // Error handler
