@@ -96,8 +96,8 @@ export class MainController {
                 author: entry.book.author.name,
                 publicationDate: StringUtils.FormatPublicationDate(entry.details?.publicationDate),
                 readDate: StringUtils.ParseBookmeterDate(entry.created_at).toLocaleString(DateTime.DATE_MED),
-                pageCount: entry.book.page,
-                registrationCount: entry.book.registration_count,
+                pageCount: entry.book.page.toLocaleString(),
+                registrationCount: entry.book.registration_count.toLocaleString(),
                 bookmeterUrl: 'https://www.bookmeter.com' + entry.book.path,
                 amazonUrl: entry.book.amazon_urls?.registration,
                 isbn: entry.details?.isbn

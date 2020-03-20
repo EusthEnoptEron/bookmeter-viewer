@@ -190,6 +190,7 @@ button[disabled] {
 #outline .details {
     max-width: 100%;
     box-sizing: border-box;
+    height: fit-content;
 }
 
 #outline dl {
