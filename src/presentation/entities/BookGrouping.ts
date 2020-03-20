@@ -25,7 +25,7 @@ export class BookGrouping extends AbstractMesh {
         super(name, scene);
 
         // Set up podest
-        const color = randomColor({ format: 'rgbArray', luminosity: 'bright' }) as any;
+        const color = randomColor({ format: 'rgbArray', luminosity: 'light' }) as any;
         console.log(color);
         this._podest = BookGrouping.CreatePodest(scene);
         this._podest.parent = this;
