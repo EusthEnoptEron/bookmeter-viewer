@@ -152,7 +152,7 @@ export class LibraryController {
             );
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
-                    ActionManager.OnPickTrigger, 
+                    ActionManager.OnLeftPickTrigger, 
                     (e) => {
                         if(e.sourceEvent?.pointerType === 'mouse' || !hovered) {
                             this._selectionManager.setSelection(entity) 

@@ -165,7 +165,7 @@ export class CategoryBuilder {
                 }
             ));
             am.registerAction( new ExecuteCodeAction(
-                ActionManager.OnPickTrigger,
+                ActionManager.OnLeftPickTrigger,
                 () => {
                     bubble.onPicked.next();
                 }
