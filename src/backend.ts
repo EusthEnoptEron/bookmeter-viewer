@@ -15,7 +15,7 @@ const publicPath = o == -1
     ? 'dist'
     : process.argv[o + 1];
 
-const port = 8080;
+const port = process.env.PORT ?? 8080;
 const app = express()
 const bookController = new BookController();
 const atlasControler = new AtlasController();
