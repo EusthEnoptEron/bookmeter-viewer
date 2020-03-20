@@ -5,11 +5,12 @@
   "scripts": {
     "build": "webpack --config webpack.dev.js",
     "build:prod": "webpack --config webpack.prod.js",
+    "heroku-postbuild": "webpack --config webpack.prod.js",
     "watch": "webpack --watch --config webpack.dev.js",
-    "start": "webpack-dev-server --open  --config webpack.dev.js",
     "build:ts": "tsc -t ES2017",
     "watch:ts": "tsc -w -t ES2017",
-    "backend": "node --max-old-space-size=4096 build/backend.js"
+    "backend": "node --max-old-space-size=4096 build/backend.js",
+    "start": "node build/backend.js"
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",
