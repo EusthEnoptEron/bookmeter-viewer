@@ -24,10 +24,6 @@ export class SeparatorTextureBuilder {
             height: _textureHeight
          }, scene, true);
 
-        const ctx = this._tex.getContext();
-        ctx.fillStyle = 'green';
-        ctx.fillRect(0, 0, this._textureWidth, this._textureHeight);
-
         this._fontSize = Math.round(this._slotWidth * 0.8);
         this._padding = this._slotHeight * 0.03;
     }
@@ -37,7 +33,6 @@ export class SeparatorTextureBuilder {
     }
 
     setText(text: string, id: number) {
-        console.log(`[${id}] ${text}`);
         this._dirty = true;
         const ctx = this._tex.getContext();
 

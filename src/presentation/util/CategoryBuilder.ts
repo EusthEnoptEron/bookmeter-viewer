@@ -11,8 +11,8 @@ export const Categories = [
     new Category('By Author', grouper => {
         return grouper.chunk(60,
             books => books.book.author.name,
-            ['book.author.name', 'book.created_at'],
-            ['asc', 'asc'],
+            [book => book.book.author.name?.replace(/\s/g, ''), 'details.publicationDate', 'created_at'],
+            ['asc', 'asc', 'asc'],
             book => book.book.author.name?.replace(/\s/g, '')
         )
     }),

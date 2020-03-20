@@ -64,8 +64,9 @@ export class LibraryController {
 
     private setupCategories() {
         this._bubbles = new CategoryBuilder(this._scene).build();
+        const offset = this._bubbles.length * 0.5 * Math.PI * 0.1;
         for(let [i, bubble] of this._bubbles.entries()) {
-            const rad = Math.PI * 0.5 - (i * Math.PI * 0.1);
+            const rad = Math.PI * 0.5 - (i * Math.PI * 0.1) + offset;
             bubble.mesh.position = new Vector3(
                 Math.cos(rad) * 15,
                 8,
@@ -76,6 +77,10 @@ export class LibraryController {
             bubble.mesh.addBehavior(new BillboardBehavior());
             
             bubble.onPicked.subscribe(_ => {
+                if(bubble.selected) {
+                    return;
+                }
+
                 if(this._selectedCategory) {
                     this._selectedCategory.selected = false;
                 }

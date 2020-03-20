@@ -248,8 +248,8 @@ export class SceneController {
         particleSystem.colorDead = Color4.FromHexString("#56970a00");
 
         // Size of each particle (random between...
-        particleSystem.minSize = .5;
-        particleSystem.maxSize = 5;
+        particleSystem.addSizeGradient(0, 1.0, 5);
+        particleSystem.addSizeGradient(1, .1);
 
         particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;
 
