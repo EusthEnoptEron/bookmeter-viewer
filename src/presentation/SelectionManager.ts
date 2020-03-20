@@ -45,7 +45,10 @@ export class SelectionManager {
         if(this._focuses.length == 1) {
             this.currentFocus?.onMouseOver();
             this._focusSubject.next(this.currentFocus);
+            return true;
         }
+
+        return false;
     }
 
     setUnfocused(element: ISelectable) {

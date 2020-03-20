@@ -1,4 +1,4 @@
-import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3, SpotLight } from "@babylonjs/core";
 import TWEEN from '@tweenjs/tween.js';
 import './util/AnimationHelper';
 import { AssetRegistry } from './util/AssetRegistry';
@@ -11,7 +11,8 @@ export class SceneController {
     scene: Scene;
     engine: Engine;
     camera: FreeCamera;
-    shadowLight: PointLight;
+    shadowLight: SpotLight;
+    // shadowLight: PointLight;
     // shadowLight: DirectionalLight;
     floorMesh: AbstractMesh;
     ribbon: Mesh;
@@ -60,13 +61,14 @@ export class SceneController {
 
         this.setupLighting();
 
+        // this.shadowLight.direction = Vector3.Down();
         this.shadowGenerator = new ShadowGenerator(1024, this.shadowLight);
         // this.shadowGenerator.useBlurExponentialShadowMap = true;
         // this.shadowGenerator.blurKernel = 32;
         // this.shadowGenerator.useCloseExponentialShadowMap = true;
         this.shadowGenerator.usePercentageCloserFiltering = true
-        this.shadowGenerator.bias = 0.000005;
-        this.shadowGenerator.filteringQuality = ShadowGenerator.QUALITY_LOW;
+        this.shadowGenerator.bias = 0.0001;
+        this.shadowGenerator.filteringQuality = ShadowGenerator.QUALITY_MEDIUM;
 
         this.floorMesh = await this.buildFloor();
         this.ribbon = this.buildRibbon();
@@ -89,14 +91,15 @@ export class SceneController {
         // hemi.intensity = 0.1;
 
 
-        this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
+        // this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
+        this.shadowLight = new SpotLight("shadowLight", new Vector3(0, 3.0, 0.0), Vector3.Down(), 260 / 180 * Math.PI, 1, this.scene);
         this.shadowLight.range = 15.0;
         // this.shadowLight = new DirectionalLight(
             // "shadowLight",
             // new Vector3(0, -6, -2).normalize(),
             // this.scene
         // );
-        this.shadowLight.intensity = 18.0;
+        this.shadowLight.intensity = 20.0;
         // this.shadowLight.position = new Vector3(0, 5, 5);
 
         // const hdrTexture = new CubeTexture('/assets/textures/skybox', this.scene, [".png", "_py.jpg", ".png", ".png", "_ny.jpg", ".png"], null, null, null, null, null, true);
@@ -105,6 +108,19 @@ export class SceneController {
             // "/assets/envSpecularHDR.dds",
             this.scene
         );
+
+        const forward = Vector3.Forward();
+        let camDir = Vector3.Zero();
+        this.scene.onBeforeRenderObservable.add(() => {
+            // This is a little hack that kind of simulates a point light
+            this.camera.getDirectionToRef(forward, camDir);
+
+            if(Math.abs(camDir.y) < 0.9) {
+                camDir.y = 0.0;
+                camDir.normalize();
+                this.shadowLight.direction = new Vector3(camDir.x, -0.4, camDir.z).normalize();
+            }
+        });
         hdrTexture.gammaSpace = false;
         hdrTexture.rotationY = Math.PI;
         

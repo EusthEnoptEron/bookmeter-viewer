@@ -184,6 +184,7 @@ export class BookGrouping extends AbstractMesh {
             mat.baseTexture = AssetRegistry.Instance.plasticColorTexture;;
             mat.metallicRoughnessTexture =  AssetRegistry.Instance.plasticRoughnessTexture;
             mat.normalTexture =  AssetRegistry.Instance.plasticNormalTexture;
+            mat.freeze();
 
             this._templatePodest.material = mat;
             this._templatePodest.receiveShadows = true;

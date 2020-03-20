@@ -129,35 +129,42 @@ export class LibraryController {
         const entities = books.map((book, i) => new BookEntity(book, meshes[i]));
 
         for(let entity of entities) {
+            const localEntity = entity;
             let actionManager = new ActionManager(entity.mesh.getScene());
             entity.mesh.position = new Vector3(0, 5, 0);
             entity.mesh.actionManager = actionManager;
             
-            let hovered = false;
+            let timeOfFocus: number = null;
             //ON MOUSE ENTER
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
                     ActionManager.OnPointerOverTrigger,
                     () => {
-                        hovered = true;
-                        this._selectionManager.setFocused(entity);
+                        if(this._selectionManager.currentFocus != localEntity) {
+                            timeOfFocus = new Date().getTime();
+                        }
+
+                        this._selectionManager.setFocused(localEntity);
                     }
                 )
             );
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
                     ActionManager.OnPointerOutTrigger, 
-                    () => { this._selectionManager.setUnfocused(entity) }
+                    () => { 
+                        timeOfFocus = null;
+                        this._selectionManager.setUnfocused(localEntity) 
+                    }
                 )
             );
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
                     ActionManager.OnLeftPickTrigger, 
                     (e) => {
-                        if(e.sourceEvent?.pointerType === 'mouse' || !hovered) {
-                            this._selectionManager.setSelection(entity) 
+                        if(e.sourceEvent?.pointerType === 'mouse' 
+                        || (timeOfFocus && new Date().getTime() - timeOfFocus) > 180) {
+                            this._selectionManager.setSelection(localEntity) 
                         }
-                        hovered = false;
                     }
                 )
             );
@@ -220,12 +227,15 @@ export class LibraryController {
             );
             const rot = (i / groupings.length) * Math.PI * 2 + Math.PI;
 
+            grouping.unfreezeWorldMatrix();
             if(grouping.position.length() == 0) {
                 grouping.position = pos;
                 grouping.rotation.y = rot;
             } else {
                 grouping.transitionTo('position', pos, 0.2);
-                grouping.transitionTo('rotation.y', rot, 0.2);
+                grouping.transitionTo('rotation.y', rot, 0.2).onAnimationEndObservable.add(() => {
+                    grouping.freezeWorldMatrix();
+                });
             }
            
         })

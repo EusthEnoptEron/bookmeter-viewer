@@ -22,8 +22,11 @@ export class BookEntity implements BookEntry, ISelectable {
         this._targetPosition = targetPosition;
         this._targetRotation = targetRotation;
 
+        this.mesh.unfreezeWorldMatrix();
         this.mesh.transitionTo('position', targetPosition, 1.0);
-        this.mesh.transitionTo('rotation', targetRotation, 1.0);
+        this.mesh.transitionTo('rotation', targetRotation, 1.0).onAnimationEndObservable.add(() => {
+            this.mesh.freezeWorldMatrix();
+        });
     }
 
     onSelect() {
