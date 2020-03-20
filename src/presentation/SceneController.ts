@@ -1,9 +1,12 @@
 import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, Scene, SceneLoader, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+// #!if ENV === 'dev'
 import "@babylonjs/core/Debug/debugLayer";
 import '@babylonjs/gui';
 import '@babylonjs/inspector';
+// #!endif
 import TWEEN from '@tweenjs/tween.js';
 import './util/AnimationHelper';
+
 import { AssetRegistry } from './util/AssetRegistry';
 import { CustomEngine } from "./util/CustomEngine";
 
@@ -44,6 +47,7 @@ export class SceneController {
         this.scene.clearColor = new Color4(0, 0, 0, 0);
         this.scene.gravity = new Vector3(0, -9.81, 0);
 
+        // #!if ENV === 'dev'
         window.addEventListener('keydown', e => {
             if(e.keyCode == 121) {
                 if(this.scene.debugLayer.isVisible()) {
@@ -54,6 +58,7 @@ export class SceneController {
             }
          }
         );
+        // #!endif
 
 
         // Setup camera

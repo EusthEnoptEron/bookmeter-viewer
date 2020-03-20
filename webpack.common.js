@@ -21,7 +21,16 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: ['ts-loader'],
+        use: ['ts-loader', 
+        {
+          loader: 'webpack-preprocessor-loader',
+          options: {
+            params: {
+              ENV: process.env.WEBPACK_ENV,
+            },
+            verbose: false,
+          },
+        }],
         exclude: /node_modules/,
       },
       {

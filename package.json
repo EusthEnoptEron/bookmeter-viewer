@@ -4,11 +4,11 @@
   "description": "",
   "scripts": {
     "build:dev": "webpack --config webpack.dev.js",
-    "build:prod": "webpack --config webpack.prod.js & tsc",
+    "build:prod": "webpack --config webpack.prod.js && tsc -t ES2017",
     "heroku-postbuild": "webpack --config webpack.prod.js && tsc -t ES2017",
     "watch": "webpack --watch --config webpack.dev.js",
-    "build:ts": "tsc -t ES2017",
-    "watch:ts": "tsc -w -t ES2017",
+    "build:backend": "tsc -t ES2017",
+    "watch:backend": "tsc -w -t ES2017",
     "backend": "node --max-old-space-size=4096 build/backend.js",
     "start": "node build/backend.js -o release"
   },
@@ -46,6 +46,7 @@
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3",
     "webpack-merge": "^4.2.2",
+    "webpack-preprocessor-loader": "^1.1.2",
     "webpack-serve": "^3.2.0"
   },
   "dependencies": {
