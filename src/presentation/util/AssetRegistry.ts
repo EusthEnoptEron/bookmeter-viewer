@@ -1,4 +1,4 @@
-import { Texture, AssetsManager, Scene, TextureAssetTask, Mesh } from '@babylonjs/core';
+import { AssetsManager, Mesh, Scene, Texture } from '@babylonjs/core';
 
 const WOOD_TEXTURE_PATH = "/assets/textures/Wood37";
 const PLASTIC_TEXTURE_PATH = "/assets/textures/Plastic004_512";

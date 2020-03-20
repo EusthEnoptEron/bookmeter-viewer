@@ -1,11 +1,10 @@
-import { AbstractMesh, ActionManager, Color4, DynamicTexture, ExecuteCodeAction, Mesh, MeshBuilder, Scene, Texture, Vector2, VertexBuffer, BaseTexture } from '@babylonjs/core';
+import { AbstractMesh, ActionManager, Color4, DynamicTexture, ExecuteCodeAction, Mesh, MeshBuilder, Scene, Texture, Vector2, VertexBuffer } from '@babylonjs/core';
 import { DateTime } from 'luxon';
+import { StringUtils } from '../../util/StringUtils';
 import { CategoryBubble } from '../entities/CategoryBubble';
 import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
 import { ScalableMaterial } from '../materials/ScalableMaterial';
 import { Category } from './Category';
-import { padStart } from 'lodash';
-import { StringUtils } from '../../util/StringUtils';
 
 export const Categories = [
     new Category('By Author', grouper => {

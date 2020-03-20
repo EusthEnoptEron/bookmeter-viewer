@@ -1,7 +1,6 @@
+import { chunk, ListIteratee, Many, orderBy, uniq } from "lodash";
 import { BookEntry } from "../../model/BookEntry";
-import { orderBy, chunk, Many, ListIteratee, NotVoid } from "lodash";
 import { BookEntity } from '../entities/BookEntity';
-import { uniq } from 'lodash';
 
 export interface IGrouping {
     text: string;

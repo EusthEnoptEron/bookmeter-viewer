@@ -1,9 +1,9 @@
-import { AbstractMesh, Scene, TransformNode, Mesh, MeshBuilder, Vector3, Quaternion, ColorGradingTexture, Observer, Nullable } from '@babylonjs/core';
-import {AdvancedDynamicTexture, Rectangle, TextBlock, Ellipse, Control, Container, StackPanel, TextWrapping } from '@babylonjs/gui'
-import TWEEN, { Tween } from '@tweenjs/tween.js';
-
+import { Mesh, MeshBuilder, Nullable, Quaternion, Scene, TransformNode } from '@babylonjs/core';
+import { AdvancedDynamicTexture, Control, Ellipse, Rectangle, StackPanel, TextBlock } from '@babylonjs/gui';
+import TWEEN from '@tweenjs/tween.js';
 import '../util/AnimationHelper';
 import { BookEntity } from './BookEntity';
+
 
 export class BookPanel extends TransformNode {
     private _texture: AdvancedDynamicTexture;

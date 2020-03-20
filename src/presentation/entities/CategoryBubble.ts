@@ -1,5 +1,5 @@
 import { AbstractMesh } from "@babylonjs/core";
-import { Observable, Subject, BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { Category } from "../util/Category";
 
 export class CategoryBubble {

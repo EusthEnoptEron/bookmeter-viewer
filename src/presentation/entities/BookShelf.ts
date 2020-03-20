@@ -1,21 +1,8 @@
-import {
-    Scene,
-    Mesh,
-    BoxBuilder,
-    MeshBuilder,
-    PBRMetallicRoughnessMaterial,
-    Texture,
-    Vector3,
-    AbstractMesh,
-    Node,
-    TransformNode,
-    Color3,
-    BaseTexture
-} from "@babylonjs/core";
-
-import { PBRScalableMaterial } from "../materials/PBRScalableMaterial";
+import { AbstractMesh, BaseTexture, Mesh, MeshBuilder, PBRMetallicRoughnessMaterial, Scene, Vector3 } from "@babylonjs/core";
 import { Constants } from '../Constants';
+import { PBRScalableMaterial } from "../materials/PBRScalableMaterial";
 import { AssetRegistry } from '../util/AssetRegistry';
+
 const TEXTURE_PATH = "/assets/textures/Wood37";
 
 export class BookShelf extends AbstractMesh {

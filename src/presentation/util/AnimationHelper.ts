@@ -1,7 +1,7 @@
-import { Nullable, Animatable, Animation, Node, Vector3, Quaternion, EasingFunction, SineEase } from '@babylonjs/core';
-import { v4 as uuid } from 'uuid';
-import { get, set, mapKeys } from 'lodash';
+import { Animatable, Animation, EasingFunction, Node, Nullable, SineEase, Vector3 } from '@babylonjs/core';
 import TWEEN from '@tweenjs/tween.js';
+import { get, set } from 'lodash';
+import { v4 as uuid } from 'uuid';
 
 declare module '@babylonjs/core/node' {
     export interface Node {

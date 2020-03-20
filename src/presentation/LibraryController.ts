@@ -1,26 +1,25 @@
-import { ActionManager, AssetsManager, ExecuteCodeAction, Scene, Vector3 } from "@babylonjs/core";
+import { ActionManager, ExecuteCodeAction, Scene, Vector3 } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
 import "@babylonjs/loaders/glTF";
+import { max } from 'lodash';
 import { BookEntry } from "../model/BookEntry";
+import { BillboardBehavior } from './behaviors/BillboardBehavior';
 import { BookEntity } from './entities/BookEntity';
 import { BookGrouping } from "./entities/BookGrouping";
 import { BookPanel } from './entities/BookPanel';
+import { BookSeparator, BookSeparatorBuilder } from './entities/BookSeparator';
+import { CategoryBubble } from './entities/CategoryBubble';
 import { SceneController } from './SceneController';
 import { SelectionManager } from './SelectionManager';
 import './util/AnimationHelper';
 import { BookBuilder } from "./util/BookBuilder";
+import { Category } from './util/Category';
+import { CategoryBuilder } from './util/CategoryBuilder';
 import { Grouper } from "./util/Grouper";
 import { MemoryPool } from './util/MemoryPool';
 import { PromiseUtil } from './util/PromiseUtil';
-import { max } from 'lodash';
-import { Categories, CategoryBuilder } from './util/CategoryBuilder';
-import { CategoryBubble } from './entities/CategoryBubble';
-import { BillboardBehavior } from './behaviors/BillboardBehavior';
-import { Category } from './util/Category';
-import { SeparatorTextureBuilder } from './util/SeparatorTextureBuilder';
-import { BookSeparator, BookSeparatorBuilder } from './entities/BookSeparator';
 
 
 export class LibraryController {

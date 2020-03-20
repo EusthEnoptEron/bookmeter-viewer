@@ -1,4 +1,4 @@
-import { Texture, DynamicTexture, Scene, Vector2 } from '@babylonjs/core';
+import { DynamicTexture, Scene, Texture, Vector2 } from '@babylonjs/core';
 
 export class SeparatorTextureBuilder {
     

@@ -1,12 +1,9 @@
-import {
-    Mesh, AbstractMesh, Vector3, Observer, Scene, TransformNode, Quaternion
-} from "@babylonjs/core";
+import { AbstractMesh, TransformNode, Vector3 } from "@babylonjs/core";
 import { Book } from "../../model/Book";
+import { BookDetails } from '../../model/BookDetails';
 import { BookEntry } from "../../model/BookEntry";
-import { User } from '../../model/User';
 import { ISelectable } from '../SelectionManager';
 import '../util/AnimationHelper';
-import { BookDetails } from '../../model/BookDetails';
 
 export class BookEntity implements BookEntry, ISelectable {
     private _selected: boolean;

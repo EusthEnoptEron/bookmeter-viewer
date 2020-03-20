@@ -1,19 +1,19 @@
-import { Router } from '../util/Router';
+import isbnUtils from 'isbn-utils';
+import { startCase, TemplateExecutor } from 'lodash';
 import isEmpty from 'lodash/isEmpty';
-import { filter } from 'rxjs/operators';
-import { BackendClient } from '../backend/BackendClient';
-import { LibraryController } from './LibraryController';
-import { SceneController } from './SceneController';
-import { PromiseUtil } from './util/PromiseUtil';
-import { SelectionManager, ISelectable } from './SelectionManager';
-import { TemplateExecutor, startCase } from 'lodash';
+import { DateTime } from 'luxon';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
-import { BookEntry } from '../model/BookEntry';
 import { fromKana } from 'romaji';
+import { filter } from 'rxjs/operators';
+import { BackendClient } from '../backend/BackendClient';
+import { BookEntry } from '../model/BookEntry';
+import { Router } from '../util/Router';
 import { StringUtils } from '../util/StringUtils';
-import { DateTime } from 'luxon';
-import isbnUtils from 'isbn-utils';
+import { LibraryController } from './LibraryController';
+import { SceneController } from './SceneController';
+import { ISelectable, SelectionManager } from './SelectionManager';
+import { PromiseUtil } from './util/PromiseUtil';
 
 export class MainController {
     private router: Router;

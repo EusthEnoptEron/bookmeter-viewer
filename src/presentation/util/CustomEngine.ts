@@ -1,4 +1,4 @@
-import { Engine, Nullable, EngineOptions, Effect, EffectFallbacks } from '@babylonjs/core';
+import { Effect, EffectFallbacks, Engine, EngineOptions, Nullable } from '@babylonjs/core';
 
 export class CustomEngine extends Engine {
     /**

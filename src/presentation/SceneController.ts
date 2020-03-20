@@ -1,11 +1,11 @@
-import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, PointLight, Scene, SceneLoader, ShadowGenerator, StandardMaterial, Texture, Vector3, SpotLight } from "@babylonjs/core";
+import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, Scene, SceneLoader, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import "@babylonjs/core/Debug/debugLayer";
+import '@babylonjs/gui';
+import '@babylonjs/inspector';
 import TWEEN from '@tweenjs/tween.js';
 import './util/AnimationHelper';
 import { AssetRegistry } from './util/AssetRegistry';
 import { CustomEngine } from "./util/CustomEngine";
-import "@babylonjs/core/Debug/debugLayer";
-import '@babylonjs/gui';
-import '@babylonjs/inspector';
 
 export class SceneController {
     scene: Scene;

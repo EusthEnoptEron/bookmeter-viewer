@@ -1,6 +1,6 @@
-import { Scene, Mesh, VertexData, AbstractMesh, MeshBuilder, InstancedMesh, Vector2, TransformNode } from '@babylonjs/core';
-import { Constants } from '../Constants';
+import { InstancedMesh, Mesh, MeshBuilder, Scene, TransformNode } from '@babylonjs/core';
 import { v4 as uuid } from 'uuid';
+import { Constants } from '../Constants';
 import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
 import { SeparatorTextureBuilder } from '../util/SeparatorTextureBuilder';
 

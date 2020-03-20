@@ -1,13 +1,11 @@
-import { SceneLoader, Scene, Mesh, PBRMaterial, AbstractMesh, Vector2, VertexData, MeshBuilder, LinesMesh, Texture, ShadowGenerator, Tools } from '@babylonjs/core';
-import { BookEntry } from '../../model/BookEntry';
-import { TextureAtlas } from '../materials/TextureAtlas';
-import { v4 as uuid } from 'uuid';
-import { UrlUtils } from '../../util/UrlUtils';
-import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
+import { AbstractMesh, Mesh, PBRMaterial, Scene, ShadowGenerator, Texture, Tools, Vector2 } from '@babylonjs/core';
 import { chunk } from 'lodash';
+import { v4 as uuid } from 'uuid';
+import { BookEntry } from '../../model/BookEntry';
+import { UrlUtils } from '../../util/UrlUtils';
 import { AtlasBase, ISlot } from '../materials/AtlasBase';
-import { PromiseUtil } from './PromiseUtil';
-import Axios from 'axios';
+import { PBRScalableMaterial } from '../materials/PBRScalableMaterial';
+import { TextureAtlas } from '../materials/TextureAtlas';
 import { AssetRegistry } from './AssetRegistry';
 
 let atlasSize = 4096;

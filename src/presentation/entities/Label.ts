@@ -1,4 +1,4 @@
-import { Mesh, VertexData, Scene, DynamicTexture, PBRMetallicRoughnessMaterial, Color3, Color4, Texture, BaseTexture } from '@babylonjs/core';
+import { BaseTexture, Color3, DynamicTexture, Mesh, PBRMetallicRoughnessMaterial, Scene, VertexData } from '@babylonjs/core';
 
 export class Label extends Mesh {
 

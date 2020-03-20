@@ -1,6 +1,5 @@
-import { Grouper, IGrouping } from './Grouper';
-import { BookEntry } from '../../model/BookEntry';
 import { BookEntity } from '../entities/BookEntity';
+import { Grouper, IGrouping } from './Grouper';
 
 export class Category {
     constructor(

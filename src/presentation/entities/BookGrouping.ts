@@ -1,15 +1,14 @@
-import { IGrouping } from '../util/Grouper';
-import { AbstractMesh, Node, Scene, Mesh, MeshBuilder, VertexBuffer, Color4, PBRMaterial, TransformNode, Vector3, Matrix, PBRMetallicRoughnessMaterial, Texture, Vector4 } from '@babylonjs/core';
-import { BookShelf } from './BookShelf';
-import randomColor from 'randomcolor';
-import { Label } from './Label';
-import { AssetRegistry } from '../util/AssetRegistry';
-import { BookEntity } from './BookEntity';
-import { v4 as uuid } from 'uuid';
+import { AbstractMesh, Color4, Mesh, MeshBuilder, PBRMetallicRoughnessMaterial, Scene, Vector3, Vector4, VertexBuffer } from '@babylonjs/core';
 import TWEEN from '@tweenjs/tween.js';
+import randomColor from 'randomcolor';
+import { v4 as uuid } from 'uuid';
+import { AssetRegistry } from '../util/AssetRegistry';
+import { IGrouping } from '../util/Grouper';
 import { MemoryPool } from '../util/MemoryPool';
+import { BookEntity } from './BookEntity';
 import { BookSeparator } from './BookSeparator';
-import { SequenceEqualOperator } from 'rxjs/internal/operators/sequenceEqual';
+import { BookShelf } from './BookShelf';
+import { Label } from './Label';
 
 const PODEST_HEIGHT = 0.1;
 
