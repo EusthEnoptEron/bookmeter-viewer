@@ -98,6 +98,7 @@ const activeTweens: { [key: string]: TWEEN.Tween } = {};
 TWEEN.Tween.prototype.withId = function(id: string): TWEEN.Tween {
     const self = this as TWEEN.Tween;
     if(activeTweens[id]) {
+        activeTweens[id].stopChainedTweens();
         activeTweens[id].stop();
     }
 

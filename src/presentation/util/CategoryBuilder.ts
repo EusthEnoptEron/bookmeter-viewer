@@ -13,7 +13,7 @@ export const Categories = [
             books => books.book.author.name,
             ['book.author.name', 'book.created_at'],
             ['asc', 'asc'],
-            book => book.book.author.name    
+            book => book.book.author.name?.replace(/\s/g, '')
         )
     }),
     new Category('By Year\n(Reading Date)', grouper => {
@@ -21,7 +21,9 @@ export const Categories = [
             return {
                 sortKey: book.created_at.substr(0, 4),
                 text: book.created_at.substr(0, 4),
-                skipKeyExtractor: b => b.created_at.substr(5, 2)
+                skipKeyExtractor: b => b.created_at 
+                    ? StringUtils.ParseBookmeterDate(b.created_at).toFormat('LLLL')
+                    : 'Unknown'
             };
         }, 
         'created_at')
@@ -78,11 +80,12 @@ export const Categories = [
         },
         ['details.publicationDate'])
     }),
-    new Category('By Name', grouper => {
+    new Category('By Title', grouper => {
         return grouper.chunk(60,
             book => book.details?.titleReading?.substr(0,1) ?? '?',
             [book => book.details?.titleReading ?? '?', 'book.title'],
-            ['asc', 'asc']
+            ['asc', 'asc'],
+            book => book.details?.titleReading?.substr(0,1) ?? '?'
         )
     }),
 ];

@@ -19,6 +19,8 @@ import { Categories, CategoryBuilder } from './util/CategoryBuilder';
 import { CategoryBubble } from './entities/CategoryBubble';
 import { BillboardBehavior } from './behaviors/BillboardBehavior';
 import { Category } from './util/Category';
+import { SeparatorTextureBuilder } from './util/SeparatorTextureBuilder';
+import { BookSeparator, BookSeparatorBuilder } from './entities/BookSeparator';
 
 
 export class LibraryController {
@@ -30,6 +32,7 @@ export class LibraryController {
     private _user: string;
     private _textPanel: BookPanel;
     private _groupingPool: MemoryPool<BookGrouping>;
+    private _separatorPool: MemoryPool<BookSeparator>;
     private hasEntered = false;
 
     private _selectedCategory: CategoryBubble;
@@ -43,9 +46,13 @@ export class LibraryController {
         this._textPanel = new BookPanel("", this._scene);
         this._grouper = new Grouper();
         this._groupingPool = new MemoryPool<BookGrouping>(() => { 
-            const instance = new BookGrouping("Grouping", this._scene);
+            const instance = new BookGrouping("Grouping", this._scene, this._separatorPool);
             this.sceneController.shadowGenerator.addShadowCaster(instance);
             return instance;
+        });
+
+        this._separatorPool = new MemoryPool<BookSeparator>(() => {
+            return BookSeparatorBuilder.CreateSeparator(this._scene);
         });
 
         this._selectionManager.onFocusChanged.subscribe(target => {
@@ -153,6 +160,7 @@ export class LibraryController {
 
         this._grouper.setEntries(entities);
         this._groupingPool.prewarm(10);
+        this._separatorPool.prewarm(10);
     }
 
     async onCategoryChanged(category: Category) {
@@ -173,6 +181,7 @@ export class LibraryController {
             await this.onEnterLibrary();
             this.hasEntered = true;
         }
+
         if(signal.aborted) return;
 
         for(let grouping of this._groupings) {

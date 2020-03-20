@@ -29,6 +29,7 @@ export class MemoryPool<T extends Node> {
 
     despawn(el: T) {
         el.setEnabled(false);
+        el.parent = null;
         this._elements.push(el);
     }
 }

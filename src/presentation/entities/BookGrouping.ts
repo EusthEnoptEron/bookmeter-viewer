@@ -7,6 +7,9 @@ import { AssetRegistry } from '../util/AssetRegistry';
 import { BookEntity } from './BookEntity';
 import { v4 as uuid } from 'uuid';
 import TWEEN from '@tweenjs/tween.js';
+import { MemoryPool } from '../util/MemoryPool';
+import { BookSeparator } from './BookSeparator';
+import { SequenceEqualOperator } from 'rxjs/internal/operators/sequenceEqual';
 
 const PODEST_HEIGHT = 0.1;
 
@@ -14,14 +17,14 @@ export class BookGrouping extends AbstractMesh {
     private static _templatePodest: Mesh = null;
 
     private _group: IGrouping;
-    private _books: BookEntity[];
+    private _books: (BookEntity | BookSeparator)[];
     private _shelf: BookShelf;
     private _podest: AbstractMesh;
     private _label: Label;
     private _id = uuid();
     width: number = 1.0;
 
-    constructor(name: string, scene: Scene)  {
+    constructor(name: string, scene: Scene, private _separatorPool: MemoryPool<BookSeparator>)  {
         super(name, scene);
 
         // Set up podest
@@ -55,10 +58,10 @@ export class BookGrouping extends AbstractMesh {
     }
 
     hurlOutBooks() {
-        for(let book of this._books) {
-            if (book) {
-                book.mesh.setParent(null);
-                book.setTarget(
+        for(let entity of this._books) {
+            if (entity instanceof BookEntity) {
+                entity.mesh.setParent(null);
+                entity.setTarget(
                     new Vector3(Math.random(), Math.random() + 4, Math.random()),
                     new Vector3(
                         Math.random() * Math.PI * 2, 
@@ -66,6 +69,8 @@ export class BookGrouping extends AbstractMesh {
                         Math.random() * Math.PI * 2
                     )
                 )
+            } else if(entity instanceof BookSeparator) {
+                this._separatorPool.despawn(entity);
             }
         }
 
@@ -81,33 +86,63 @@ export class BookGrouping extends AbstractMesh {
         this._label.setText(group.text);
     }
 
-    get books() {
-        return this._books;
+    private spawnSeparator(position: number, text: string) {
+
+        const separator = this._separatorPool.spawn();
+
+        separator.text = text;
+        separator.parent = this;
+        separator.mesh.isVisible = true;
+        separator.scaling.y = 0.0;
+        separator.rotation = new Vector3(0, Math.PI, 0);
+
+        this._books.splice(position, 0, separator);
     }
 
     set books(books: BookEntity[]) {
         this._books = [...books];
 
         if(this.group.skipKeyExtractor != null) {
-            let prevKey: string = this.group.skipKeyExtractor(this._books[0]);
+            let prevKey: string = this.group.skipKeyExtractor(books[0]);
+            this.spawnSeparator(0, prevKey);
+            let offset = 1;
 
-            for(let i = 1; i < this._books.length; i++) {
-                let key = this.group.skipKeyExtractor(this._books[i]);
+            for(let i = 1; i < books.length; i++) {
+                let key = this.group.skipKeyExtractor(books[i]);
 
                 if(key != prevKey) {
-                    this._books.splice(i, 0, null);
-                    i++;
-
+                    this.spawnSeparator(i + offset, key);
+                    offset++;
                     prevKey = key;
                 }
             }
+        } else {
+            console.log("No keys...");
         }
         
         this.width = Math.max(0.4, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
+
+        const seps = this._books.filter(b => b instanceof BookSeparator) as BookSeparator[];
+        const showSeparators = new TWEEN.Tween({ w: 0 })
+            .to({w: 1}, 200)
+            .onStart(() => {
+                for(let [i, entity] of this._books.entries()) {
+                    if(entity instanceof BookSeparator) {
+                        entity.position = this._shelf.position.add(this._shelf.getBookPosition(i));
+                    }
+                }
+            })
+            .onUpdate((vals) => {
+                for(let sep of seps) {
+                    sep.scaling.y = vals.w;
+                }
+            });
+
         new TWEEN.Tween({ width: this._shelf.width })
             .to({ width: this.width}, 200)
             .onTarget(this._shelf)
             .withId(this._id)
+            .chain(showSeparators)
             .start();
 
         this._podest.scaling.x = this._podest.scaling.z = this.width * 1.5;
@@ -115,7 +150,7 @@ export class BookGrouping extends AbstractMesh {
     }
 
     getBookPosition(book: BookEntity) {
-        const idx = this.books.indexOf(book);
+        const idx = this._books.indexOf(book);
         if(idx >= 0) {
             return this._shelf.position.add(this._shelf.getBookPosition(idx));
         } else {
@@ -124,7 +159,7 @@ export class BookGrouping extends AbstractMesh {
     }
 
     getAbsoluteBookPosition(book: BookEntity) {
-        const idx = this.books.indexOf(book);
+        const idx = this._books.indexOf(book);
         if(idx >= 0) {
             return this._shelf.getAbsoluteBookPosition(idx);
         } else {
