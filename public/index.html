@@ -19,7 +19,7 @@
             <form>
                 <input type="text" id="id-input" size="30" placeholder="Name / ID" />
                 <button class="button-primary">Visualize</button>
-                <p class="error"></p><span style="font-family: 'Kosugi Maru'; visibility: 0;">.</span>
+                <p class="error"></p>
             </form>
         </div>
     </div>
@@ -52,6 +52,31 @@
                 <div class="description" style="display: block;">
                     <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                 </div>
+
+                <dl>
+                    <dt>ISBN</dt>
+                    <dd>${isbn}</dd>
+
+                    <dt>Released</dt>
+                    <dd>${publicationDate}</dd>
+    
+                    <dt>Read on</dt>
+                    <dd>${readDate}</dd>
+    
+                    <dt>Page count</dt>
+                    <dd>${pageCount}</dd>
+    
+                    <dt>Registration count</dt>
+                    <dd>${registrationCount}</dd>
+    
+                    <dt>Bookmeter</dt>
+                    <dd><a href="${bookmeterUrl}" target="_blank" rel="noreferrer noopener">${bookmeterUrl}</a></dd>
+    
+                    <% if(amazonUrl) { %>
+                    <dt>Amazon</dt>
+                    <dd><a href="${amazonUrl}" target="_blank" rel="noreferrer noopener">${amazonUrl}</a></dd>
+                    <% } %>
+                </dl>
             </div>
         </div>
     </script>

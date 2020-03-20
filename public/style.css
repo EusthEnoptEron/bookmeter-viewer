@@ -12,6 +12,14 @@ body {
     background: linear-gradient(0deg, rgba(213,214,210,1) 0%, rgba(213,214,210,1) 50%, rgba(229,230,226,1) 80%, rgba(245,246,242,1) 100%);
 }
 
+a {
+    color:  #6d9e34;
+}
+
+a:hover {
+    color:  #8dBe54;
+}
+
 h1, h2, h3, h4 {
     font-family: Ubuntu, sans-serif;
 }
@@ -123,6 +131,7 @@ button[disabled] {
     display: flex;
     align-items: center;
     height: 100%;
+    max-width: 100%;
 }
 
 #outline-container.active {
@@ -141,7 +150,7 @@ button[disabled] {
     flex-wrap: wrap;
     overflow: auto;
     max-height: 100%;
-    font-size: 1.5em;
+    font-size: 1.3em;
 }
 
 #outline-container .btn-close {
@@ -178,6 +187,26 @@ button[disabled] {
     flex-shrink: 0;
 }
 
+#outline .details {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#outline dl {
+    overflow: auto;
+}
+
+#outline dt {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: rgb(169, 169, 169);
+}
+
+#outline dd {
+    margin-inline-start: 20px;
+    overflow-wrap: break-word;
+}
 
 #outline h2 {
     font-size: 2.5rem;
@@ -273,12 +302,10 @@ button[disabled] {
     #outline h3 {
         font-size: 3rem;
     }
-    
-    #outline {
-        flex-wrap: nowrap;
-    }
 
     #outline {
+        flex-wrap: nowrap;
+        font-size: 1.5em;
         padding: 3em;
     }
 

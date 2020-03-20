@@ -11,6 +11,9 @@ import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { BookEntry } from '../model/BookEntry';
 import { fromKana } from 'romaji';
+import { StringUtils } from '../util/StringUtils';
+import { DateTime } from 'luxon';
+import isbnUtils from 'isbn-utils';
 
 export class MainController {
     private router: Router;
@@ -90,8 +93,17 @@ export class MainController {
                 titleReadingRomaji: romaji,
                 title: entry.book.title.replace(/\([^\)]+\)$/, ''),
                 subtitle: entry.book.title.replace(/^.+(\([^\)]+\))$/, '$1'),
-                author: entry.book.author.name
-            });
+                author: entry.book.author.name,
+                publicationDate: StringUtils.FormatPublicationDate(entry.details?.publicationDate),
+                readDate: StringUtils.ParseBookmeterDate(entry.created_at).toLocaleString(DateTime.DATE_MED),
+                pageCount: entry.book.page,
+                registrationCount: entry.book.registration_count,
+                bookmeterUrl: 'https://www.bookmeter.com' + entry.book.path,
+                amazonUrl: entry.book.amazon_urls?.registration,
+                isbn: entry.details?.isbn
+                    ? isbnUtils.asIsbn13(entry.details.isbn, true)
+                    : 'Unknown'
+            }); 
             this.outlineContainer.classList.add("active");
 
             let details: { description?: string } = (selection as any).details;
