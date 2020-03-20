@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "build:dev": "webpack --config webpack.dev.js",
-    "build:prod": "webpack --config webpack.prod.js",
-    "heroku-postbuild": "webpack --config webpack.prod.js",
+    "build:prod": "webpack --config webpack.prod.js & tsc",
+    "heroku-postbuild": "webpack --config webpack.prod.js && tsc -t ES2017",
     "watch": "webpack --watch --config webpack.dev.js",
     "build:ts": "tsc -t ES2017",
     "watch:ts": "tsc -w -t ES2017",
