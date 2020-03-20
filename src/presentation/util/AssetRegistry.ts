@@ -1,7 +1,7 @@
 import { Texture, AssetsManager, Scene, TextureAssetTask, Mesh } from '@babylonjs/core';
 
 const WOOD_TEXTURE_PATH = "/assets/textures/Wood37";
-const MARBLE_TEXTURE_PATH = "/assets/textures/Marble012_2K";
+const PLASTIC_TEXTURE_PATH = "/assets/textures/Plastic004_512";
 
 export class AssetRegistry 
 {
@@ -18,8 +18,9 @@ export class AssetRegistry
     public woodNormalTexture: Texture;
     public woodRoughnessTexture: Texture;
 
-    public marbleColorTexture: Texture;
-    public marbleRoughnessTexture: Texture;
+    public plasticColorTexture: Texture;
+    public plasticRoughnessTexture: Texture;
+    public plasticNormalTexture: Texture;
 
     public bookModel: Mesh;
 
@@ -29,8 +30,9 @@ export class AssetRegistry
         manager.addTextureTask("wood_nrm", `${WOOD_TEXTURE_PATH}_nrm.jpg`).onSuccess = task => this.woodNormalTexture = task.texture;
         manager.addTextureTask("wood_rgh", `${WOOD_TEXTURE_PATH}_rghMtl.jpg`).onSuccess = task => this.woodRoughnessTexture = task.texture;
 
-        manager.addTextureTask("marble_col", `${MARBLE_TEXTURE_PATH}_Color.jpg`).onSuccess = task => this.marbleColorTexture = task.texture;
-        manager.addTextureTask("marble_rgh", `${MARBLE_TEXTURE_PATH}_rghMtl.jpg`).onSuccess = task => this.marbleRoughnessTexture = task.texture;
+        manager.addTextureTask("plastic_col", `${PLASTIC_TEXTURE_PATH}_Color.jpg`).onSuccess = task => this.plasticColorTexture = task.texture;
+        manager.addTextureTask("plastic_nrm", `${PLASTIC_TEXTURE_PATH}_Normal.jpg`).onSuccess = task => this.plasticNormalTexture = task.texture;
+        manager.addTextureTask("plastic_rgh", `${PLASTIC_TEXTURE_PATH}_rghMtl.jpg`).onSuccess = task => this.plasticRoughnessTexture = task.texture;
 
         manager.addMeshTask('book', '', '/assets/', 'book.glb').onSuccess = task => {
             this.bookModel = task.loadedMeshes[1] as Mesh;

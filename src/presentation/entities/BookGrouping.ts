@@ -1,7 +1,6 @@
 import { IGrouping } from '../util/Grouper';
 import { AbstractMesh, Node, Scene, Mesh, MeshBuilder, VertexBuffer, Color4, PBRMaterial, TransformNode, Vector3, Matrix, PBRMetallicRoughnessMaterial, Texture, Vector4 } from '@babylonjs/core';
 import { BookShelf } from './BookShelf';
-import { BookEntry } from '../../model/BookEntry';
 import randomColor from 'randomcolor';
 import { Label } from './Label';
 import { AssetRegistry } from '../util/AssetRegistry';
@@ -10,7 +9,6 @@ import { v4 as uuid } from 'uuid';
 import TWEEN from '@tweenjs/tween.js';
 
 const PODEST_HEIGHT = 0.1;
-const MARBLE_TEXTURE_PATH = "/assets/textures/Marble012_2K";
 
 export class BookGrouping extends AbstractMesh {
     private static _templatePodest: Mesh = null;
@@ -27,7 +25,8 @@ export class BookGrouping extends AbstractMesh {
         super(name, scene);
 
         // Set up podest
-        const color = randomColor({ format: 'rgbArray' }) as any;
+        const color = randomColor({ format: 'rgbArray', luminosity: 'bright' }) as any;
+        console.log(color);
         this._podest = BookGrouping.CreatePodest(scene);
         this._podest.parent = this;
         this._podest.position.y = PODEST_HEIGHT * 0.5;
@@ -147,8 +146,9 @@ export class BookGrouping extends AbstractMesh {
             });
             
             const mat = new PBRMetallicRoughnessMaterial("Marble_Mat", scene);
-            mat.baseTexture = AssetRegistry.Instance.marbleColorTexture;;
-            mat.metallicRoughnessTexture =  AssetRegistry.Instance.marbleRoughnessTexture;
+            mat.baseTexture = AssetRegistry.Instance.plasticColorTexture;;
+            mat.metallicRoughnessTexture =  AssetRegistry.Instance.plasticRoughnessTexture;
+            mat.normalTexture =  AssetRegistry.Instance.plasticNormalTexture;
 
             this._templatePodest.material = mat;
             this._templatePodest.receiveShadows = true;
