@@ -1,4 +1,4 @@
-import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, Scene, SceneLoader, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Animatable, Animation, Color3, Color4, CubeTexture, Engine, FreeCamera, Mesh, MeshBuilder, ParticleSystem, Scene, SceneLoader, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3, PointLight } from "@babylonjs/core";
 // #!if ENV === 'dev'
 import "@babylonjs/core/Debug/debugLayer";
 import '@babylonjs/gui';
@@ -14,8 +14,8 @@ export class SceneController {
     scene: Scene;
     engine: Engine;
     camera: FreeCamera;
-    shadowLight: SpotLight;
-    // shadowLight: PointLight;
+    // shadowSpotLight: SpotLight;
+    shadowLight: PointLight;
     // shadowLight: DirectionalLight;
     floorMesh: AbstractMesh;
     ribbon: Mesh;
@@ -96,15 +96,14 @@ export class SceneController {
         // hemi.intensity = 0.1;
 
 
-        // this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
-        this.shadowLight = new SpotLight("shadowLight", new Vector3(0, 3.0, 0.0), Vector3.Down(), 260 / 180 * Math.PI, 1, this.scene);
+        this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
         this.shadowLight.range = 15.0;
-        // this.shadowLight = new DirectionalLight(
-            // "shadowLight",
-            // new Vector3(0, -6, -2).normalize(),
-            // this.scene
-        // );
-        this.shadowLight.intensity = 20.0;
+        this.shadowLight.intensity = 15.0;
+
+        // this.shadowSpotLight = new SpotLight("shadowLight", new Vector3(0, 3.0, 0.0), Vector3.Down(), 260 / 180 * Math.PI, 1, this.scene);
+        // this.shadowSpotLight.range = 15.0;
+        // this.shadowSpotLight.intensity = 20.0;
+
         // this.shadowLight.position = new Vector3(0, 5, 5);
 
         // const hdrTexture = new CubeTexture('/assets/textures/skybox', this.scene, [".png", "_py.jpg", ".png", ".png", "_ny.jpg", ".png"], null, null, null, null, null, true);
@@ -114,18 +113,19 @@ export class SceneController {
             this.scene
         );
 
-        const forward = Vector3.Forward();
-        let camDir = Vector3.Zero();
-        this.scene.onBeforeRenderObservable.add(() => {
-            // This is a little hack that kind of simulates a point light
-            this.camera.getDirectionToRef(forward, camDir);
+        // const forward = Vector3.Forward();
+        // let camDir = Vector3.Zero();
+        // this.scene.onBeforeRenderObservable.add(() => {
+        //     // This is a little hack that kind of simulates a point light
+        //     this.camera.getDirectionToRef(forward, camDir);
 
-            if(Math.abs(camDir.y) < 0.9) {
-                camDir.y = 0.0;
-                camDir.normalize();
-                this.shadowLight.direction = new Vector3(camDir.x, -0.4, camDir.z).normalize();
-            }
-        });
+        //     if(Math.abs(camDir.y) < 0.9) {
+        //         camDir.y = 0.0;
+        //         camDir.normalize();
+        //         this.shadowSpotLight.direction = new Vector3(camDir.x, -0.4, camDir.z).normalize();
+        //     }
+        // });
+
         hdrTexture.gammaSpace = false;
         hdrTexture.rotationY = Math.PI;
         

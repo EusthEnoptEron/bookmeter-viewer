@@ -1,4 +1,4 @@
-import { ActionManager, ExecuteCodeAction, Scene, Vector3 } from "@babylonjs/core";
+import { ActionManager, ExecuteCodeAction, Scene, Vector3, SceneOptimizer, SceneOptimizerOptions, ShadowsOptimization, ParticlesOptimization, TextureOptimization, RenderTargetsOptimization, HardwareScalingOptimization } from "@babylonjs/core";
 // import "@babylonjs/core/Debug/debugLayer";
 // import '@babylonjs/gui';
 // import '@babylonjs/inspector';
@@ -266,5 +266,43 @@ export class LibraryController {
                 }
             }
         });
+
+       
+        await PromiseUtil.Delay(max(groupings.map(g => g.length)) * 10 + 1000);
+
+        console.log("Initiate optimization...");
+        SceneOptimizer.OptimizeAsync(this._scene, this.getSceneOptimizations(), () => {
+            console.log("Optimization successful...");
+        }, () => {
+            console.error("Optimization failed...");
+        });
+
+    }
+
+    private getSceneOptimizations() {
+        var result = new SceneOptimizerOptions(30, 2000);
+
+        var priority = 0;
+        result.optimizations.push(new ShadowsOptimization(priority));
+
+        // Next priority
+        priority++;
+        result.optimizations.push(new ParticlesOptimization(priority));
+
+        // Next priority
+        priority++;
+        result.optimizations.push(new TextureOptimization(priority, 1024));
+
+        // Next priority
+        priority++;
+        result.optimizations.push(new RenderTargetsOptimization(priority));
+        result.optimizations.push(new TextureOptimization(priority, 512));
+
+
+        // Next priority
+        priority++;
+        result.optimizations.push(new HardwareScalingOptimization(priority, 4, 2));
+
+        return result;
     }
 }

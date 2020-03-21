@@ -115,8 +115,6 @@ export class BookGrouping extends AbstractMesh {
                     prevKey = key;
                 }
             }
-        } else {
-            console.log("No keys...");
         }
         
         this.width = Math.max(0.4, BookShelf.CalculateOptimalWidth(this._books.length, this._shelf.rows));
