@@ -39,11 +39,12 @@ export class MainController {
             .subscribe(uri => this.onUser(uri));
 
         this.router.onStatePart(1)
-            .pipe(filter(num => {
-                // @ts-ignore
-                return num === undefined || num === null || isFinite(num);
+            .pipe(map(num => {
+                const id = parseInt(num);
+                return isNaN(id)
+                    ? null
+                    : id;
             }))
-            .pipe(map(num => parseInt(num)))
             .subscribe(id => this.selectId(id));
 
         this.outlineContent = this.outlineContainer.querySelector('.target');
@@ -107,10 +108,10 @@ export class MainController {
         });
     }
 
-    private async selectId(id: number | undefined) {
+    private async selectId(id: number | null) {
         console.log("ON SELECT", id);
 
-        if(id === undefined || id === null) {
+        if(id === null) {
             this.onSelectionChanged(null);
             this.selectionManager.setSelection(null);
 
