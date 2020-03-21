@@ -72,8 +72,8 @@ export class SceneController {
         // this.shadowGenerator.blurKernel = 32;
         // this.shadowGenerator.useCloseExponentialShadowMap = true;
         this.shadowGenerator.usePercentageCloserFiltering = true
-        this.shadowGenerator.bias = 0.0001;
-        this.shadowGenerator.filteringQuality = ShadowGenerator.QUALITY_MEDIUM;
+        this.shadowGenerator.bias = 0.000005;
+        this.shadowGenerator.filteringQuality = ShadowGenerator.QUALITY_LOW;
 
         this.floorMesh = await this.buildFloor();
         this.ribbon = this.buildRibbon();
@@ -98,7 +98,7 @@ export class SceneController {
 
         this.shadowLight = new PointLight("shadowLight",  new Vector3(0, 3.0, 0.0), this.scene);
         this.shadowLight.range = 15.0;
-        this.shadowLight.intensity = 15.0;
+        this.shadowLight.intensity = 18.0;
 
         // this.shadowSpotLight = new SpotLight("shadowLight", new Vector3(0, 3.0, 0.0), Vector3.Down(), 260 / 180 * Math.PI, 1, this.scene);
         // this.shadowSpotLight.range = 15.0;
