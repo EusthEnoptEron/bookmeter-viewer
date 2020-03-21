@@ -34,6 +34,7 @@ export class MainController {
         this.scene = new SceneController(this.canvas);
         this.selectionManager = new SelectionManager();
         this.library = new LibraryController(this.scene, this.selectionManager);
+        this.outlineContent = this.outlineContainer.querySelector('.target');
         
         this.router.onStatePart(0)
             .subscribe(uri => this.onUser(uri));
@@ -46,8 +47,6 @@ export class MainController {
                     : id;
             }))
             .subscribe(id => this.selectId(id));
-
-        this.outlineContent = this.outlineContainer.querySelector('.target');
 
         this.selectionManager.onSelectionChanged.subscribe(selection => {
             if(selection === null || selection === undefined) {
