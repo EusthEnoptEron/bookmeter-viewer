@@ -40,6 +40,9 @@ export class SelectionManager {
     }
 
     setFocused(element: ISelectable) {
+        const idx = this._focuses.indexOf(element);
+        if(idx != -1) return;
+        
         this._focuses.push(element);
 
         if(this._focuses.length == 1) {
