@@ -12,7 +12,7 @@ import isbnUtils from 'isbn-utils';
 import _ from 'lodash';
 import { OpenBDBook } from '../model/OpenBD';
 import debugFn from 'debug';
-const debug = debugFn('BookService');
+const debug = debugFn('viewer:bmservice');
 
 export class BookService {
     private static readonly NUMBER_REGEX = /^\d+$/;

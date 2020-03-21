@@ -6,7 +6,7 @@ import path from 'path';
 import { AmazonInfos } from '../model/AmazonInfos';
 import { StoreEntry } from './StoreEntry';
 import debugFn from 'debug';
-const debug = debugFn('BookService');
+const debug = debugFn('viewer:cache');
 
 const STORE_NAME = 'store.json';
 export class Cache {

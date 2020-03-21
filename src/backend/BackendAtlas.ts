@@ -3,7 +3,7 @@ import { createCanvas, loadImage, Canvas, Image } from 'canvas';
 import Axios, { AxiosResponse } from 'axios';
 import { Cache } from './Cache';
 import debugFn from 'debug';
-const debug = debugFn('BackendAtlas');
+const debug = debugFn('viewer:atlas');
 
 export class BackendAtlas extends AtlasBase {
     private _canvas: Canvas;

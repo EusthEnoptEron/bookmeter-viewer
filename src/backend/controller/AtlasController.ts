@@ -4,10 +4,9 @@ import { BackendAtlas } from '../BackendAtlas';
 import { BookService } from '../BookService';
 import async from 'async';
 import  _ from 'lodash';
-import { RequestFileError } from '@babylonjs/core';
 import { Cache } from '../Cache';
 import debugFn from 'debug';
-const debug = debugFn('BookService');
+const debug = debugFn('viewer:atlascontroller');
 
 const DEFAULT_ATLAS_SIZE = 4096;
 const DEFAULT_ATLAS_FRAME_SIZE = 256;

@@ -6,7 +6,7 @@ import { PromiseUtil } from '../presentation/util/PromiseUtil';
 import debugFn from 'debug';
 
 const BASE_URL = 'https://www.amazon.co.jp/dp/';
-const debug = debugFn('AmazonClient');
+const debug = debugFn('viewer:amazon');
 
 export class AmazonClient {
 

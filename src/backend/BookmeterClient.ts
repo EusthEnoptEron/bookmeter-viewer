@@ -8,7 +8,7 @@ import async  from 'async';
 import { range } from 'lodash';
 import { UserInfo } from '../model/UserInfo';
 import debugFn from 'debug';
-const debug = debugFn('BookmeterClient');
+const debug = debugFn('viewer:bmclient');
 
 const READ_URL = 'https://bookmeter.com/users/%d/books/read.json?page=%d';
 const SEARCH_URL = 'https://bookmeter.com/users/search.json?name=%s';
