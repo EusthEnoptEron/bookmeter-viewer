@@ -6,9 +6,19 @@ import path from 'path';
 import { AmazonInfos } from '../model/AmazonInfos';
 import { StoreEntry } from './StoreEntry';
 import debugFn from 'debug';
-const debug = debugFn('viewer:cache');
+import S3 from 'aws-sdk/clients/s3';
 
+const debug = debugFn('viewer:cache');
 const STORE_NAME = 'store.json';
+
+const s3 = new S3({
+    endpoint: 'ams3.digitaloceanspaces.com',
+    accessKeyId: process.env.S3_KEY,
+    secretAccessKey: process.env.S3_SECRET
+});
+
+const hasS3 = !!process.env.S3_KEY;
+
 export class Cache {
     
     private static store: { [key: number]: StoreEntry } = {}
