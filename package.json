@@ -10,7 +10,7 @@
     "build:backend": "tsc -t ES2017",
     "watch:backend": "tsc -w -t ES2017",
     "backend": "node --max-old-space-size=4096 build/backend.js",
-    "start": "node build/backend.js -o release"
+    "start": "node --max-old-space-size=1024 build/backend.js -o release"
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",

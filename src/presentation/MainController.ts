@@ -1,11 +1,10 @@
 import isbnUtils from 'isbn-utils';
-import { startCase, TemplateExecutor } from 'lodash';
-import isEmpty from 'lodash/isEmpty';
+import { startCase, TemplateExecutor, isEmpty } from 'lodash';
 import { DateTime } from 'luxon';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { fromKana } from 'romaji';
-import { filter } from 'rxjs/operators';
+import { filter, map, take } from 'rxjs/operators';
 import { BackendClient } from '../backend/BackendClient';
 import { BookEntry } from '../model/BookEntry';
 import { Router } from '../util/Router';
@@ -36,13 +35,30 @@ export class MainController {
         this.selectionManager = new SelectionManager();
         this.library = new LibraryController(this.scene, this.selectionManager);
         
-        this.router.onState()
-            .pipe(filter(uri => !isEmpty(uri)))
+        this.router.onStatePart(0)
             .subscribe(uri => this.onUser(uri));
+
+        this.router.onStatePart(1)
+            .pipe(filter(num => {
+                // @ts-ignore
+                return num === undefined || num === null || isFinite(num);
+            }))
+            .pipe(map(num => parseInt(num)))
+            .subscribe(id => this.selectId(id));
 
         this.outlineContent = this.outlineContainer.querySelector('.target');
 
-        this.selectionManager.onSelectionChanged.subscribe(selection => this.onSelectionChanged(selection));
+        this.selectionManager.onSelectionChanged.subscribe(selection => {
+            if(selection === null || selection === undefined) {
+                // this is handled elsewhere
+                return;
+            }
+
+            // @ts-ignore
+            const book = selection as BookEntry;
+            this.router.navigatePart(1, book?.id?.toString());
+        });
+
         inputField.addEventListener('change', () => this.onValidate());
         inputField.addEventListener('keyup', () => this.onValidate());
         inputButton.addEventListener('click', () => this.onVisualize());
@@ -54,13 +70,12 @@ export class MainController {
         const closeBtn = outlineContainer.querySelector('.btn-close');
         closeBtn.addEventListener('click', e => {
             e.preventDefault();
-            
-            this.selectionManager.setSelection(null);
+            this.clearSelection();
         });
 
         window.addEventListener('keyup', (e) => {
             if(e.keyCode == 27) { // Escape
-                this.selectionManager.setSelection(null);
+                this.clearSelection();
             }
         });
         
@@ -72,36 +87,66 @@ export class MainController {
         this.onValidate();
     }
 
+    private clearSelection() {
+        console.log("CLEAR SELECTION");
+        const selectedInRouter = this.router.getPart(1);
+        const selectedInManager = this.selectionManager.currentSelection != null;
+
+        if(!selectedInRouter) return;
+
+        if(selectedInManager) {
+            this.router.navigateBack();
+        } else {
+            this.router.navigatePart(1, null);            
+        }
+    }
+
     private configureLoadingBar() {
         nProgress.configure({
             parent: '#container'
         });
     }
 
-    private async onSelectionChanged(selection: ISelectable) {
-        if(selection === null) {
+    private async selectId(id: number | undefined) {
+        console.log("ON SELECT", id);
+
+        if(id === undefined || id === null) {
+            this.onSelectionChanged(null);
+            this.selectionManager.setSelection(null);
+
+        } else {
+            const entries = await this.library.onEntries()
+                .pipe(filter(e => e.length > 0))
+                .pipe(take(1))
+                .toPromise();
+
+            const selectedEntry = entries.find(e => e.id == id);
+            this.onSelectionChanged(selectedEntry);
+        }
+    }
+
+    private async onSelectionChanged(selection: BookEntry | null) {
+        if(selection === null || selection === undefined) {
             this.outlineContent.innerHTML = "";
             this.outlineContainer.classList.remove("active");
         } else {
-            // @ts-ignore
-            const entry = selection as BookEntry;
-            const romaji = startCase(fromKana(entry.details?.titleReading ?? ""));
+            const romaji = startCase(fromKana(selection.details?.titleReading ?? ""));
 
             this.outlineContent.innerHTML = this.outlineTemplate({ 
-                image_url: entry.book.image_url,
-                titleReading: entry.details?.titleReading,
+                image_url: selection.book.image_url,
+                titleReading: selection.details?.titleReading,
                 titleReadingRomaji: romaji,
-                title: entry.book.title.replace(/\([^\)]+\)$/, ''),
-                subtitle: entry.book.title.replace(/^.+(\([^\)]+\))$/, '$1'),
-                author: entry.book.author.name,
-                publicationDate: StringUtils.FormatPublicationDate(entry.details?.publicationDate),
-                readDate: StringUtils.ParseBookmeterDate(entry.created_at).toLocaleString(DateTime.DATE_MED),
-                pageCount: entry.book.page.toLocaleString(),
-                registrationCount: entry.book.registration_count.toLocaleString(),
-                bookmeterUrl: 'https://www.bookmeter.com' + entry.book.path,
-                amazonUrl: entry.book.amazon_urls?.registration,
-                isbn: entry.details?.isbn
-                    ? isbnUtils.asIsbn13(entry.details.isbn, true)
+                title: selection.book.title.replace(/\([^\)]+\)$/, ''),
+                subtitle: selection.book.title.replace(/^.+(\([^\)]+\))$/, '$1'),
+                author: selection.book.author.name,
+                publicationDate: StringUtils.FormatPublicationDate(selection.details?.publicationDate),
+                readDate: StringUtils.ParseBookmeterDate(selection.created_at).toLocaleString(DateTime.DATE_MED),
+                pageCount: selection.book.page.toLocaleString(),
+                registrationCount: selection.book.registration_count.toLocaleString(),
+                bookmeterUrl: 'https://www.bookmeter.com' + selection.book.path,
+                amazonUrl: selection.book.amazon_urls?.registration,
+                isbn: selection.details?.isbn
+                    ? isbnUtils.asIsbn13(selection.details.isbn, true)
                     : 'Unknown'
             }); 
             this.outlineContainer.classList.add("active");
@@ -112,7 +157,8 @@ export class MainController {
                 details = await BackendClient.GetDetails((selection as any).book);
             }
 
-            if(this.selectionManager.currentSelection === selection) {
+            // @ts-ignore
+            if(this.router.getPart(1) === selection.id.toString()) {
                 // Hasn't changed!
 
                 const description = this.outlineContent.querySelector('.description');
@@ -126,6 +172,7 @@ export class MainController {
     }
 
     private async onUser(user: string) {
+        console.log("ON USER", user);
         this.errorContainer.textContent = '';
 
         if(!isEmpty(user)) {
@@ -150,6 +197,13 @@ export class MainController {
                 this.inputField.disabled = false;
                 this.inputButton.disabled = false;
             }
+        } else {
+            await this.library.hide();
+            this.library.clearEntries();
+
+            this.inputField.value = '';
+            this.inputField.disabled = false;
+            this.inputButton.disabled = false;
         }
     }
 

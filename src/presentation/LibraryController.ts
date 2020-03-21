@@ -20,10 +20,12 @@ import { CategoryBuilder } from './util/CategoryBuilder';
 import { Grouper } from "./util/Grouper";
 import { MemoryPool } from './util/MemoryPool';
 import { PromiseUtil } from './util/PromiseUtil';
+import { BehaviorSubject } from 'rxjs';
 
 
 export class LibraryController {
-    private _entries: BookEntry[];
+    private _entries = new BehaviorSubject<BookEntry[]>([]);
+    private _entities: BookEntity[] = [];
     private _initialized = false;
     private _bookBuilder: BookBuilder;
     private _scene: Scene;
@@ -120,12 +122,29 @@ export class LibraryController {
         this._bubbles.forEach(bubble => bubble.mesh.setEnabled(false));
     }
 
+    onEntries() {
+        return this._entries.asObservable();
+    }
+
+    clearEntries() {
+        if(this._entries.value.length == 0) {
+            return;
+        }
+
+        this._entries.next([]);
+        this._grouper.setEntries([]);
+
+        for(let book of this._entities) {
+            book.mesh.dispose();
+        }
+    }
+
     async setEntries(user: string, books: BookEntry[]) {
-        this._entries = books;
+        this._entries.next(books);
         this._user = user;
 
         const meshes = await this._bookBuilder.createMeshes(books, user);
-        const entities = books.map((book, i) => new BookEntity(book, meshes[i]));
+        const entities = this._entities = books.map((book, i) => new BookEntity(book, meshes[i]));
 
         for(let entity of entities) {
             const localEntity = entity;
@@ -178,6 +197,24 @@ export class LibraryController {
         this.show();
     }
     
+    async hide() {
+        if(!this.hasEntered) {
+            return;
+        }
+
+        if(this._abortController) {
+            this._abortController.abort();
+        }
+
+        await this.onLeaveLibrary();
+        this.hasEntered = false;
+
+        for(let grouping of this._groupings) {
+            grouping.hurlOutBooks();
+            this._groupingPool.despawn(grouping);
+        }
+    }
+
     async show() {
         if(this._abortController) {
             this._abortController.abort();

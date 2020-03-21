@@ -1,5 +1,6 @@
-import { trim } from 'lodash';
+import { get, set, trim, takeWhile, isEqual } from 'lodash';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 enum Mode {
     History,
@@ -10,8 +11,8 @@ export class Router {
     private root = '/';
     private mode: Mode;
 
-    private stateSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
-
+    private stateSubject: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+    
     constructor(options?: { mode?: Mode, root?: string }) {
         this.mode = window.history.pushState ? Mode.History : Mode.Hash;
 
@@ -19,11 +20,27 @@ export class Router {
         if(options?.root) this.root = options.root;
 
         this.update();
-        // this.listen();
+        this.listen();
     }
 
-    onState(): Observable<string> {
+    onState(): Observable<string[]> {
         return this.stateSubject.asObservable();
+    }
+
+    onStatePart(index: number): Observable<string> {
+        return this.stateSubject.asObservable()
+            .pipe(map(parts => get(parts, index)))
+            .pipe(distinctUntilChanged());
+    }
+
+    navigatePart(index: number, part: string) {
+        console.log(index, part);
+        let fragment = [...this.stateSubject.value];
+        set(fragment, index, part);
+        fragment = takeWhile(fragment, f => f);
+
+        console.log(this.stateSubject.value, fragment);
+        this.navigate(fragment.join('/'));
     }
 
     navigate(path: string) {
@@ -34,6 +51,14 @@ export class Router {
         }
 
         this.update();
+    }
+
+    getPart(index: number) {
+        return get(this.stateSubject.value, index);
+    }
+
+    navigateBack() {
+        window.history.back();
     }
 
     private getFragment() {
@@ -64,9 +89,10 @@ export class Router {
     private update() {
         let uri = this.getFragment();
         console.log("Check fragment...: " + uri);
-
-        if(this.stateSubject.value != uri) {
-            this.stateSubject.next(uri);
+        let parts = uri.split('/');
+        
+        if(!isEqual(this.stateSubject.value, parts)) {
+            this.stateSubject.next(parts);
         }
     }
     
