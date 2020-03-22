@@ -6,21 +6,15 @@ import path from 'path';
 import { AmazonInfos } from '../model/AmazonInfos';
 import { StoreEntry } from './StoreEntry';
 import debugFn from 'debug';
-import S3 from 'aws-sdk/clients/s3';
+import { ICachePosition, FileCachePosition } from './CachePosition';
+import { AWSCachePosition } from './AWSCachePosition';
+import { FallbackPosition } from './FallbackCachePosition';
 
 const debug = debugFn('viewer:cache');
-const STORE_NAME = 'store.json';
-
-const s3 = new S3({
-    endpoint: 'ams3.digitaloceanspaces.com',
-    accessKeyId: process.env.S3_KEY,
-    secretAccessKey: process.env.S3_SECRET
-});
-
-const hasS3 = !!process.env.S3_KEY;
+const bookStore = new AWSCachePosition('books.json');
+type CachingLevel = 'local' | 'both';
 
 export class Cache {
-    
     private static store: { [key: number]: StoreEntry } = {}
     private static userMapping: { [key: string]: number } = {}
     private static details: { [key: string]: AmazonInfos } = {}
@@ -28,6 +22,10 @@ export class Cache {
 
     static SetPath(path: string) {
         this.path = path;
+    }
+
+    static GetPath() {
+        return this.path;
     }
 
     public static GetUser(userName: string): number | null {
@@ -59,14 +57,10 @@ export class Cache {
         return entry.createdAt.diffNow().as('days') > 1;
     }
 
-    private static get storePath() {
-        return path.join(this.path, STORE_NAME);
-    }
-
     static async Load(): Promise<void> {
-        if(fs.existsSync(this.storePath)) {
+        if(await bookStore.exists()) {
             debug("Loading books from cache...");
-            const json = await fsp.readFile(this.storePath, 'utf-8');
+            const json = await bookStore.readString();
             const deserialized = JSON.parse(json);
     
             for(let key of Object.keys(deserialized)) {
@@ -80,31 +74,27 @@ export class Cache {
         return _.kebabCase(title.normalize('NFKC').replace(/[^\d](\d+?)[^\d].*$/g, '$1').replace(/[\s]/g, ''));
     }
 
-    static GetImage(url: string): Promise<Buffer | null> {
-        const path = this.GetImagePath(url);
-        if(fs.existsSync(path)) {
+    static async GetImage(url: string, cachingLevel: CachingLevel = 'local'): Promise<Buffer | null> {
+        const position = this.GetImagePosition(url, cachingLevel);
+        
+        if(await position.exists()) {
             debug(`Loading ${url} from cache...`);
-            return fsp.readFile(path);
+            return position.readBuffer();
         }
 
         return null;
     }
 
-    static async SaveImage(url: string, data: Buffer) {
+    static async SaveImage(url: string, data: Buffer, cachingLevel: CachingLevel = 'local') {
         if(!data.length) {
             throw "Invalid picture: " + url;
         }
 
-        const p = this.GetImagePath(url);
-        const dirname = path.dirname(p);
-        if(!fs.existsSync(dirname)) {
-            await fsp.mkdir(dirname, { recursive: true })
-        }
-
-        await fsp.writeFile(p, data, 'binary');
+        const p = this.GetImagePosition(url, cachingLevel);
+        await p.writeBuffer(data);
     }
 
-    private static GetImagePath(url: string) {
+    private static GetImagePosition(url: string, cachingLevel: CachingLevel) {
         let safeString = url.replace(/\W/g, "_");
         if(safeString.length > 150) {
             let firstPart = safeString.substr(0, 150);
@@ -112,24 +102,23 @@ export class Cache {
             safeString = firstPart + "#" + secondPart;
         }
 
-        return path.join(this.path, 'image-cache', safeString.substr(0, 2), safeString + ".bin");
+        const path = 'image-cache/' +  safeString.substr(0, 2) +"/"+ safeString + ".bin";
+        if(cachingLevel == 'local') {
+            return new FileCachePosition(path);
+        } else {
+            return new FallbackPosition(path);
+        }
     }
     
-    static async GetImageLastModified(url: string): Promise<DateTime | null> {
-        const path = this.GetImagePath(url);
-
-        if(!fs.existsSync(path)) {
-            return null;
-        }
-        
-        const stats = await fsp.lstat(path);
-        return DateTime.fromJSDate(stats.mtime);
+    static GetImageLastModified(url: string, cachingLevel: CachingLevel = 'local'): Promise<DateTime | null> {
+        const position = this.GetImagePosition(url, cachingLevel);
+        return position.getLastModified();
     }
 
     static async SaveBooks(): Promise<void> {
         debug("Saving books...");
         const json = JSON.stringify(this.store);
-        await fsp.writeFile(this.storePath, json);
+        await bookStore.writeString(json);
     }
 
     static GetDetails(asin: string): AmazonInfos | null {

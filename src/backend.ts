@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { NextFunction, Request, Response } from 'express';
 import compression  from 'compression';
 import path from 'path';
@@ -8,7 +10,6 @@ import { BookController } from './backend/controller/BookController';
 import { ProxyController } from './backend/controller/ProxyController';
 import { WebException } from './backend/WebException';
 
-dotenv.config();
 
 const o = process.argv.indexOf('-o');
 const publicPath = o == -1

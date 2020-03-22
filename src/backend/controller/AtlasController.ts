@@ -39,7 +39,7 @@ export class AtlasController extends Controller {
                 return;
             }
 
-            let buffer = await Cache.GetImage(req.url);
+            let buffer = await Cache.GetImage(req.url, 'both');
 
             if(buffer === null) {
                 const ids = idString.split('-').map(str => parseInt(str));
@@ -57,10 +57,10 @@ export class AtlasController extends Controller {
                 await async.mapLimit(books, 10, async book => await atlas.addTextureAsync(book.book.image_url));
 
                 buffer = atlas.toJpeg();
-                await Cache.SaveImage(cacheKey, buffer);
+                await Cache.SaveImage(cacheKey, buffer, 'both');
             }
 
-            const lastModifiedDate = await Cache.GetImageLastModified(cacheKey);
+            const lastModifiedDate = await Cache.GetImageLastModified(cacheKey, 'both');
             res.header('Content-Type', 'image/jpeg');
             res.header('Cache-Control', 'public, max-age=31536000');
             res.header('Last-Modified', lastModifiedDate.toHTTP());
