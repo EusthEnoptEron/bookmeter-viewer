@@ -34,19 +34,19 @@ export class MainController {
         this.scene = new SceneController(this.canvas);
         this.selectionManager = new SelectionManager();
         this.library = new LibraryController(this.scene, this.selectionManager);
+        this.outlineContent = this.outlineContainer.querySelector('.target');
         
         this.router.onStatePart(0)
             .subscribe(uri => this.onUser(uri));
 
         this.router.onStatePart(1)
-            .pipe(filter(num => {
-                // @ts-ignore
-                return num === undefined || num === null || isFinite(num);
+            .pipe(map(num => {
+                const id = parseInt(num);
+                return isNaN(id)
+                    ? null
+                    : id;
             }))
-            .pipe(map(num => parseInt(num)))
             .subscribe(id => this.selectId(id));
-
-        this.outlineContent = this.outlineContainer.querySelector('.target');
 
         this.selectionManager.onSelectionChanged.subscribe(selection => {
             if(selection === null || selection === undefined) {
@@ -107,10 +107,10 @@ export class MainController {
         });
     }
 
-    private async selectId(id: number | undefined) {
+    private async selectId(id: number | null) {
         console.log("ON SELECT", id);
 
-        if(id === undefined || id === null) {
+        if(id === null) {
             this.onSelectionChanged(null);
             this.selectionManager.setSelection(null);
 

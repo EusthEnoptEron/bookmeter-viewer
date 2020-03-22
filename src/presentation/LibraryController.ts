@@ -151,17 +151,14 @@ export class LibraryController {
             let actionManager = new ActionManager(entity.mesh.getScene());
             entity.mesh.position = new Vector3(0, 5, 0);
             entity.mesh.actionManager = actionManager;
-            
-            let timeOfFocus: number = null;
+            let hovered = false;
+
             //ON MOUSE ENTER
             entity.mesh.actionManager.registerAction(
                 new ExecuteCodeAction(
                     ActionManager.OnPointerOverTrigger,
                     () => {
-                        if(this._selectionManager.currentFocus != localEntity) {
-                            timeOfFocus = new Date().getTime();
-                        }
-
+                        hovered = true;
                         this._selectionManager.setFocused(localEntity);
                     }
                 )
@@ -170,7 +167,7 @@ export class LibraryController {
                 new ExecuteCodeAction(
                     ActionManager.OnPointerOutTrigger, 
                     () => { 
-                        timeOfFocus = null;
+                        hovered = false;
                         this._selectionManager.setUnfocused(localEntity) 
                     }
                 )
@@ -179,10 +176,12 @@ export class LibraryController {
                 new ExecuteCodeAction(
                     ActionManager.OnLeftPickTrigger, 
                     (e) => {
-                        if(e.sourceEvent?.pointerType === 'mouse' 
-                        || (timeOfFocus && new Date().getTime() - timeOfFocus) > 180) {
-                            this._selectionManager.setSelection(localEntity) 
+                        // LeftPick is sometimes called before OnPointerOver on mobile...
+                        if(localEntity.isInMotion || !hovered) {
+                            return;
                         }
+
+                        this._selectionManager.setSelection(localEntity) 
                     }
                 )
             );
