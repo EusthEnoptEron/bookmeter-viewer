@@ -12,7 +12,6 @@ const s3 = new S3({
     secretAccessKey: process.env.AWS_SECRET
 });
 
-const hasS3 = !!process.env.AWS_KEY;
 const prefix = process.env.AWS_PREFIX ?? '';
 const bucket = process.env.AWS_BUCKET ?? '';
 

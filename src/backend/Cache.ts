@@ -9,9 +9,13 @@ import debugFn from 'debug';
 import { ICachePosition, FileCachePosition } from './CachePosition';
 import { AWSCachePosition } from './AWSCachePosition';
 import { FallbackPosition } from './FallbackCachePosition';
+const hasS3 = !!process.env.AWS_KEY;
 
 const debug = debugFn('viewer:cache');
-const bookStore = new AWSCachePosition('books.json');
+const bookStore = hasS3
+    ? new AWSCachePosition('books.json')
+    : new FileCachePosition('books.json');
+    
 type CachingLevel = 'local' | 'both';
 
 export class Cache {
@@ -103,7 +107,7 @@ export class Cache {
         }
 
         const path = 'image-cache/' +  safeString.substr(0, 2) +"/"+ safeString + ".bin";
-        if(cachingLevel == 'local') {
+        if(cachingLevel == 'local' || !hasS3) {
             return new FileCachePosition(path);
         } else {
             return new FallbackPosition(path);
