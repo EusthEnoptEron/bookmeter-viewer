@@ -9,7 +9,7 @@
     "watch": "webpack --watch --config webpack.dev.js",
     "build:backend": "tsc -t ES2017",
     "watch:backend": "tsc -w -t ES2017",
-    "backend": "node --max-old-space-size=4096 build/backend.js",
+    "backend": "node --max-old-space-size=1024 build/backend.js",
     "start": "node --max-old-space-size=1024 build/backend.js -o release"
   },
   "devDependencies": {
@@ -87,6 +87,6 @@
     "uuid": "^7.0.2"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "EusthEnoptEron <umikarayattekita@yahoo.co.jp",
+  "license": "MIT"
 }

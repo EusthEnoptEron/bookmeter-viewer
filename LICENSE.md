@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2020 Eusthron
+Copyright (c) 2020 EusthEnoptEron
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

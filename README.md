@@ -1,24 +1,22 @@
 # bookmeter-viewer
-WebGL viewer for Bookmeter Libraries.
+WebGL viewer for [Bookmeter](https://bookmeter.com/) Libraries.
 
 # Building
 
-To keep the backend built:
+To build everything for production (will also start the server at [localhost](http://localhost:8080):
 
 ```
-> npm run watch:ts
+npm install
+npm run build:prod
+npm start
 ```
 
-To keep the frontend built:
+To start up the development environment use these respectively:
 
 ```
-> npm run watch
+npm run watch
 ```
 
-To start the backend:
-
 ```
-> npm run backend
+npm run watch:backend
 ```
-
-After that, head to `http://localhost:8080`.
