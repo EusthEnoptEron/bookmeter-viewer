@@ -239,6 +239,10 @@ export class CategoryBuilder {
 
         textMesh.parent = disc;
         textMesh.isVisible = false;
+
+        // This makes sure of the render order (text on top of disc)
+        textMesh.alphaIndex = 2;
+        disc.alphaIndex = 1;
         
         disc.isVisible = false;
         return disc;
