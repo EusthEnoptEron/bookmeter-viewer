@@ -59,8 +59,6 @@ export class LibraryController {
         this._selectionManager.onFocusChanged.subscribe(target => {
             this._textPanel.setTarget(target as BookEntity);
         });
-
-        this.setupCategories();
     }
 
     private setupCategories() {
@@ -99,6 +97,11 @@ export class LibraryController {
     }
 
     private async onEnterLibrary() {
+        if(!this._initialized) {
+            this.setupCategories();
+            this._initialized = true;
+        }
+        
         document.body.classList.add("playing");
         this.sceneController.interactive = true;
 
