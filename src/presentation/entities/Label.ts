@@ -1,4 +1,4 @@
-import { BaseTexture, Color3, DynamicTexture, Mesh, PBRMetallicRoughnessMaterial, Scene, VertexData } from '@babylonjs/core';
+import { BaseTexture, Color3, DynamicTexture, Mesh, PBRMetallicRoughnessMaterial, Scene, VertexData, StandardMaterial } from '@babylonjs/core';
 
 export class Label extends Mesh {
 
@@ -17,17 +17,20 @@ export class Label extends Mesh {
 
         if(options.baseTexture) {
             mat.baseTexture = options.baseTexture;
-            mat.metallicRoughnessTexture = this._texture;
-            // mat.metallic = 0.0;
-            // mat.roughness = 1.0;
-        } else {
-            mat.baseColor = Color3.Gray();
-            mat.baseTexture = this._texture;
-            mat.metallic = 1.0;
-            mat.roughness = 0.5;
         }
+
+        mat.emissiveTexture = this._texture;
+        mat.metallic = 0.0;
+        mat.roughness = 1.0;
+        mat.emissiveColor = Color3.White();
+        // else {
+        //     mat.baseColor = Color3.Gray();
+        //     mat.baseTexture = this._texture;
+        //     mat.metallic = 1.0;
+        //     mat.roughness = 0.5;
+        // }
     
-        mat.freeze();
+        // mat.freeze();
 
         
         this.redraw();
@@ -37,14 +40,18 @@ export class Label extends Mesh {
         const ctx = this._texture.getContext();
         const size = this._texture.getSize();
 
-        ctx.fillStyle = '#00FF00';
+        ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, size.width, size.height);
 
         ctx.font = 'bold 64px Ubuntu';
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = "#0099FF";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
         ctx.fillText(this._text, size.width * 0.5, size.height * 0.5, size.width * 0.9);
+        ctx.strokeText(this._text, size.width * 0.5, size.height * 0.5, size.width * 0.9);
+
         this._texture.update();
     }
     
