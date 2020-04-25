@@ -58,7 +58,7 @@ export class Cache {
     }
 
     private static IsEvicted(entry: StoreEntry) {
-        return entry.createdAt.diffNow().as('days') > 1;
+        return Math.abs(entry.createdAt.diffNow().as('days')) > 3;
     }
 
     static async Load(): Promise<void> {
