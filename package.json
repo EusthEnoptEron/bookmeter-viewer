@@ -76,7 +76,7 @@
     "express": "^4.17.1",
     "isbn-utils": "^1.1.0",
     "js-md5": "^0.7.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "luxon": "^1.22.0",
     "nprogress": "^0.2.0",
     "randomcolor": "^0.5.4",
