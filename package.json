@@ -73,7 +73,7 @@
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "event-stream": "^4.0.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "isbn-utils": "^1.1.0",
     "js-md5": "^0.7.3",
     "lodash": "^4.17.19",
